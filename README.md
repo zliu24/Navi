@@ -1,5 +1,6 @@
 # fourjs
 four.js is for augmented reality what three.js is for webgl.
+**temporary edit by Catherine Mullings**
 
 # Show Don't Tell
 * [examples/basic.html](http://DAQRI.github.io/fourjs/examples/basic.html)
