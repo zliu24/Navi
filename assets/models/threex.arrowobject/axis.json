@@ -1,0 +1,39 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"geometries": [
+		{
+			"uuid": "A74BD15D-4310-42C4-84C8-CC0982883168",
+			"type": "CylinderGeometry",
+			"radiusTop": 1,
+			"radiusBottom": 1,
+			"height": 1,
+			"radialSegments": 32,
+			"heightSegments": 1,
+			"openEnded": false
+		}],
+	"materials": [
+		{
+			"uuid": "6EE27429-2498-4CC3-BF7E-A8C31E4850F6",
+			"type": "MeshPhongMaterial",
+			"color": 16777215,
+			"ambient": 16777215,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30,
+			"opacity": 1,
+			"transparent": false,
+			"wireframe": false
+		}],
+	"object": {
+		"uuid": "0678624C-C65D-4679-BEC0-A29ECA22E7B2",
+		"name": "Cylinder 1",
+		"type": "Mesh",
+		"geometry": "A74BD15D-4310-42C4-84C8-CC0982883168",
+		"material": "6EE27429-2498-4CC3-BF7E-A8C31E4850F6",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+	}
+}

@@ -1,0 +1,41 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"object": {
+		"uuid": "51C1A6C5-D549-42DF-B40D-0777A9E98653",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "3627A398-C7C8-426C-9559-0E2CF99F370C",
+				"name": "Marker",
+				"userData": {
+					"type": "sprite2DObject"
+				},
+				"sceneVisible": true,
+				"type": "Sprite2DObject",
+				"parameters": {
+					"shape": "square",
+					"shapeColor": "#1054B5",
+					"text": "testldfgbnpfsgnxcbposfmgpxbsrmdbxmsdpbmp",
+					"fontSize": 90,
+					"fontFamily": "Arial",
+					"fontWeight": "bold",
+					"fontColor": "#ffffff",
+					"align": "center",
+					"shadowEnabled": false,
+					"margin": 0
+				},
+				"matrix": [50,0,0,0,0,50,0,0,0,0,50,0,0,11.134161949157715,0,1]
+			}]
+	}
+}

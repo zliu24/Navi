@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "version": 4.3,
+    "type": "Object",
+    "generator": "ObjectExporter"
+  },
+  "files": [],
+  "object": {
+    "uuid": "0E1CCFF3-6D5A-4F4E-8C52-0FF11F7CA91D",
+    "type": "Scene",
+    "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+    "children": [
+      {
+        "uuid": "A222E8A4-DDF0-4553-95B9-E9BB8942891D",
+        "name": "htmlmixer 1",
+        "type": "HtmlMultipleMixerPlane",
+        "url": "http://daqri.com",
+        "matrix": [50,0,0,0,0,50,0,0,0,0,50,0,0,18.75,0,1]
+      }]
+  }
+}

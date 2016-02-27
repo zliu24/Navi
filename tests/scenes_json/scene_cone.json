@@ -1,0 +1,51 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"geometries": [
+		{
+			"uuid": "15B02A71-494D-449A-BA91-FD11151E92E2",
+			"type": "CylinderGeometry",
+			"radiusTop": 0,
+			"radiusBottom": 10,
+			"height": 30,
+			"radialSegments": 32,
+			"heightSegments": 1,
+			"openEnded": false
+		}],
+	"materials": [
+		{
+			"uuid": "43291CD3-D094-4D59-AB5C-1E04CA243500",
+			"type": "MeshPhongMaterial",
+			"color": 15896521,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30
+		}],
+	"object": {
+		"uuid": "51C1A6C5-D549-42DF-B40D-0777A9E98653",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "009AEB64-3D8A-456C-A449-0DDF2FD508FB",
+				"name": "Cone",
+				"userData": {
+					"type": "cone"
+				},
+				"sceneVisible": true,
+				"type": "Mesh",
+				"geometry": "15B02A71-494D-449A-BA91-FD11151E92E2",
+				"material": "43291CD3-D094-4D59-AB5C-1E04CA243500",
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+			}]
+	}
+}

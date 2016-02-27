@@ -1,0 +1,47 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"geometries": [
+		{
+			"uuid": "62E5D08C-88EF-4B28-9290-37AF6223FED1",
+			"type": "CircleGeometry",
+			"radius": 10,
+			"segments": 20
+		}],
+	"materials": [
+		{
+			"uuid": "7FB61499-6366-4373-B1C4-080219F7942B",
+			"type": "MeshPhongMaterial",
+			"color": 16448127,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30
+		}],
+	"object": {
+		"uuid": "51C1A6C5-D549-42DF-B40D-0777A9E98653",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "D8D70C61-E878-456D-8702-53190A4040B8",
+				"name": "Circle",
+				"userData": {
+					"type": "circle"
+				},
+				"sceneVisible": true,
+				"type": "Mesh",
+				"geometry": "62E5D08C-88EF-4B28-9290-37AF6223FED1",
+				"material": "7FB61499-6366-4373-B1C4-080219F7942B",
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,21.14583396911621,0,1]
+			}]
+	}
+}

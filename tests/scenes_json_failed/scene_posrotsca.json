@@ -1,0 +1,75 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"geometries": [
+		{
+			"uuid": "9A3DABF4-0E0C-4938-9472-1DDDEC972CB5",
+			"type": "CylinderGeometry",
+			"radiusTop": 0,
+			"radiusBottom": 10,
+			"height": 30,
+			"radialSegments": 32,
+			"heightSegments": 1,
+			"openEnded": false
+		}],
+	"materials": [
+		{
+			"uuid": "6F542B73-4E09-4913-8BC0-66253A3E227A",
+			"type": "MeshPhongMaterial",
+			"color": 16777215,
+			"ambient": 15896521,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30,
+			"opacity": 1,
+			"transparent": false,
+			"wireframe": false
+		}],
+	"object": {
+		"uuid": "C40849FF-F031-4554-BA76-0B14DB3BD0EE",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "1362B5E3-F7DD-43D7-966A-F1570817BE04",
+				"name": "Cone",
+				"userData": {
+					"type": "cone"
+				},
+				"sceneVisible": true,
+				"type": "Mesh",
+				"geometry": "9A3DABF4-0E0C-4938-9472-1DDDEC972CB5",
+				"material": "6F542B73-4E09-4913-8BC0-66253A3E227A",
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+				"posrotscaAnimation": {
+					"stepDuration": 1,
+					"loopMode": "repeat",
+					"steps": [
+						{
+							"position": [0,0,0],
+							"quaternion": [0,0,0,1],
+							"scale": [1,1,1]
+						},
+						{
+							"position": [0,0,-133.0502117747781],
+							"quaternion": [0,0,0,1],
+							"scale": [1,1,1]
+						},
+						{
+							"position": [-42.25816926712105,0,-131.37863448642457],
+							"quaternion": [0,0,0,1],
+							"scale": [1,1,1]
+						}]
+				}
+			}]
+	}
+}

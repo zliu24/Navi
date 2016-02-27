@@ -1,0 +1,59 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"geometries": [
+		{
+			"uuid": "EE561A1A-79A5-4189-A0D9-83A0D4B6179A",
+			"type": "TextGeometry",
+			"text": "Hello World!",
+			"font": "helvetiker",
+			"weight": "normal",
+			"size": 1,
+			"height": 0.4,
+			"bevelThickness": 0.1,
+			"bevelSize": 0.08,
+			"bevelEnabled": false,
+			"bevelSegments": 2,
+			"curveSegments": 6
+		}],
+	"materials": [
+		{
+			"uuid": "83F732CA-F90A-4891-AB14-8CB79F4EAA31",
+			"type": "MeshPhongMaterial",
+			"color": 16777215,
+			"ambient": 16777215,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30,
+			"opacity": 1,
+			"transparent": false,
+			"wireframe": false
+		}],
+	"object": {
+		"uuid": "0227F0FE-D478-4AE9-A6C1-F0D9974C324C",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "AEA1D831-592C-4BCD-B3F1-F46DADF3C849",
+				"name": "3D Text",
+				"userData": {
+					"type": "text"
+				},
+				"sceneVisible": true,
+				"type": "Mesh",
+				"geometry": "EE561A1A-79A5-4189-A0D9-83A0D4B6179A",
+				"material": "83F732CA-F90A-4891-AB14-8CB79F4EAA31",
+				"matrix": [10,0,0,0,0,10,0,0,0,0,10,0,0,0,0,1]
+			}]
+	}
+}

@@ -1,0 +1,66 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"materials": [
+		{
+			"uuid": "969D532D-7B1A-4C61-8534-CB2BD1362018",
+			"type": "MeshLambertMaterial",
+			"color": 16777215,
+			"ambient": 16777215,
+			"emissive": 0,
+			"side": 2,
+			"opacity": 1,
+			"transparent": false,
+			"wireframe": false
+		}],
+	"object": {
+		"uuid": "B5712394-0DAE-4A5B-9FA0-27653EFE43C1",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "86F3231E-768F-4F29-AE14-605BF5E91FA8",
+				"name": "3D Arrow Pivot",
+				"userData": {
+					"type": "arrow3DObject"
+				},
+				"sceneVisible": true,
+				"type": "ArrowModelObject",
+				"parameters": {
+					"type": "3D",
+					"curve": "right"
+				},
+				"material": "969D532D-7B1A-4C61-8534-CB2BD1362018",
+				"child": {
+					"position": {
+						"x": 10.303943746373136,
+						"y": 0,
+						"z": 0
+					},
+					"rotation": {
+						"_x": 0,
+						"_y": 0,
+						"_z": 0,
+						"_order": "XYZ"
+					},
+					"scale": {
+						"x": 1,
+						"y": 1,
+						"z": 1
+					},
+					"uuid": "457030F9-08A5-4E15-93EB-BB6C3918A67F",
+					"visible": true
+				},
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,14.416125297546387,33.174583435058594,0,1]
+			}]
+	}
+}

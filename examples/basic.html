@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+<script src="../dist/jquery-1.11.0.min.js"></script>
+<script src="../dist/fourjs-1.0.0.js"></script>
+<script>window.SIGNALS = signals;</script>
+
+<style>
+.fourjs {
+        position: relative;
+        margin: 10px auto 10px auto;
+}
+
+.fourjs-html {
+        position: absolute;
+        display: none;
+        z-index: 1000;
+        pointer-events: none;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
+}
+
+.fourjs-html * {
+        position: relative;
+        pointer-events: all;
+}
+
+.fourjs-container {
+        position: relative;
+        width: 524px;
+        height: 400px;
+        border: solid 1px #494a4c;
+}
+/*--- Hide loading indicator ----*/
+.loading-indicator{
+        display:none !important;
+}
+</style>
+
+<body>
+
+<div class="fourjs">
+	<div class="fourjs-container"></div>
+	<div class="fourjs-html"></div>
+</div>
+<div style='position:absolute; top: 0; width: 100%; text-align: center; font-family: Monospace; font-weight: bold; padding;'>
+  <a href="https://github.com/DAQRI/fourjs" target="_blank">four.js</a>
+  - Basic example written for educational purpose
+  - perfect place to start looking at the code
+</div>
+<script>
+	var sceneUrl	= '../tests/scenes_json/scene_circle.json'
+        loadSceneUrl(sceneUrl);
+
+        // Load JSON And parse it
+        function loadSceneUrl(url){
+                var request  = new XMLHttpRequest();
+                request.onload  = function(){
+                        var content   = request.responseText;
+                        // Simulate task (not important)
+                        var fakeTask = {
+                                app_id: 2,
+                                created_at: "2015-11-17T19:51:49.000Z",
+                                description: null,
+                                enterprise_id: 3,
+                                id: 1506,
+                                input_label: "Capture the Wall",
+                                input_options: {},
+                                input_type: "media",
+                                name: "This is the first task",
+                                project_id: 891,
+                                published_at: null,
+                                step_id: 849,
+                                threejsScene:{},
+                                updated_at: "2015-11-18T00:27:51.210Z"
+                        }
+                        fakeTask.threejsScene  = JSON.parse(content);
+                        show4DTask(fakeTask);
+                };
+                request.open("get", url, true);
+                request.send();
+        }
+
+        // Display Scene with FourJS
+        FourJS.Utils.platform = 'desktop';
+        var show4DTask = function(task) {
+        	var fourJsSceneViewer  = FourJS.SceneViewer();
+                // Callback called when scene is loaded
+                var viewerConfig ={
+			               onLoad: function(scene) {
+                           console.log('Scene loaded', scene)
+                	        }
+		              };
+
+                viewerConfig.domElement = document.querySelectorAll(".fourjs-container");
+                viewerConfig.debugLevel = 2;
+                viewerConfig.showGrid = true;
+                viewerConfig.showTarget = true;
+                viewerConfig.showScanningIndicator = false;
+                viewerConfig.platform = "desktop";
+
+                fourJsSceneViewer.initialize(viewerConfig);
+
+                fourJsSceneViewer.load({
+                        task: task,
+                        orbitControls: true,
+                        showGrid: true
+                });
+        };
+</script></body>
+</html>
