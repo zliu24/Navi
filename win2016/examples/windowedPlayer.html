@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+<script src='../vendor/threejs/original/build/three.js'></script>
+<script src='../vendor/threejs/original/examples/js/controls/OrbitControls.js'></script>
+
+<!-- <script src='../../../Storage.js'></script> -->
+<!-- WIP -->
+
+<script src="../vendor/threejs/original/examples/js/BufferGeometryUtils.js"></script>
+
+<script src="../vendor/threejs/original/examples/js/exporters/BufferGeometryExporter.js"></script>
+<script src="../vendor/threejs/original/examples/js/exporters/TypedGeometryExporter.js"></script>
+<script src="../vendor/threejs/original/examples/js/renderers/WebGLRenderer3.js"></script>
+
+<script src="../vendor/threejs/patched/examples/js/exporters/GeometryExporter.js"></script>
+<script src="../vendor/threejs/patched/examples/js/exporters/ObjectExporter.js"></script>
+<script src="../vendor/threejs/patched/examples/js/exporters/TextureExporter.js"></script>
+
+<script src="../vendor/threejs/original/examples/js/exporters/MaterialExporter.js"></script>
+<script src="../vendor/threejs/patched/examples/js/loaders/OBJLoader.js"></script>
+<script src="../vendor/threejs/patched/src/loaders/ObjectLoader.js"></script>
+<script src="../vendor/threejs/patched/examples/js/loaders/MaterialLoader.js"></script>
+<script src="../vendor/threejs/patched/examples/js/loaders/TextureLoader.js"></script>
+
+<script src="../src/threex/threex.posrotscaanimation/threex.posrotsca.js"></script>
+<script src="../src/threex/threex.posrotscaanimation/threex.posrotscaanimation.js"></script>
+
+
+<!-- <script src="../src/threex/threex.arrowobject/threex.arrowobject.js"></script>
+<script src="../src/threex/threex.arrowobject/threex.arrowobjectcontrols.js"></script> -->
+
+
+<script src="../src/threex/threex.textgeometry/threex.textgeometry.js"></script>
+
+<!-- <script src="../src/threex/threex.brushplane/threex.brushplane.js"></script>
+<script src="../src/threex/threex.brushplane/threex.brushplanedrawing.js"></script>
+<script>THREEx.BrushPlaneDrawing.baseUrl = '../../../tmp/threex.brushplane/'</script> -->
+
+
+<script src='../src/threex/threex.text/fonts/droid/droid_serif_regular.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/gentilis_bold.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/gentilis_regular.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/optimer_bold.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/optimer_regular.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/helvetiker_bold.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/helvetiker_regular.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/droid/droid_sans_regular.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/droid/droid_sans_bold.typeface.js'></script>
+<script src='../src/threex/threex.text/fonts/droid/droid_serif_bold.typeface.js'></script>
+
+<!-- <script src="../src/threex/threex.callout/threex.callout.js"></script>
+<script src="../src/threex/threex.callout/threex.calloutgeometry.js"></script>
+<script src="../src/threex/threex.callout/examples/bower_components/threex.dynamictexture/threex.dynamictexture.js"></script>
+-->
+
+<script src='../src/threex/threex.videoobject/threex.videoobject.js'></script>
+<script src='../src/threex/threex.imageobject/threex.imageobject.js'></script>
+<script src='../src/threex/threex.audioobject.js'></script>
+
+
+<script src='../src/threex/threex.tweencontrols/threex.tweencontrols.js'></script>
+
+<!-- <script src='../src/threex/threex.htmlmixer/threex.htmlmixer.js'></script>
+<script src='../src/threex/threex.htmlmixer/threex.htmlmultiplemixer.js'></script>
+<script src='../src/threex/threex.htmlmixer/threex.htmlmixerhelpers.js'></script>
+<script src='../src/threex/threex.htmlmixer/threex.htmlmixerviewers.js'></script>
+<script>
+THREEx.HtmlMixer.convertToViewerUrl.baseUrl  = '/4dstudio/bower_components/threex.htmlmixer/examples/'
+</script>
+<script src='../../../support/renderers/CSS3DRenderer.js'></script>
+
+<script src='../src/threex/threex.htmlmixer/threex.htmlmixer.js'></script> -->
+
+
+<script src="../src/threex/threex.studioplayer/threex.studioplayer.js"></script>
+
+
+<!--  NEW THREEx -->
+
+<script src="../src/threex/threex.utils/threex.utils.js"></script>
+<script src="../src/threex/threex.utils/threex.utilsClone.js"></script>
+<script src="../src/threex/threex.utils/threex.utilsUpdate.js"></script>
+
+
+<script src="../src/threex/threex.dynamictexture/threex.dynamictexture.js"></script>
+<script src="../src/threex/threex.dynamictexture/threex.text2dobject.js"></script>
+
+<script src="../src/threex/threex.sprite2dobject.js"></script>
+
+<script src="../src/threex/threex.arrowmodelobject/threex.arrowmodelobject.js"></script>
+
+
+
+<script src="../vendor/signals.min.js"></script>
+<script>window.SIGNALS = signals;</script>
+
+<!-- STUDIOBEHAVIOR -->
+<!-- <script src='../src/threex/threex.studiobehavior/threex.behaviorcontext.js'></script>
+<script src='../src/threex/threex.studiobehavior/threex.behaviorobject3d.js'></script>
+<script src='../src/threex/threex.studiobehavior/threex.behaviorobject3dexporter.js'></script>
+<script src='../src/threex/threex.studiobehavior/threex.behaviorobject3dloader.js'></script>
+<script src='../src/threex/threex.studiobehavior/threex.behaviorscript.js'></script>
+<script src='../src/threex/threex.studiobehavior/threex.behavioraction.js'></script>
+<script src='../src/threex/threex.studiobehavior/threex.behaviortrigger.js'></script>
+<script src='../src/threex/threex.studiobehavior/threex.behaviordialog.js'></script>
+<script src='../src/threex/threex.studiobehavior/examples/scripts/threex.behaviortriggertimer.js'></script>
+<script src='../src/threex/threex.studiobehavior/examples/scripts/threex.behaviortriggerclick.js'></script>
+<script src='../src/threex/threex.studiobehavior/examples/scripts/threex.behavioractionvisibletoggle.js'></script> -->
+
+
+
+<style>
+body {
+        background-color: lightgrey;
+}
+#header  {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+        background-color: darkblue;
+}
+#header .title {
+        color: white;
+        font-family: arial;
+        font-weight: bold;
+        font-size: 300%;
+        text-align: center;
+}
+#header input[type=button] {
+        font-size: 150%;
+        margin-top: 5px;
+        background-color: blue;
+        color: white;
+}
+#header #playButton {
+        float: right;
+        position: absolute;
+        right: 1em;
+}
+#header #refreshButton {
+        float: left;
+        position: absolute;
+        left: 1em;
+}
+</style>
+<div id='header'>
+        <input type="button" id='refreshButton' value="refresh"/>
+        <input type="button" id='playButton' value="play"/>
+        <div class='title'>Studio Player</div¡>
+        </div>
+        <body style='margin: 0px; overflow: hidden; text-align:center;'>
+        <script>
+        //////////////////////////////////////////////////////////////////////////////////
+        //    Init
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        //init arrows
+        THREEx.ArrowModelObject.modelsUrl = "../src/threex/threex.arrowmodelobject";
+        var Daqri ={
+          IndustrialApp:{
+            getFourJSSceneViewer:function(){return {getRenderer:function(){return {getScene:function(){return scene;}}}}}
+          }
+        }
+        THREEx.ArrowModelObject.loadModels();
+        
+        
+        // array of functions for the rendering loop
+        var onRenderFcts= [];
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    Comment                //
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        var player  = new THREEx.StudioPlayer()
+        // debugger;
+        var scene  = player.scene
+        var camera  = player.camera
+        
+        player.camera.position.z  = 200;
+        
+        var controls = new THREE.OrbitControls(camera)
+        
+        // configure renderer
+        var renderer    = player.renderer
+        renderer.setClearColor(new THREE.Color('lightgrey'), 1)
+        renderer.setClearColor(new THREE.Color('grey'), 1)
+        // renderer.setClearColor(new THREE.Color('black'), 0)
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        // FIXME: this global is a kludge to get the ```editor.multipleMixerContext```
+        // - TODO later put a player in the editor and use ```player.multipleMixerContext```
+        // - short term solution
+        // - transition: var editor = player; in standalone player
+        window.editor  = player
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    Camera controls
+        //////////////////////////////////////////////////////////////////////////////////
+        // onRenderFcts.push(function(){
+        //         if( player.isPaused === true )  return
+        //         if( player.controlsEnabled === false )  return
+        //         
+        //         var now         = Date.now()/1000
+        //         var angle       = now * Math.PI*2 * 0.1
+        //         var radius      = 200
+        //         var camera      = player.camera
+        //         camera.position.x       = Math.cos(angle)*radius
+        //         camera.position.y       = 0
+        //         camera.position.z       = Math.sin(angle)*radius
+        //         camera.lookAt(new THREE.Vector3(0,0,0))
+        // })
+        
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    Comment                //
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        player.signals.clearedScene.add(function(){
+                var scene  = player.scene
+                
+                // define default ambient light
+                var object3d             = new THREE.AmbientLight(0x404040);
+                object3d.name            = "Default AmbientLight";
+                object3d.serialisable    = false;
+                object3d.cannotBeEdited  = true;
+                scene.add(object3d);
+                
+                // add a directional object3d
+                var object3d = new THREE.DirectionalLight(0xffffff, 1 );
+                object3d.target.name = 'Default DirectionalLight target';
+                object3d.target.serialisable    = false;
+                object3d.target.cannotBeEdited  = true;
+                scene.add(object3d.target);
+                object3d.name = 'Default DirectionalLight';
+                object3d.position.set( 1, 1, 1 )
+                object3d.serialisable    = false;
+                object3d.cannotBeEdited  = true;
+                scene.add(object3d);
+        })
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    htmlmixer
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        // init htmlmixer
+        // TODO: uncomment if we ever restore HTMLMixer
+        // htmlmixer_init_player(player)
+        
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    handle permanent event video
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        // Dirty port from editor. have that centralized and loaded in editor, and standalone player
+        // - FIXME: this code is in the editor too. code duplication is no good
+        // - TODO: related to editor signals
+        // - maybe with a var editor = player; i can provide a compatibility layer
+        // - have a signals in player
+        onRenderFcts.push(function(){
+                scene.traverse(function(object){
+                        // if selected object isnt' THREEx.VideoObject, do nothing
+                        if( object instanceof THREEx.VideoObject === false )  return
+                        // actually update the animation
+                        object.update();
+                })
+        })
+        
+        player.signals.onStart.add(function(){
+                scene.traverse(function(object){
+                        // if selected object isnt' THREEx.VideoObject, do nothing
+                        if( object instanceof THREEx.VideoObject === false )  return
+                        // actually update the animation
+                        object.video.play();
+                })
+        })
+        
+        player.signals.onStop.add(function(){
+                scene.traverse(function(object){
+                        // if selected object isnt' THREEx.VideoObject, do nothing
+                        if( object instanceof THREEx.VideoObject === false )  return
+                        // actually update the animation
+                        object.video.pause()
+                })
+        })
+        
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    handle permanent event audio
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        // Dirty port from editor. have that centralized and loaded in editor, and standalone player
+        // - FIXME: this code is in the editor too. code duplication is no good
+        // - TODO: related to editor signals
+        // - maybe with a var editor = player; i can provide a compatibility layer
+        // - have a signals in player
+        
+        player.signals.onStart.add(function(){
+                scene.traverse(function(object){
+                        // if selected object isnt' THREEx.AudioObject, do nothing
+                        if( object instanceof THREEx.AudioObject === false )  return
+                        // actually update the animation
+                        console.log(object)
+                        debugger;
+                        object.play();
+                })
+        })
+        
+        player.signals.onStop.add(function(){
+                scene.traverse(function(object){
+                        // if selected object isnt' THREEx.AudioObject, do nothing
+                        if( object instanceof THREEx.AudioObject === false )  return
+                        // actually update the animation
+                        object.stop()
+                })
+        })
+        //////////////////////////////////////////////////////////////////////////////////
+        //    handle permanent event video
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        // Dirty port from editor. have that centralized and loaded in editor, and standalone player
+        // - FIXME: this code is in the editor too. code duplication is no good
+        // - TODO: related to editor signals
+        // - maybe with a var editor = player; i can provide a compatibility layer
+        // - have a signals in player
+        onRenderFcts.push(function(){
+                scene.traverse(function(object){
+                        // if selected object isnt' THREEx.VideoObject, do nothing
+                        if( object.posrotscaAnimation instanceof THREEx.PosrotscaAnimation === false )  return
+                        // actually update the animation
+                        object.posrotscaAnimation.update();
+                })
+        })
+        
+        player.signals.onStart.add(function(){
+                scene.traverse(function(object){
+                        // if selected object.posrotsca isnt' THREEx.VideoObject, do nothing
+                        if( object.posrotscaAnimation instanceof THREEx.PosrotscaAnimation === false )  return
+                        // actually update the animation
+                        object.posrotscaAnimation.play()
+                })
+        })
+        
+        player.signals.onStop.add(function(){
+                scene.traverse(function(object){
+                        // if selected object.posrotsca isnt' THREEx.VideoObject, do nothing
+                        if( object.posrotscaAnimation instanceof THREEx.PosrotscaAnimation === false )  return
+                        // actually update the animation
+                        object.posrotscaAnimation.stopPlaying()
+                        object.posrotscaAnimation.setOriginPosition(object)
+                })
+        })        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    Comment                //
+        //////////////////////////////////////////////////////////////////////////////////
+        // var storage  = new Storage()
+        // 
+        // //
+        // var indexedDB  = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        // var hasIndexedDB= indexedDB ? true : false
+        // if( hasIndexedDB ){
+        //   // honor loading from editor Storage - if no file is provided
+        //   storage.init(function () {
+        //     console.log('storage init')
+        // 
+        //     // if urlHasFile, returns now
+        //     var urlHasFile  = location.hash.slice(1) ? true : false
+        //     if( urlHasFile )  return
+        // 
+        //     reloadSceneStorage()
+        //   })
+        // }
+        
+        
+        // honor location.hash on page load
+        var urlHasFile  = location.hash.slice(1) ? true : false
+        if( urlHasFile ){
+                var sceneUrl  = location.hash.slice(1)
+                reloadSceneUrl(sceneUrl)
+        }
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    Event binding for buttons
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        // bind button
+        document.querySelector('#refreshButton').addEventListener('click', function(){
+                location.reload()
+        }, false)
+        document.querySelector('#playButton').addEventListener('click', tooglePlayer, false)
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    Helpers
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        function tooglePlayer(){
+                if( player.isRunning() )  player.stop()
+                else        player.start()
+        }
+        
+        /**
+        * reload the scene from editor Storage
+        */
+        function reloadSceneStorage(){
+                storage.get(function( state ){
+                        console.log('got state', state)
+                        
+                        var loader  = new THREE.ObjectLoader();
+                        var newScene  = loader.parse( state );
+                        console.log('newScene', newScene)
+                        console.log('newScene', newScene.children.length)
+                        
+                        reloadScene(newScene)
+                });
+        }
+        
+        /**
+        * load a scene json from a url
+        *
+        * @param {String} url - the url to load
+        */
+        function reloadSceneUrl(url){
+                var request  = new XMLHttpRequest();
+                request.onload  = function(){
+                        var content   = request.responseText;
+                        var state  = JSON.parse(content)
+                        
+                        var loader  = new THREE.ObjectLoader();
+                        var newScene  = loader.parse( state );
+                        reloadScene(newScene)
+                };
+                request.open("get", url, true);
+                request.send();
+        }
+        
+        /**
+        * Reload a THREE.Scene
+        *
+        * @param {THREE.Scene} newScene - the scene to load
+        */
+        function reloadScene(newScene){
+                console.log('newScene', newScene)
+                player.clearScene()
+                player.setScene(newScene)
+        }
+        
+        
+        
+        //////////////////////////////////////////////////////////////////////////////////
+        //    render the whole thing on the page
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        // handle window resize
+        window.addEventListener('resize', function(){
+                var renderer  = player.renderer
+                renderer.setSize( window.innerWidth, window.innerHeight )
+                var camera  = player.camera
+                camera.aspect  = window.innerWidth / window.innerHeight
+                camera.updateProjectionMatrix()
+        }, false)
+        
+        // render the scene
+        onRenderFcts.push(function(){
+                player.render();
+        })
+        
+        // run the rendering loop
+        var lastTimeMsec= null
+        requestAnimationFrame(function animate(nowMsec){
+                // keep looping
+                requestAnimationFrame( animate );
+                // measure time
+                lastTimeMsec  = lastTimeMsec || nowMsec-1000/60
+                var deltaMsec  = Math.min(200, nowMsec - lastTimeMsec)
+                lastTimeMsec  = nowMsec
+                // call each update function
+                onRenderFcts.forEach(function(onRenderFct){
+                        onRenderFct(deltaMsec/1000, nowMsec/1000)
+                })
+        })
+        console.log(scene)
+        </script></body>

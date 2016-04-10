@@ -1,0 +1,124 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [
+		{
+			"uuid": null,
+			"uuids": [
+				"573B1921-579A-40C6-89B3-03FF746BB899"],
+			"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/30/file.geo20151210-62347-1j8g9v.geo",
+			"id": 30,
+			"file": {
+				"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/30/file.geo20151210-62347-1j8g9v.geo",
+				"thumb": {
+					"url": null
+				},
+				"small": {
+					"url": null
+				},
+				"show": {
+					"url": null
+				},
+				"vws": {
+					"url": null
+				},
+				"mobile": {
+					"url": null
+				}
+			},
+			"name": "file.geo",
+			"size": 2384757,
+			"status_data": {},
+			"video_m4v_url": null,
+			"video_data": null,
+			"audio_mp3_url": null,
+			"type_of": "Geometry",
+			"audio_length": null,
+			"checksum": null
+		},
+		{
+			"uuid": null,
+			"uuids": [
+				"573B1921-579A-40C6-89B3-03FF746BB899"],
+			"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/29/mWheel_model.obj",
+			"id": 29,
+			"file": {
+				"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/29/mWheel_model.obj",
+				"thumb": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/29/thumb_mWheel_model.obj"
+				},
+				"small": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/29/small_mWheel_model.obj"
+				},
+				"show": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/29/show_mWheel_model.obj"
+				},
+				"vws": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/29/vws_mWheel_model.obj"
+				},
+				"mobile": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/29/mobile_mWheel_model.obj"
+				}
+			},
+			"name": "mWheel_model.obj",
+			"size": 672975,
+			"status_data": {
+				"status": "Ready",
+				"check": "upload_to_s3",
+				"obj": {}
+			},
+			"video_m4v_url": null,
+			"video_data": null,
+			"audio_mp3_url": null,
+			"type_of": "Model",
+			"audio_length": null,
+			"checksum": null,
+			"file_extension": ".obj"
+		}],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"geometries": [
+		{
+			"uuid": "573B1921-579A-40C6-89B3-03FF746BB899",
+			"type": "BufferGeometry"
+		}],
+	"materials": [
+		{
+			"uuid": "F6F3BD5D-26DC-458D-A80F-CBB35E1E73AE",
+			"type": "MeshPhongMaterial",
+			"name": "Material__311124993",
+			"color": 16777215,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30
+		}],
+	"object": {
+		"uuid": "51C1A6C5-D549-42DF-B40D-0777A9E98653",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "3AE8705E-A796-460D-B58C-F9CB54191CB9",
+				"name": "mWheel_model.obj",
+				"sceneVisible": true,
+				"type": "Object3D",
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,34.47678756713867,0,1],
+				"children": [
+					{
+						"uuid": "D199045D-7CBC-45A5-8180-E1469961A1AD",
+						"name": "mWheel",
+						"sceneVisible": true,
+						"type": "Mesh",
+						"geometry": "573B1921-579A-40C6-89B3-03FF746BB899",
+						"material": "F6F3BD5D-26DC-458D-A80F-CBB35E1E73AE",
+						"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+					}]
+			}]
+	}
+}

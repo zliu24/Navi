@@ -1,0 +1,51 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"geometries": [
+		{
+			"uuid": "521D203F-0157-40C6-ADAF-28812B6638CB",
+			"type": "CylinderGeometry",
+			"radiusTop": 10,
+			"radiusBottom": 10,
+			"height": 30,
+			"radialSegments": 32,
+			"heightSegments": 1,
+			"openEnded": false
+		}],
+	"materials": [
+		{
+			"uuid": "2D64D31A-EB45-4BDF-8D31-897CC68ED89B",
+			"type": "MeshPhongMaterial",
+			"color": 15896521,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30
+		}],
+	"object": {
+		"uuid": "51C1A6C5-D549-42DF-B40D-0777A9E98653",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "990AA78C-EFA2-4E16-90CC-FA7BE9F7D2C3",
+				"name": "Cylinder",
+				"userData": {
+					"type": "cylinder"
+				},
+				"sceneVisible": true,
+				"type": "Mesh",
+				"geometry": "521D203F-0157-40C6-ADAF-28812B6638CB",
+				"material": "2D64D31A-EB45-4BDF-8D31-897CC68ED89B",
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+			}]
+	}
+}

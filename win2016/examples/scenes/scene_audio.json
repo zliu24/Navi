@@ -1,0 +1,74 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [
+		{
+			"uuid": "E1C9F610-80DE-4212-8410-9FFCE8D4B958",
+			"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/447/basic_audio01.mp3",
+			"id": 447,
+			"file": {
+				"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/447/basic_audio01.mp3",
+				"thumb": {
+					"url": null
+				},
+				"small": {
+					"url": null
+				},
+				"show": {
+					"url": null
+				},
+				"vws": {
+					"url": null
+				},
+				"mobile": {
+					"url": null
+				}
+			},
+			"name": "basic_audio01.mp3",
+			"size": 102378,
+			"status_data": {
+				"status": "Ready",
+				"check": "upload_to_s3",
+				"obj": {}
+			},
+			"video_m4v_url": null,
+			"video_data": null,
+			"type_of": "Audio",
+			"audio_length": 25,
+			"checksum": null,
+			"file_extension": ".mp3"
+		}],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"object": {
+		"uuid": "DB980263-EB51-420C-AAE1-BABE1F60F6D3",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "E1C9F610-80DE-4212-8410-9FFCE8D4B958",
+				"name": "basic_audio01.mp3",
+				"sceneVisible": true,
+				"type": "AudioObject",
+				"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/447/basic_audio01.mp3",
+				"autoplay": false,
+				"autoReplay": false,
+				"startOptions": {
+					"option": "AutoPlay"
+				},
+				"endOptions": {
+					"option": "None",
+					"redirectType": "",
+					"redirectChapter": -1,
+					"redirectURL": ""
+				},
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,32.679439544677734,0,1]
+			}]
+	}
+}

@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "version": 4.3,
+    "type": "Object",
+    "generator": "ObjectExporter"
+  },
+  "files": [],
+  "object": {
+    "uuid": "A717DCA0-8753-4C21-8816-7A4B6378F879",
+    "type": "Scene",
+    "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+    "children": [
+      {
+        "uuid": "21FA42D7-EDB9-46E8-9BAC-0DCF7AE37774",
+        "name": "ArrowObject 5",
+        "type": "ArrowObject",
+        "length": 50.16261328205098,
+        "axisRadius": 1,
+        "headLength": 4,
+        "headRadius": 2,
+        "color": 16777215,
+        "direction": [0.9125449364897521,0.4089764527291452,0],
+        "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,-12.887819290161133,15.258697509765625,0,1]
+      }]
+  }
+}

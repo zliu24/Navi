@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+
+  <style>
+    body {
+      color: lightgray;
+      background-color: #2F3338;
+      /* background-color: transparent; */
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 200;
+      margin: 0px 0px;
+    }
+    .hidden {
+      display: none;
+    }
+
+    /************************ LOGIN ***************************/
+
+    .login {
+      margin: 200px auto auto auto;
+      width: 400px;
+      height: 300px;
+    }
+
+    .login .label {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .login input {
+      display: inline-block;
+      border: none;
+      background-color: transparent;
+      color: white;
+      font-size: 18px;
+    }
+
+    .login .input-block {
+      width: 300px;
+      margin: 20px auto 23px auto;
+      padding-bottom: 7px;
+    }
+
+    .login .user, .login .pw {
+      border-bottom: solid 1px lightgray;
+    }
+
+    .login .login-button {
+      margin-top: 30px;
+      border: solid 1px lightgray;
+      padding: 15px 15px 15px 15px;
+    }
+
+    .login .arrow {
+      float: right;
+      font-size: 120%;
+      margin-right: 16px;
+      margin-top: 12px;
+    }
+
+    /************************ ENTERPRISE-SELECT ***************************/
+
+    .enterprises-select {
+      width: 800px;
+      border-left: #bbb 1px solid;
+      border-right: #bbb 1px solid;
+      margin-left: auto;
+      margin-right: auto;
+      height: 100%;
+    }
+
+    .enterprises-select .big-title {
+      color: #516890;
+      letter-spacing: 2px;
+      font-weight: 100;
+      font-size: 60px;
+      padding: 30px 30px 30px 30px;
+      border-bottom: #444 1px solid;
+      background-color: #303338;
+    }
+
+    .enterprises-select .enterprise {
+      color: #516890;
+      letter-spacing: 2px;
+      font-weight: 100;
+      font-size: 60px;
+      background-color: #333840;
+    }
+    .enterprises-select .enterprise:nth-child(even) {
+      background-color: #303338;
+    }
+
+    .enterprises-select .enterprise {
+      text-align: center;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .enterprises-select .button-view {
+      margin: 0px auto 0px auto;
+      box-sizing: border-box;
+      color: #E2B06F;
+      border: #E2B06F 1px solid;
+      padding-top: 11px;
+      padding-left: 11px;
+      width: 550px;
+      height: 58px;
+      font-size: 30px;
+      text-align: left;
+    }
+
+    .enterprises-select .button-view .arrow {
+      float:right;
+      margin-right: 10px;
+    }
+
+    /************************ PROJECT-SELECT ***************************/
+
+    .projects-select {
+      width: 800px;
+      border-left: #bbb 1px solid;
+      border-right: #bbb 1px solid;
+      margin-left: auto;
+      margin-right: auto;
+      height: 100%;
+    }
+
+    .projects-select .big-title {
+      color: #516890;
+      letter-spacing: 2px;
+      font-weight: 100;
+      font-size: 60px;
+      padding: 30px 30px 30px 30px;
+      border-bottom: #444 1px solid;
+      background-color: #303338;
+    }
+
+    .projects-select .project {
+      color: #516890;
+      letter-spacing: 2px;
+      font-weight: 100;
+      font-size: 60px;
+      padding: 0px 30px 0px 30px;
+      background-color: #333840;
+    }
+    .projects-select .project:nth-child(even) {
+      background-color: #303338;
+    }
+
+    .projects-select .project .title {
+      font-weight: 100;
+      font-size: 30px;
+      color: white;
+      padding-bottom: 10px;
+      border-bottom: #444 1px solid;
+    }
+
+    .projects-select .sub {
+      font-size: 20px;
+      padding: 10px 0px 16px 0px;
+    }
+
+    .projects-select .set {
+      display: inline-block;
+      margin-right: 30px;
+    }
+
+    .projects-select .sub .small-div {
+      color: white;
+      font-size: 12px;
+    }
+
+    .projects-select .sub .num {
+      font-size: 30px;
+      color: #E2B06F;
+    }
+
+    .projects-select .button-view {
+      box-sizing: border-box;
+      float:right;
+      color: #E2B06F;
+      border: #E2B06F 1px solid;
+      padding-top: 11px;
+      padding-left: 11px;
+      width: 250px;
+      height: 50px;
+    }
+
+    .projects-select .button-view .arrow {
+      float:right;
+      margin-right: 10px;
+    }
+
+    /************************ PROJECT-ACTIVE ***************************/
+
+    .active-project {
+      position: relative;
+      width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .active-project .menu-bar {
+      box-sizing: border-box;
+      height: 50px;
+      background-color: #51678D;
+    }
+
+    .active-project .menu-bar .left {
+      box-sizing: border-box;
+      font-size: 20px;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 245px;
+      padding-top: 27px;
+      padding-left: 24px;
+      height: 50px;
+    }
+
+    .active-project .menu-bar .left.back-to-projects {
+      cursor: pointer;
+      padding-top: 20px;
+      padding-left: 16px;
+    }
+
+    .active-project .menu-bar .right {
+      box-sizing: border-box;
+      position: absolute;
+      top:0px;
+      right:0px;
+      width: 524px;
+      height: 50px;
+      border-left: darkslategray solid 1px;
+    }
+
+    .active-project .main .left {
+      position:absolute;
+      top: 51px;
+      left: 0px;
+      width: 245px;
+    }
+
+    .active-project .main .right {
+      position:absolute;
+      right:0px;
+      top: 51px;
+      width: 524px;
+      height: 500px;
+      background-color: #2F3338;
+      background-color: transparent;
+    }
+
+    .active-project .steps-top {
+      color: #516890;
+      font-size: 12px;
+      padding: 7px 7px;
+      border-bottom: solid 1px #848589;
+      background-color: #323841;
+      background-color: transparent;
+    }
+
+    .active-project .num-steps {
+      float: right;
+    }
+
+    .active-project .steps .step {
+      border-bottom: solid 1px #848589;
+      color: #848589;
+      background-color: #44484E;
+      background-color: transparent;
+      font-size: 16px;
+    }
+
+    .active-project .steps .step.active {
+      background-color: #323841;
+      background-color: transparent;
+      color: white;
+      border-bottom: none;
+    }
+
+    .active-project .steps .step .step-meta {
+      padding: 17px 7px;
+    }
+
+    .active-project .task-ratio {
+      float: right;
+    }
+
+    .active-project .task-list {
+      background-color: #2F3338;
+      background-color: transparent;
+      width: 245px;
+    }
+
+    .active-project .task {
+      background-color: #2F3338;
+      background-color: transparent;
+      padding:10px 10px;
+      margin: 5px 10px 5px 10px;
+      border-top: solid 1px #535558;
+      cursor: pointer;
+    }
+
+    .active-project .task:nth-child(1) {
+      border-top: none;
+    }
+
+    .active-project .task .check-box {
+      display: inline-block;
+      box-sizing: border-box;
+      border: solid 1px #F49131;
+      width: 11px;
+      height: 11px;
+      opacity: 0.5;
+      margin-top: 2px;
+      vertical-align: text-top;
+    }
+
+    .active-project .task .name {
+      vertical-align: text-top;
+      display: inline-block;
+      color: white;
+      margin-left: 3px;
+    }
+
+    .active-project .task.with-scene .name {
+      color: #F49131;
+    }
+
+    /************************ TASK ***************************/
+
+    .task-display {
+      position: relative;
+      width: 524px;
+    }
+
+    .task-display .name {
+      font-weight: 100;
+      margin: 10px 10px;
+      font-size: 24px;
+      border-bottom: solid 1px #494a4c;
+      padding: 4px 4px 10px 8px;
+    }
+
+    .task-display .fourjs {
+      position: relative;
+      margin: 30px auto 10px auto;
+    }
+
+    .task-display .fourjs-html {
+      position: absolute;
+      display: none;
+      z-index: 1000;
+      pointer-events: none;
+      top: 0px;
+      left: 0px;
+      bottom: 0px;
+      right: 0px;
+    }
+
+    .task-display .fourjs-html * {
+      position: relative;
+      pointer-events: all;
+    }
+
+    .task-display .fourjs-container {
+      position: relative;
+      width: 524px;
+      height: 400px;
+      border: solid 1px #494a4c;
+    }
+
+    .fourjs-scanning-indicator {
+      position: absolute;
+      top: 60%;
+      left: 20%;
+      height: 80px;
+    }
+
+    .fourjs-scanning-indicator .img-container {
+      position: relative;
+      display: inline-block;
+      height: 80px;
+    }
+
+    .fourjs-scanning-indicator .scanning-bar {
+      position: absolute;
+      top: 0px;
+      background-color: rgba(217, 0, 0, 0.75);
+      height: 3px;
+      width: 100%;
+    }
+
+    .fourjs-scanning-indicator img {
+      height: 80px;
+    }
+
+    .fourjs-scanning-indicator .scanning-text {
+      display: inline-block;
+      height: 80px;
+      line-height: 80px;
+      vertical-align: top;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+  </style>
+
+  <form class="login">
+    <div class="user input-block">
+      <div class="label">email</div>
+      <input name="username" type="text"/>
+    </div>
+    <div class="pw input-block">
+      <div class="label">password</div>
+      <input name="password" type="password" autocomplete="on"/>
+    </div>
+    <div class="host input-block">
+      <div class="label">host</div>
+      <input type="text"]/>
+    </div>
+    <div class="input-block">
+      <div class="arrow">&gt;</div>
+      <div class="login-button">Login</div>
+    </div>
+    <div class="err-msg hidden"></div>
+  </form>
+
+  <div class="enterprises-select hidden">
+    <div class="big-title">Enterprises</div>
+    <div class="enterprises">
+
+    </div>
+  </div>
+
+  <div class="projects-select hidden">
+    <div class="big-title">Projects</div>
+    <div class="projects">
+
+    </div>
+  </div>
+
+  <div class="active-project hidden">
+    <div class="menu-bar">
+      <div class="left back-to-projects" href="#">&lt;&nbsp;&nbsp;&nbsp;Project</div>
+      <div class="right project-name"></div>
+    </div>
+
+    <div class="main">
+      <div class="left">
+        <div class="steps-top">
+          <div class="num-steps"></div>
+          <div class="steps-title">Steps</div>
+        </div>
+        <div class="steps">
+
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="task-display hidden">
+          <div class="name"></div>
+
+          <div class="fourjs">
+            <div class="fourjs-container"></div>
+            <div class="fourjs-html"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="jquery-1.11.0.min.js"></script>
+  <script src="fourjs-1.0.0.js"></script>
+
+<script>
+
+var Daqri = Daqri || {};
+  
+FourJS.Industrial = function() {
+  var fourJsApiAccess;
+  var fourJsSceneViewer;
+  var config = { callback: function() {} };
+  var debugLevel = 2;
+  var loggingIn;
+
+  /***
+   * Initialize the FourJS Industrial functions.
+   * @method initialize
+   * @param {Object} config - A JSON object with the items below.
+   * @param {dom element} config.domElement - An empty DOM element or selector string that will host the canvas and associated HTML. If not provided then the selector ".fourjs-container" will be used.
+   * @param {string} config.host - The host machine. This defaults to 4dstudio.daqri.com.
+   * @param {string} config.platform - The platform, 'desktop', 'android', or 'ios'. Default is 'desktop'.
+   * @param {boolean} config.showTarget - Show the target if one exists. Default false.
+   * @param {boolean} config.renderContinuously - always render.
+   * @param {boolean} config.neverHideScene - Never hide the scene, hence always on. default false.
+   * @param {number} config.debugLevel - Level 0: nothing, level 1: errors, level 2: trace/verbose. Default 1.
+   */
+  var initialize = function(configuration) {
+    try {
+      if(config.hasOwnProperty(debugLevel)) {
+        debugLevel = config.debugLevel;
+        FourJS.Utils.logLevel = debugLevel;
+      }
+
+      $.extend(config, configuration);
+      FourJS.Utils.platform = config.platform || 'desktop';
+
+      // Get the DOM container element. If it does not exist then use the default selector name.
+      if (!config.hasOwnProperty("domElement")) {
+        config.domElement = $(".fourjs-container");
+      } else if (typeof config === 'string') {
+        config.domElement = $(config.domElement);
+      }
+
+      fourJsApiAccess = new FourJS.ApiAccessV2(configuration);
+
+      if(localStorage.getItem('lastHost')) {
+        host = localStorage.getItem('lastHost');
+      }
+
+      $(".login .user input").val(localStorage.getItem('lastUser'));
+      $(".login .pw input").val("toaster");
+      var previousHost = localStorage.getItem('lastHost');
+      if(!previousHost) {
+        previousHost = "https://test2.daqri.com";
+      }
+      $(".login .host input").val(previousHost);
+
+      $("form.login").submit(function() {
+
+      });
+
+      $(".back-to-projects").on("click", function() {
+        $(".projects-select").removeClass("hidden");
+        $(".active-project").addClass("hidden");
+        close4DTask();
+      });
+
+      // TODO: Add MutationObserver to view canvas size changes
+      //var updateViewport = function () {
+      //  $('canvas').width(window.innerWidth).height(window.innerHeight);
+      //  window.scope4D.vision4D.updateViewport(0.001, 1000, 75.0);
+      //};
+      //
+      //window.addEventListener('resize', function () {
+      //  log("Window resize happened: " + window.innerWidth + "," + window.innerHeight);
+      //  updateViewport();
+      //}, false);
+
+    } catch(err) {
+      FourJS.Utils.log("ERROR: fourJsSceneViewer:initialize: "+err.stack);
+    }
+  };
+
+  var setCallback = function(callbackFunction) {
+    callback = callbackFunction;
+  };
+
+  /***
+   * @method login-button.onclick
+   */
+  $(".login-button").on("click", function() {
+    // protect from multiple clicks.
+    if(loggingIn) {
+      return;
+    }
+
+    loggingIn = true;
+    var user = $(".login .user input").val();
+    var host = $(".login .host input").val();
+
+    var request = {
+      userEmail: user,
+      password: $(".login .pw input").val(),
+      host: host
+    };
+
+    fourJsApiAccess.login(request).then(
+      function (data) {
+        localStorage.setItem('lastUser', user);
+        localStorage.setItem('lastHost', host);
+        $(".login").addClass('hidden');
+        showEnterprises();
+        loggingIn = false;
+        $(".enterprises-select").removeClass("hidden");
+
+      }, function (err) {
+        $(".login .err-msg").removeClass('hidden').text(err.msg);
+        loggingIn = false;
+      }
+    ).done(function() {
+      loggingIn = false;
+    });
+  });
+
+  var showEnterprises = function() {
+    fourJsApiAccess.getEnterprises().then(function(enterprises) {
+      for (var i = 0; i < enterprises.length; i++) {
+        var enterprise = enterprises[i];
+        var enterpriseDiv = $("<div class='enterprise'>" + enterprise.name + "</div>");
+
+        var enterpriseSelectDiv = $("" +
+        "<div class='enterprise'>" +
+        "  <div class='button-view'>" +
+        "    <div class='arrow'>&gt;</div>" +
+        "    <div class='view'>" + enterprise.name + "</div>" +
+        "  </div>" +
+        "</div>");
+        enterpriseSelectDiv.data('enterprise', enterprise);
+        enterpriseSelectDiv.find('.button-view').on('click', function (ev) {
+          var ent = $(ev.target).closest('.enterprise').data('enterprise');
+          $(".enterprises-select").addClass("hidden");
+          showProjects(ent);
+        });
+        $(".enterprises").append(enterpriseSelectDiv);
+      }
+    }, function(err) {
+
+    })
+  };
+
+  var showProjects = function(enterprise) {
+    fourJsApiAccess.getProjects(enterprise.id).then(function(projects) {
+      for (var i = 0; i < projects.length; i++) {
+        var project = projects[i];
+        var projectDiv = $("<div class='project'>" + project.name + "</div>");
+
+        var projectSelectDiv = $("" +
+        "<div class='project'>" +
+        "  <div class='sub'>" +
+        "    <div class='button-view'>" +
+        "      <div class='arrow'>&gt;</div>" +
+        "      <div class='view'>View</div>" +
+        "    </div>" +
+        "  </div>" +
+        "  <div class='title'>" + project.name + "</div>" +
+        "</div>");
+        projectSelectDiv.data('project', project);
+        projectSelectDiv.find('.button-view').on('click', function (ev) {
+          var proj = $(ev.target).closest('.project').data('project');
+          showProject(proj.id);
+        });
+        $(".projects").append(projectSelectDiv);
+      }
+      $(".projects-select").removeClass("hidden");
+    }, function (err) {
+      $(".login .err-msg").removeClass('hidden').text(err.msg);
+      loggingIn = false;
+    });
+  };
+
+  var showProject = function(projectId) {
+    fourJsApiAccess.getProject(projectId).then(function(project) {
+
+      var container = $(".active-project");
+      container.find(".steps").empty();
+      $(".projects-select").addClass("hidden");
+      $(".active-project").removeClass("hidden");
+
+      $(".active-project .num-steps").text(project.steps.length);
+
+      var stepsDiv = $('.active-project .steps');
+      for (var j = 0; j < project.steps.length; j++) {
+        var step = project.steps[j];
+        var stepDiv = $("" +
+        "<div class='step'>" +
+        "  <div class='step-meta'>" +
+        "    <div class='task-ratio'><span class='completed'>0</span>/" + step.tasks.length + "</div>" +
+        "    <div class='name'>" + step.name + "</div>" +
+        "  </div>" +
+        "</div>");
+        stepDiv.data("step", step);
+        stepDiv.on('click', function (ev) {
+          var stepDiv = $(ev.target).closest('.step');
+          var step = stepDiv.data('step');
+          $(".active-project .active").removeClass("active");
+          stepDiv.addClass("active");
+          appendTaskList(stepDiv);
+        });
+        stepsDiv.append(stepDiv)
+      }
+    }, function(err) {
+
+    });
+  };
+
+  var appendTaskList = function(stepDiv) {
+    $(".active-project .steps .task-list").remove();
+    var step = stepDiv.data('step');
+
+    var taskListDiv = $("" +
+      "<div class='task-list'>" +
+      "  <div class='top-buttons hidden'>" +
+      "    <div class='tasks'>Tasks</div>" +
+      "    <div class='docs'>Docs</div>" +
+      "    <div class='data'>Data</div>" +
+      "  </div>" +
+      "  <div class='tasks'>" +
+      "  </div>" +
+      "</div>");
+    stepDiv.append(taskListDiv);
+
+    for(var i=0; i<step.tasks.length; i++) {
+      var task = step.tasks[i];
+      var taskDiv = $("" +
+        "<div class='task'>" +
+        "  <div class='check-box'></div>" +
+        "  <div class='name'>"+task.name+"</div>" +
+        "</div>");
+      taskDiv.data('task', task);
+      if(task.threejsScene) {
+        taskDiv.addClass("with-scene");
+      }
+      taskDiv.on('click', function(ev) {
+        var taskDiv = $(ev.target).closest('.task');
+        var task = taskDiv.data('task');
+        displayTask(task, step);
+        ev.stopPropagation();
+        return false;
+      });
+      taskListDiv.find(".tasks").append(taskDiv);
+    }
+
+  };
+
+  var displayTask = function(task, step) {
+    $(".task-display").removeClass("hidden");
+    $(".task-display .name").text(task.name);
+    show4DTask(task, step);
+  };
+
+  var show4DTask = function(task, step) {
+    if(fourJsSceneViewer) {
+      fourJsSceneViewer.destroyScene();
+      fourJsSceneViewer = undefined;
+    }
+
+    if(task.threejsScene) {
+      fourJsSceneViewer = FourJS.SceneViewer();
+      var viewerConfig = _.clone(config);
+      viewerConfig.domElement = $(".fourjs-container");
+      viewerConfig.showGrid = true;
+      viewerConfig.showTarget = true;
+      viewerConfig.showScanningIndicator = true;
+      viewerConfig.platform = "desktop";
+
+      fourJsSceneViewer.initialize(viewerConfig);
+
+      fourJsSceneViewer.load({
+        task: task,
+        orbitControls: true,
+        showGrid: true,
+        targetImage: step.target
+      });
+
+      //fourJsSceneViewer.getRenderer().createObjectCloud();
+
+      config.callback("startTracker", "{}");
+    }
+  };
+
+  var close4DTask = function() {
+    if(fourJsSceneViewer) {
+      fourJsSceneViewer.destroyScene();
+      fourJsSceneViewer = undefined;
+    }
+
+    $(".fourjs-container canvas").remove();
+
+  };
+
+  var handleEvent = function(eventName, eventJson) {
+    
+  };
+  
+  /***
+   * Log a message to either the system console or, if a real app, to the system log.
+   * @method log
+   * @param msg
+   */
+  var log = function(msg) {
+    FourJS.Utils.log(msg);
+  };
+
+  var trace = function(msg) {
+    if (debugLevel > 1) {
+      log("TRACE: " + msg);
+    }
+  };
+
+  return {
+    initialize: initialize,
+    setCallback: setCallback,
+    handleEvent: handleEvent,
+    getFourJSSceneViewer: function() { return fourJsSceneViewer; },
+    //load: load,
+    //updateProjectionAndViewport: updateProjectionAndViewport,
+    //onCameraPose: onCameraPose,
+    //showScene: showScene,
+    //hideScene: hideScene,
+    //clearScene: clearScene,
+    //destroyScene: destroyScene,
+    log: log,
+    trace: trace
+  };
+};
+
+/***
+ * On load create the demo app instance.
+ */
+$(function() {
+  Daqri.IndustrialApp = new FourJS.Industrial();
+  Daqri.IndustrialApp.initialize({
+    debugLevel: 2
+  });
+});
+
+</script>
+
+</body>
+</html>

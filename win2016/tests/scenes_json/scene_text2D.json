@@ -1,0 +1,51 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"geometries": [
+		{
+			"uuid": "D86B493E-CB99-453D-952F-69C9AA135B93",
+			"type": "PlaneGeometry",
+			"width": 1,
+			"height": 1
+		}],
+	"object": {
+		"uuid": "B5712394-0DAE-4A5B-9FA0-27653EFE43C1",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "1286F482-CF82-480D-B8F5-95AEF2A90D8C",
+				"name": "2D Text",
+				"userData": {
+					"type": "text2DObject"
+				},
+				"sceneVisible": true,
+				"type": "Text2DObject",
+				"parameters": {
+					"text": "Test 2D Text",
+					"margin": 20,
+					"lineHeight": 10,
+					"align": "center",
+					"fillStyle": "#389829",
+					"shadowEnabled": true,
+					"shadowColor": "#000000",
+					"shadowOffsetX": 2,
+					"shadowOffsetY": 2,
+					"fontSize": 90,
+					"fontFamily": "Arial",
+					"fontWeight": "bold"
+				},
+				"geometryUUID": "D86B493E-CB99-453D-952F-69C9AA135B93",
+				"matrix": [50,0,0,0,0,50,0,0,0,0,50,0,0,21.90076446533203,0,1]
+			}]
+	}
+}

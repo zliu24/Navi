@@ -1,0 +1,105 @@
+{
+	"metadata": {
+		"version": 4.3,
+		"type": "Object",
+		"generator": "ObjectExporter"
+	},
+	"files": [
+		{
+			"uuid": "E9678ABA-2D2D-4744-903A-B891985DAC2D",
+			"url": "http://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/test.processed.m4v",
+			"id": 446,
+			"file": {
+				"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/test.m4v",
+				"thumb": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/thumb_test.m4v"
+				},
+				"small": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/small_test.m4v"
+				},
+				"show": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/show_test.m4v"
+				},
+				"vws": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/vws_test.m4v"
+				},
+				"mobile": {
+					"url": "https://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/mobile_test.m4v"
+				}
+			},
+			"name": "test.m4v",
+			"size": 160077,
+			"status_data": {
+				"status": "Ready",
+				"check": "zencoder",
+				"obj": {},
+				"error": ""
+			},
+			"video_m4v_url": "http://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/test.processed.m4v",
+			"video_data": {
+				"thumbnails": {
+					"show": "http://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/show_0000.png",
+					"small": "http://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/small_0000.png",
+					"thumb": "http://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/thumb_0000.png"
+				},
+				"width": 320,
+				"height": 240
+			},
+			"type_of": "Video",
+			"audio_length": null,
+			"checksum": null
+		}],
+	"behaviors_obj": {},
+	"behaviors_gui": {},
+	"gui": {},
+	"scripts": {},
+	"object": {
+		"uuid": "CB15943C-3509-44F9-999B-A33605DD19CB",
+		"sceneVisible": true,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "E9678ABA-2D2D-4744-903A-B891985DAC2D",
+				"name": "test.m4v",
+				"userData": {
+					"type": "video"
+				},
+				"sceneVisible": true,
+				"type": "VideoObject",
+				"video_type": "video",
+				"url": "http://daqri-staging-1.s3.amazonaws.com/uploads/asset/file/446/test.processed.m4v",
+				"volume": 0.2,
+				"fileName": "test.m4v",
+				"fileID": 446,
+				"geometry": {
+					"width": 20,
+					"height": 20
+				},
+				"useDefaultShader": true,
+				"autoReplay": false,
+				"startOptions": {
+					"option": "AutoPlay"
+				},
+				"touchOptions": {
+					"option": "None",
+					"redirectType": "",
+					"redirectChapter": -1,
+					"redirectURL": ""
+				},
+				"endOptions": {
+					"option": "None",
+					"redirectType": "",
+					"redirectChapter": -1,
+					"redirectURL": ""
+				},
+				"chromaSettings": {
+					"enable": false,
+					"color_hex": "#000000",
+					"threshold": 0,
+					"smoothness": 0
+				},
+				"matrix": [1,0,0,0,0,2.220446049250313e-16,-1,0,0,1,2.220446049250313e-16,0,0,0.10000000149011612,0,1]
+			}]
+	}
+}

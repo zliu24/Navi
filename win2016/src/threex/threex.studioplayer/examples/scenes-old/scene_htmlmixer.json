@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "version": 4.3,
+    "type": "Object",
+    "generator": "ObjectExporter"
+  },
+  "object": {
+    "uuid": "64A26636-AF8D-4314-9F88-81B7BC612A68",
+    "type": "Scene",
+    "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+    "children": [
+      {
+        "uuid": "482F54C4-3BAB-4A67-87E8-27A12112888C",
+        "name": "htmlmixer 1",
+        "type": "HtmlMultipleMixerPlane",
+        "url": "http://threejs.org/",
+        "matrix": [200,0,0,0,0,200,0,0,0,0,200,0,0,0,0,1]
+      }]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "fourjs",
+  "version": "1.0.0",
+  "description": "DAQRI Four JS augmented reality WebGL library",
+  "main": "gulpfile.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "gulp": "*",
+    "base64-js": "*",
+    "fs-extra": "*",
+    "gulp-insert": "*",
+    "gulp-rename": "*",
+    "node-minify": "*",
+    "webdriverio": "*",
+    "node-resemble-js": "*"
+  },
+  "author": "",
+  "license": "MIT"
+}
