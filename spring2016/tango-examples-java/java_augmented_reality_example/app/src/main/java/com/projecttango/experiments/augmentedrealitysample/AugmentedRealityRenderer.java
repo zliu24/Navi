@@ -29,6 +29,7 @@ import org.rajawali3d.materials.textures.ATexture;
 import org.rajawali3d.materials.textures.Texture;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
+import org.rajawali3d.primitives.NPrism;
 
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.Pose;
@@ -54,6 +55,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     private static final float CUBE_SIDE_LENGTH = 0.5f;
 
     private Object3D mObject;
+    private Object3D mObject0;
+    private float offsetScale = 1.5f;
     private Pose mObjectPose;
     private boolean mObjectPoseUpdated = false;
 
@@ -89,11 +92,18 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
         // Build a Cube and place it initially in the origin.
-        mObject = new Cube(CUBE_SIDE_LENGTH);
+        mObject0 = new Cube(CUBE_SIDE_LENGTH);
+        mObject = new NPrism(4, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH*2);
+
         mObject.setMaterial(material);
         mObject.setPosition(0, 0, -3);
         mObject.setRotation(Vector3.Axis.Z, 180);
         getCurrentScene().addChild(mObject);
+
+        mObject0.setMaterial(material);
+        mObject0.setPosition(0, CUBE_SIDE_LENGTH*offsetScale, -3);
+        mObject0.setRotation(Vector3.Axis.Z, 180);
+        getCurrentScene().addChild(mObject0);
     }
 
     @Override
@@ -102,12 +112,22 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
             if (mObjectPoseUpdated) {
+                Vector3 currentPose = mObjectPose.getPosition();
+                Vector3 currentPose0 = new Vector3(currentPose.x, currentPose.y+CUBE_SIDE_LENGTH*offsetScale, currentPose.z);
+
                 // Place the 3D object in the location of the detected plane.
-                mObject.setPosition(mObjectPose.getPosition());
+                mObject.setPosition(currentPose);
                 mObject.setOrientation(mObjectPose.getOrientation());
+
+                mObject0.setPosition(currentPose0);
+                mObject0.setOrientation(mObjectPose.getOrientation());
+
                 // Move it forward by half of the size of the cube to make it
                 // flush with the plane surface.
                 mObject.moveForward(CUBE_SIDE_LENGTH / 2.0f);
+//                mObjectPoseUpdated = false;
+
+                mObject0.moveForward(CUBE_SIDE_LENGTH / 2.0f);
                 mObjectPoseUpdated = false;
             }
         }
