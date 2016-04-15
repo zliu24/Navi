@@ -92,8 +92,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
         // Build a Cube and place it initially in the origin.
-        mObject0 = new Cube(CUBE_SIDE_LENGTH);
-        mObject = new NPrism(4, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH*2);
+        mObject = new Cube(CUBE_SIDE_LENGTH);
+        mObject0 = new NPrism(4, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH*2);
 
         mObject.setMaterial(material);
         mObject.setPosition(0, 0, -3);
@@ -101,7 +101,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         getCurrentScene().addChild(mObject);
 
         mObject0.setMaterial(material);
-        mObject0.setPosition(0, CUBE_SIDE_LENGTH*offsetScale, -3);
+        mObject0.setPosition(0, -CUBE_SIDE_LENGTH, -3);
         mObject0.setRotation(Vector3.Axis.Z, 180);
         getCurrentScene().addChild(mObject0);
     }
@@ -113,7 +113,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         synchronized (this) {
             if (mObjectPoseUpdated) {
                 Vector3 currentPose = mObjectPose.getPosition();
-                Vector3 currentPose0 = new Vector3(currentPose.x, currentPose.y+CUBE_SIDE_LENGTH*offsetScale, currentPose.z);
+                Vector3 currentPose0 = new Vector3(currentPose.x-CUBE_SIDE_LENGTH*0.1f, currentPose.y-CUBE_SIDE_LENGTH*offsetScale, currentPose.z);
 
                 // Place the 3D object in the location of the detected plane.
                 mObject.setPosition(currentPose);
@@ -125,8 +125,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                 // Move it forward by half of the size of the cube to make it
                 // flush with the plane surface.
                 mObject.moveForward(CUBE_SIDE_LENGTH / 2.0f);
-//                mObjectPoseUpdated = false;
-
                 mObject0.moveForward(CUBE_SIDE_LENGTH / 2.0f);
                 mObjectPoseUpdated = false;
             }
