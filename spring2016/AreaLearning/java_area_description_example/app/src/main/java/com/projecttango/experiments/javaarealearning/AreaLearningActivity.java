@@ -197,6 +197,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         }
 
         // OpenCV
+        System.out.println("\n\nOn Resume\n\n");
         Display display = getWindowManager().getDefaultDisplay();
         screenSize = new Point();
         display.getSize(screenSize);
