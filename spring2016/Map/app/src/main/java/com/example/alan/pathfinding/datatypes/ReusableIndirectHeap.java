@@ -1,4 +1,4 @@
-package com.example.alan.pathfinding;
+package com.example.alan.pathfinding.datatypes;
 
 /**
  * Created by alan on 4/17/16.

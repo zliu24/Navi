@@ -19,18 +19,25 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import com.example.alan.pathfinding.LazyThetaStar;
+import com.example.alan.pathfinding.datatypes.GridGraph;
 
 public class Map2D {
     public Mat imgBg;
     public Mat img;
     public Mat imgResize;
     public Bitmap imgBmp;
+    private LazyThetaStar lazyThetaStar;
     private List<Scalar> palette = new ArrayList<>();
     private Context mContext;
     private List<Point> points = new ArrayList<>();
     private List<String> locations = new ArrayList<>();
     private Size screenSize;
     private Size bmpSize;
+    private Size imgSize;
+    private GridGraph gridGraph;
+    private byte []buff;
+    private int [][]path;
 
     public Map2D(Context context, int screenWidth, int screenHeight) {
         mContext = context;
@@ -52,8 +59,17 @@ public class Map2D {
         double bmpWidth = screenSize.width;
         double bmpHeight = (double)img.rows()/img.cols()*screenSize.width;
         bmpSize = new Size(bmpWidth, bmpHeight);
-        imgBmp = Bitmap.createBitmap((int)bmpSize.width, (int)bmpSize.height, Bitmap.Config.ARGB_8888);
-        imgResize = Mat.zeros((int)bmpSize.width, (int)bmpSize.height, CvType.CV_8U);
+        imgSize = new Size(img.cols(), img.rows());
+        imgBmp = Bitmap.createBitmap((int) bmpSize.width, (int) bmpSize.height, Bitmap.Config.ARGB_8888);
+        imgResize = Mat.zeros((int) bmpSize.width, (int) bmpSize.height, CvType.CV_8U);
+        buff = new byte[(int)img.total()];
+
+        img2graph();
+        lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(0).x, (int)points.get(0).y,
+                                                        (int)points.get(1).x, (int)points.get(1).y);
+        lazyThetaStar.computePath();
+        path = lazyThetaStar.getPath();
+        drawPath();
     }
 
     public Bitmap getBmp() {
@@ -112,5 +128,21 @@ public class Map2D {
         palette.add(new Scalar(88, 57, 76));
         palette.add(new Scalar(52, 90, 71));
         palette.add(new Scalar(175, 160, 207));
+    }
+
+    private void img2graph() {
+        gridGraph = new GridGraph((int)imgSize.width, (int)imgSize.height);
+        imgBg.get(0, 0, buff);
+        for (int i = 0; i < (int)imgSize.height; i++) {
+            for (int j = 0; j < (int)imgSize.width; j++) {
+                gridGraph.setBlocked(j, i, buff[i*(int)imgSize.width+j] == 0);
+            }
+        }
+    }
+
+    private void drawPath() {
+        for (int i = 0; i < path.length-1; i++) {
+            Imgproc.line(img, new Point(path[i][0], path[i][1]), new Point(path[i+1][0], path[i+1][1]), new Scalar(0, 0, 255), 5);
+        }
     }
 }
