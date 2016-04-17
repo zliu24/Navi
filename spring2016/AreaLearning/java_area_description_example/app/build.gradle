@@ -33,4 +33,6 @@ if (project.hasProperty("Tango.catkin_devel_prefix")) {
 
 dependencies {
     compile files('libs/commons-math3-3.6.1.jar')
+    compile project(':openCVLibrary310emma')
+    compile project(':java_examples_utils')
 }

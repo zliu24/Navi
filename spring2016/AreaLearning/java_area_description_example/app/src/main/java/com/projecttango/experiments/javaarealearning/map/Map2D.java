@@ -21,7 +21,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import com.projecttango.experiments.javaarealearning.pathfinding.LazyThetaStar;
-import com.projecttango.experiments.javaarealearning.pathfinding.GridGraph;
+import com.projecttango.experiments.javaarealearning.pathfinding.datatypes.GridGraph;
 
 
 public class Map2D {
@@ -32,10 +32,10 @@ public class Map2D {
     private SimpleRegression simpleRegressionX;
     private SimpleRegression simpleRegressionY;
     private LazyThetaStar lazyThetaStar;
-    private List<Scalar> palette = new ArrayList<>();
+    private List<Scalar> palette = new ArrayList<Scalar>();
     private Context mContext;
-    private List<Point> points = new ArrayList<>();
-    private List<String> locations = new ArrayList<>();
+    private List<Point> points = new ArrayList<Point>();
+    private List<String> locations = new ArrayList<String>();
     private Size screenSize;
     private Size bmpSize;
     private Size imgSize;

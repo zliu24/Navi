@@ -33,22 +33,30 @@ import com.projecttango.rajawali.ar.TangoRajawaliView;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.surface.IRajawaliSurface;
 import org.rajawali3d.surface.RajawaliSurfaceView;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import com.projecttango.experiments.javaarealearning.map.Map2D;
 
 /**
  * Main Activity class for the Area Description example. Handles the connection to the Tango service
@@ -91,6 +99,9 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private static final DecimalFormat FORMAT_THREE_DECIMAL = new DecimalFormat("00.000");
 
     private final Object mSharedLock = new Object();
+
+    private Map2D map2D;
+    private Point screenSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,6 +195,36 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
             Toast.makeText(getApplicationContext(), R.string.tango_invalid, Toast.LENGTH_SHORT)
                     .show();
         }
+
+        // OpenCV
+        Display display = getWindowManager().getDefaultDisplay();
+        screenSize = new Point();
+        display.getSize(screenSize);
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
+    }
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            if (status == LoaderCallbackInterface.SUCCESS) {
+                helloWorld();
+            } else {
+                super.onManagerConnected(status);
+            }
+        }
+    };
+
+    private void helloWorld() {
+        int start = 0;
+        int end = 1;
+
+        Map2D map2D = new Map2D(this, screenSize.x, screenSize.y);
+        map2D.computePath(start, end);
+
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        imageView.setImageBitmap(map2D.getBmp());
+        TextView textView = (TextView) findViewById(R.id.textView);
+        textView.setText("Navigation from "+map2D.getLocation(start)+" to "+map2D.getLocation(end));
     }
 
     @Override
