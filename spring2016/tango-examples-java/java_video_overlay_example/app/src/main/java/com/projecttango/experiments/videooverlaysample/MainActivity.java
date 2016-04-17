@@ -29,6 +29,12 @@ import com.google.atap.tangoservice.TangoXyzIjData;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -47,13 +53,18 @@ public class MainActivity extends Activity {
     private TangoCameraPreview tangoCameraPreview;
     private Tango mTango;
     private boolean mIsConnected;
+    private TextView mHelloWorld;
+    private Button mButtonHW;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tangoCameraPreview = new TangoCameraPreview(this);
         mTango = new Tango(this);
-        setContentView(tangoCameraPreview);
+        LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.activity_main, null, false);
+        layout.addView(tangoCameraPreview);
+        setContentView(layout);
+
     }
 
     // Camera Preview
@@ -63,6 +74,7 @@ public class MainActivity extends Activity {
                 TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
         // Use default configuration for Tango Service.
         TangoConfig config = mTango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
+        setupTextViewsAndButtons();
         mTango.connect(config);
         mIsConnected = true;
 
@@ -95,6 +107,12 @@ public class MainActivity extends Activity {
                 // We are not using OnPoseAvailable for this app
             }
         });
+    }
+
+    private void setupTextViewsAndButtons(){
+        mHelloWorld = (TextView) findViewById(R.id.hello_world);
+        mHelloWorld.setText(R.string.hello_world);
+        mButtonHW = (Button) findViewById(R.id.hello_world_button);
     }
 
     @Override
