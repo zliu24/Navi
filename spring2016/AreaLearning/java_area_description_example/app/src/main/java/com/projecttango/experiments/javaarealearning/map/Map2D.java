@@ -68,7 +68,7 @@ public class Map2D {
         imgResize = Mat.zeros((int) bmpSize.width, (int) bmpSize.height, CvType.CV_8U);
         buff = new byte[(int)img.total()];
         img2graph(); // must be called after the memory of buff is allocated
-        findAffine(null, null);
+        // findAffine(null, null);
     }
 
     public Bitmap getBmp() {
@@ -168,6 +168,9 @@ public class Map2D {
     public void findAffine(List<Point> mapCoors, List<Point> worldCoors) {
         simpleRegressionX = new SimpleRegression(true);
         simpleRegressionY = new SimpleRegression(true);
+
+        if (mapCoors == null || worldCoors == null)
+            return;
 
         assert mapCoors.size() == worldCoors.size();
 
