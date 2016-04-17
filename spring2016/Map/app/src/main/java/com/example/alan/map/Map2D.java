@@ -19,14 +19,18 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import com.example.alan.pathfinding.LazyThetaStar;
 import com.example.alan.pathfinding.datatypes.GridGraph;
+
 
 public class Map2D {
     public Mat imgBg;
     public Mat img;
     public Mat imgResize;
     public Bitmap imgBmp;
+    private SimpleRegression simpleRegressionX;
+    private SimpleRegression simpleRegressionY;
     private LazyThetaStar lazyThetaStar;
     private List<Scalar> palette = new ArrayList<>();
     private Context mContext;
@@ -63,6 +67,8 @@ public class Map2D {
         imgBmp = Bitmap.createBitmap((int) bmpSize.width, (int) bmpSize.height, Bitmap.Config.ARGB_8888);
         imgResize = Mat.zeros((int) bmpSize.width, (int) bmpSize.height, CvType.CV_8U);
         buff = new byte[(int)img.total()];
+
+        findAffine(null, null);
     }
 
     public Bitmap getBmp() {
@@ -85,9 +91,9 @@ public class Map2D {
     }
 
     private void preProcess() {
-        Imgproc.cvtColor(img, imgBg, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.cvtColor(img, imgBg, Imgproc.COLOR_RGB2GRAY);
         Imgproc.threshold(imgBg, imgBg, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
-        Imgproc.cvtColor(imgBg, img, Imgproc.COLOR_GRAY2BGR);
+        Imgproc.cvtColor(imgBg, img, Imgproc.COLOR_GRAY2RGB);
     }
 
     private void loadCoordinates() {
@@ -113,7 +119,7 @@ public class Map2D {
         for (int i = 0; i < points.size(); i++) {
             Point pt = points.get(i);
             System.out.println(locations.get(i)+": ("+pt.x+", "+pt.y+")");
-            Imgproc.circle(img, pt, 15, palette.get(i), -1);
+            Imgproc.circle(img, pt, 30, palette.get(i), -1);
         }
     }
 
@@ -148,7 +154,24 @@ public class Map2D {
 
     private void drawPath() {
         for (int i = 0; i < path.length-1; i++) {
-            Imgproc.line(img, new Point(path[i][0], path[i][1]), new Point(path[i+1][0], path[i+1][1]), new Scalar(0, 0, 255), 5);
+            Imgproc.line(img, new Point(path[i][0], path[i][1]), new Point(path[i+1][0], path[i+1][1]), new Scalar(255, 0, 0), 15);
         }
+    }
+
+    public void findAffine(List<Point> mapCoors, List<Point> worldCoors) {
+        simpleRegressionX = new SimpleRegression(true);
+        simpleRegressionY = new SimpleRegression(true);
+
+        assert mapCoors.size() == worldCoors.size();
+
+        for (int i = 0; i < mapCoors.size(); i++) {
+            simpleRegressionX.addData(worldCoors.get(i).x, mapCoors.get(i).x);
+            simpleRegressionY.addData(worldCoors.get(i).y, mapCoors.get(i).y);
+        }
+
+        System.out.println("slope X = " + simpleRegressionX.getSlope());
+        System.out.println("intercept X = " + simpleRegressionX.getIntercept());
+        System.out.println("slope Y = " + simpleRegressionY.getSlope());
+        System.out.println("intercept Y = " + simpleRegressionY.getIntercept());
     }
 }
