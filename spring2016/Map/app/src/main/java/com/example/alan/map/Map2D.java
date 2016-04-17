@@ -5,33 +5,112 @@ package com.example.alan.map;
  */
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import android.graphics.Bitmap;
 import android.content.Context;
+import android.content.res.AssetManager;
 import org.opencv.core.*;
 import org.opencv.android.Utils;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 
 public class Map2D {
+    public Mat imgBg;
     public Mat img;
+    public Mat imgResize;
     public Bitmap imgBmp;
-    private Context context;
+    private List<Scalar> palette = new ArrayList<>();
+    private Context mContext;
+    private List<Point> points = new ArrayList<>();
+    private List<String> locations = new ArrayList<>();
+    private Size screenSize;
+    private Size bmpSize;
 
-    public Map2D(Context base) {
-        this.context = base;
+    public Map2D(Context context, int screenWidth, int screenHeight) {
+        mContext = context;
+
         try {
-            img = Utils.loadResource(this.context, R.drawable.gates);
+            img = Utils.loadResource(mContext, R.drawable.gates);
+            imgBg = Mat.zeros(img.rows(), img.cols(), CvType.CV_8U);
         } catch (IOException e) {
+            System.out.println("bad");
             e.printStackTrace();
         }
-        System.out.println(img.cols() + img.rows());
-        imgBmp = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
+
+        System.out.println("width: "+img.cols()+", height: "+img.rows());
+        screenSize = new Size(screenWidth, screenHeight);
+        makePalette();
+        preProcess();
+        loadCoordinates();
+
+        double bmpWidth = screenSize.width;
+        double bmpHeight = (double)img.rows()/img.cols()*screenSize.width;
+        bmpSize = new Size(bmpWidth, bmpHeight);
+        imgBmp = Bitmap.createBitmap((int)bmpSize.width, (int)bmpSize.height, Bitmap.Config.ARGB_8888);
+        imgResize = Mat.zeros((int)bmpSize.width, (int)bmpSize.height, CvType.CV_8U);
     }
 
     public Bitmap getBmp() {
-        Utils.matToBitmap(img, imgBmp);
+        Imgproc.resize(img, imgResize, bmpSize);
+        Utils.matToBitmap(imgResize, imgBmp);
         return imgBmp;
     }
 
     private void preProcess() {
-        
+        Imgproc.cvtColor(img, imgBg, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.threshold(imgBg, imgBg, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+        Imgproc.cvtColor(imgBg, img, Imgproc.COLOR_GRAY2BGR);
+    }
+
+    private void loadCoordinates() {
+        AssetManager am = mContext.getAssets();
+
+        try {
+            InputStream is = am.open("coordinates.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                String []tokens = line.split("[,]");
+                Point pt = new Point(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
+                String loc = tokens[2];
+                points.add(pt);
+                locations.add(loc);
+            }
+        } catch (IOException e) {
+            System.out.println("bad");
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < points.size(); i++) {
+            Point pt = points.get(i);
+            System.out.println(locations.get(i)+": ("+pt.x+", "+pt.y+")");
+            Imgproc.circle(img, pt, 15, palette.get(i), -1);
+        }
+    }
+
+    // reference: http://tools.medialab.sciences-po.fr/iwanthue/
+    private void makePalette() {
+        palette.add(new Scalar(205, 82, 203));
+        palette.add(new Scalar(67, 208, 113));
+        palette.add(new Scalar(198, 110, 132));
+        palette.add(new Scalar(66, 196, 198));
+        palette.add(new Scalar(128, 72, 194));
+        palette.add(new Scalar(132, 201, 115));
+        palette.add(new Scalar(60, 73, 211));
+        palette.add(new Scalar(195, 200, 126));
+        palette.add(new Scalar(58, 130, 194));
+        palette.add(new Scalar(189, 148, 110));
+        palette.add(new Scalar(48, 57, 116));
+        palette.add(new Scalar(136, 188, 192));
+        palette.add(new Scalar(88, 57, 76));
+        palette.add(new Scalar(52, 90, 71));
+        palette.add(new Scalar(175, 160, 207));
     }
 }
