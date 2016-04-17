@@ -65,8 +65,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private TextView mUuidTextView;
     private CharSequence mUuidTextViewCopy;
     private TextView mRelocalizationTextView;
-    private TextView mCameraFrame;
-    private Integer frameCount = 0;
 
     private Button mSaveAdfButton;
     private Button mFirstPersonButton;
@@ -79,6 +77,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private boolean mIsRelocalized;
     private boolean mIsLearningMode;
     private boolean mIsConstantSpaceRelocalize;
+    private boolean mIsConnected;
 
     private AreaLearningRajawaliRenderer mRenderer;
 
@@ -138,7 +137,10 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         super.onPause();
         try {
             mTango.disconnect();
-            tangoCameraPreview.disconnectFromTangoCamera();
+            if (mIsConnected) {
+                tangoCameraPreview.disconnectFromTangoCamera();
+                mIsConnected = false;
+            }
         } catch (TangoErrorException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
                     .show();
@@ -169,6 +171,9 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
             tangoCameraPreview.connectToTangoCamera(mTango,
                     TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
             mTango.connect(mConfig);
+            if (!mIsConnected) {
+                mIsConnected = true;
+            }
         } catch (TangoOutOfDateException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_out_of_date_exception, Toast
                     .LENGTH_SHORT).show();
@@ -247,8 +252,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         mSaveAdfButton = (Button) findViewById(R.id.save_adf_button);
         mUuidTextView = (TextView) findViewById(R.id.adf_uuid_textview);
         mRelocalizationTextView = (TextView) findViewById(R.id.relocalization_textview);
-        mCameraFrame = (TextView) findViewById((R.id.camera_frame));
-        mCameraFrame.setText(frameCount.toString());
 
         // Set up button click listeners and button state.
         mFirstPersonButton.setOnClickListener(this);
@@ -349,7 +352,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                         public void run() {
                             // Display pose data on screen in TextViews
                             mUuidTextView.setText(mUuidTextViewCopy.toString() + pose.toString());
-                            mCameraFrame.setText(frameCount.toString());
                         }
                     });
                 }
@@ -415,7 +417,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                 // We are not using onFrameAvailable for this application.
                 if (cameraId == TangoCameraIntrinsics.TANGO_CAMERA_COLOR) {
                     tangoCameraPreview.onFrameAvailable();
-                    frameCount++;
                 }
 
             }
