@@ -18,6 +18,8 @@ package com.projecttango.experiments.javaarealearning;
 
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.Tango.OnTangoUpdateListener;
+import com.google.atap.tangoservice.TangoCameraIntrinsics;
+import com.google.atap.tangoservice.TangoCameraPreview;
 import com.google.atap.tangoservice.TangoConfig;
 import com.google.atap.tangoservice.TangoCoordinateFramePair;
 import com.google.atap.tangoservice.TangoErrorException;
@@ -26,15 +28,19 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
+import com.projecttango.rajawali.ar.TangoRajawaliView;
 
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +65,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private TextView mUuidTextView;
     private CharSequence mUuidTextViewCopy;
     private TextView mRelocalizationTextView;
+    private TextView mCameraFrame;
+    private Integer frameCount = 0;
 
     private Button mSaveAdfButton;
     private Button mFirstPersonButton;
@@ -74,6 +82,9 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
     private AreaLearningRajawaliRenderer mRenderer;
 
+    // Video Overlay
+    private TangoCameraPreview tangoCameraPreview;
+
     // Long-running task to save the ADF.
     private SaveAdfTask mSaveAdfTask;
 
@@ -85,7 +96,14 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_area_learning);
+
+        tangoCameraPreview = new TangoCameraPreview(this);
+        LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.activity_area_learning, null, false);
+        layout.addView(tangoCameraPreview);
+
+//        setContentView(R.layout.activity_area_learning);
+        setContentView(layout);
+
         Intent intent = getIntent();
         mIsLearningMode = intent.getBooleanExtra(ALStartActivity.USE_AREA_LEARNING, false);
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(ALStartActivity.LOAD_ADF, false);
@@ -98,7 +116,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
         // Configure OpenGL renderer
         mRenderer = setupGLViewAndRenderer();
-
     }
 
     /**
@@ -122,6 +139,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         super.onPause();
         try {
             mTango.disconnect();
+            tangoCameraPreview.disconnectFromTangoCamera();
         } catch (TangoErrorException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
                     .show();
@@ -149,6 +167,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
         // Connect to the tango service (start receiving pose updates).
         try {
+            tangoCameraPreview.connectToTangoCamera(mTango,
+                    TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
             mTango.connect(mConfig);
         } catch (TangoOutOfDateException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_out_of_date_exception, Toast
@@ -228,6 +248,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         mSaveAdfButton = (Button) findViewById(R.id.save_adf_button);
         mUuidTextView = (TextView) findViewById(R.id.adf_uuid_textview);
         mRelocalizationTextView = (TextView) findViewById(R.id.relocalization_textview);
+        mCameraFrame = (TextView) findViewById((R.id.camera_frame));
+        mCameraFrame.setText(frameCount.toString());
 
         // Set up button click listeners and button state.
         mFirstPersonButton.setOnClickListener(this);
@@ -291,6 +313,10 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
      */
     private void setUpTangoListeners() {
 
+        // Connect to color camera
+//        tangoCameraPreview.connectToTangoCamera(mTango,
+//                TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+
         // Set Tango Listeners for Poses Device wrt Start of Service, Device wrt
         // ADF and Start of Service wrt ADF
         ArrayList<TangoCoordinateFramePair> framePairs = new ArrayList<TangoCoordinateFramePair>();
@@ -321,15 +347,17 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                 // Make sure to have atomic access to Tango Data so that
                 // UI loop doesn't interfere while Pose call back is updating
                 // the data.
-//                mUuidTextView.setText(mUuidTextView.getText() + pose.toString());
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Display pose data on screen in TextViews
-                        mUuidTextView.setText(mUuidTextViewCopy.toString() + pose.toString());
-                    }
-                });
+                if (mIsConstantSpaceRelocalize) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Display pose data on screen in TextViews
+                            mUuidTextView.setText(mUuidTextViewCopy.toString() + pose.toString());
+                            mCameraFrame.setText(frameCount.toString());
+                        }
+                    });
+                }
 
                 synchronized (mSharedLock) {
                     // Check for Device wrt ADF pose, Device wrt Start of Service pose,
@@ -390,6 +418,11 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
             @Override
             public void onFrameAvailable(int cameraId) {
                 // We are not using onFrameAvailable for this application.
+                if (cameraId == TangoCameraIntrinsics.TANGO_CAMERA_COLOR) {
+                    tangoCameraPreview.onFrameAvailable();
+                    frameCount++;
+                }
+
             }
         });
     }
