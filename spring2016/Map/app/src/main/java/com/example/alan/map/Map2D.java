@@ -63,19 +63,25 @@ public class Map2D {
         imgBmp = Bitmap.createBitmap((int) bmpSize.width, (int) bmpSize.height, Bitmap.Config.ARGB_8888);
         imgResize = Mat.zeros((int) bmpSize.width, (int) bmpSize.height, CvType.CV_8U);
         buff = new byte[(int)img.total()];
-
-        img2graph();
-        lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(0).x, (int)points.get(0).y,
-                                                        (int)points.get(1).x, (int)points.get(1).y);
-        lazyThetaStar.computePath();
-        path = lazyThetaStar.getPath();
-        drawPath();
     }
 
     public Bitmap getBmp() {
         Imgproc.resize(img, imgResize, bmpSize);
         Utils.matToBitmap(imgResize, imgBmp);
         return imgBmp;
+    }
+
+    public void computePath(int start, int end) {
+        img2graph();
+        lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(start).x, (int)points.get(start).y,
+                (int)points.get(end).x, (int)points.get(end).y);
+        lazyThetaStar.computePath();
+        path = lazyThetaStar.getPath();
+        drawPath();
+    }
+
+    public String getLocation(int i) {
+        return locations.get(i);
     }
 
     private void preProcess() {

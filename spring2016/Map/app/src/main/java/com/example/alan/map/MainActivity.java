@@ -3,7 +3,7 @@ package com.example.alan.map;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
-import android.graphics.Bitmap;
+import android.widget.TextView;
 import android.view.Display;
 import android.graphics.Point;
 import org.opencv.android.OpenCVLoader;
@@ -42,12 +42,15 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void helloWorld() {
-        Map2D map2D = new Map2D(this, screenSize.x, screenSize.y);
-        displayBitmap(map2D.getBmp());
-    }
+        int start = 0;
+        int end = 1;
 
-    public void displayBitmap(Bitmap imgBmp) {
+        Map2D map2D = new Map2D(this, screenSize.x, screenSize.y);
+        map2D.computePath(start, end);
+
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageBitmap(imgBmp);
+        imageView.setImageBitmap(map2D.getBmp());
+        TextView textView = (TextView) findViewById(R.id.textView);
+        textView.setText("Navigation from "+map2D.getLocation(start)+" to "+map2D.getLocation(end));
     }
 }
