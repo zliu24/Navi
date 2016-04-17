@@ -1,4 +1,4 @@
-package com.example.alan.map;
+package com.projecttango.experiments.javaarealearning.map;
 
 /**
  * Created by alan on 4/14/16.
@@ -20,8 +20,8 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
-import com.example.alan.pathfinding.LazyThetaStar;
-import com.example.alan.pathfinding.datatypes.GridGraph;
+import com.projecttango.experiments.javaarealearning.pathfinding.LazyThetaStar;
+import com.projecttango.experiments.javaarealearning.pathfinding.GridGraph;
 
 
 public class Map2D {
