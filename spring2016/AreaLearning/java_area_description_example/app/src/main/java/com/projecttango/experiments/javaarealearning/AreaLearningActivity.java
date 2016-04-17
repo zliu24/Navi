@@ -101,7 +101,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.activity_area_learning, null, false);
         layout.addView(tangoCameraPreview);
 
-//        setContentView(R.layout.activity_area_learning);
         setContentView(layout);
 
         Intent intent = getIntent();
@@ -312,10 +311,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
      * Tracking API. This is called in response to the user clicking the 'Start' Button.
      */
     private void setUpTangoListeners() {
-
-        // Connect to color camera
-//        tangoCameraPreview.connectToTangoCamera(mTango,
-//                TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
 
         // Set Tango Listeners for Poses Device wrt Start of Service, Device wrt
         // ADF and Start of Service wrt ADF
