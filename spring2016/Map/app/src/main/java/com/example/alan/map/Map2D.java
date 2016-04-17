@@ -4,28 +4,34 @@ package com.example.alan.map;
  * Created by alan on 4/14/16.
  */
 
-import org.opencv.core.*;
-import org.opencv.imgcodecs.*;
-import org.opencv.android.Utils;
-
-
+import java.io.IOException;
 import android.graphics.Bitmap;
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
-import java.io.File;
+import android.content.Context;
+import org.opencv.core.*;
+import org.opencv.android.Utils;
 
 public class Map2D {
     public Mat img;
-    public Bitmap img_bmp;
+    public Bitmap imgBmp;
+    private Context context;
 
-    public Map2D(String path) {
-        img = new Mat();
-        img = Imgcodecs.imread(path);
-        System.out.println("fuck you");
-        System.out.println(path);
+    public Map2D(Context base) {
+        this.context = base;
+        try {
+            img = Utils.loadResource(this.context, R.drawable.gates);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.out.println(img.cols() + img.rows());
-        img_bmp = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(img, img_bmp);
+        imgBmp = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
+    }
+
+    public Bitmap getBmp() {
+        Utils.matToBitmap(img, imgBmp);
+        return imgBmp;
+    }
+
+    private void preProcess() {
+        
     }
 }
