@@ -20,9 +20,11 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+
+import com.projecttango.experiments.javaarealearning.R;
 import com.projecttango.experiments.javaarealearning.pathfinding.LazyThetaStar;
 import com.projecttango.experiments.javaarealearning.pathfinding.datatypes.GridGraph;
-import com.projecttango.experiments.javaarealearning.R;
+
 
 public class Map2D {
     public Mat imgBg;

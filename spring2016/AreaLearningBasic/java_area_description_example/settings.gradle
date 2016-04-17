@@ -1,0 +1,4 @@
+include ':app'
+include ':java_examples_utils'
+project(':java_examples_utils').projectDir = new File('../java_examples_utils/app')
+include ':openCVLibrary310emma'
