@@ -19,7 +19,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import com.projecttango.experiments.javaarealearning.pathfinding.LazyThetaStar;
 import com.projecttango.experiments.javaarealearning.pathfinding.datatypes.GridGraph;
 import com.projecttango.experiments.javaarealearning.R;
@@ -29,8 +29,7 @@ public class Map2D {
     public Mat img;
     public Mat imgResize;
     public Bitmap imgBmp;
-    private SimpleRegression simpleRegressionX;
-    private SimpleRegression simpleRegressionY;
+    private OLSMultipleLinearRegression linearRegression;
     private LazyThetaStar lazyThetaStar;
     private List<Scalar> palette = new ArrayList<Scalar>();
     private Context mContext;
@@ -42,6 +41,7 @@ public class Map2D {
     private GridGraph gridGraph;
     private byte []buff;
     private int [][]path;
+    private double []beta;
 
     public Map2D(Context context, int screenWidth, int screenHeight) {
         mContext = context;
@@ -68,10 +68,23 @@ public class Map2D {
         imgResize = Mat.zeros((int) bmpSize.width, (int) bmpSize.height, CvType.CV_8U);
         buff = new byte[(int)img.total()];
         img2graph(); // must be called after the memory of buff is allocated
-        // findAffine(null, null);
+        linearRegression = new OLSMultipleLinearRegression();
+        linearRegression.setNoIntercept(true);
+        findAffine();
     }
 
-    public Bitmap getBmp() {
+    public float[] world2bmp(float worldX, float worldY) {
+        float mapX = (float)(beta[0]*worldX+beta[1]*worldY+beta[2]);
+        float mapY = (float)(beta[3]*worldX+beta[4]*worldY+beta[5]);
+
+        float []bmpCoor = new float[2];
+        bmpCoor[0] = (float)(mapX/imgSize.width*bmpSize.width);
+        bmpCoor[1] = (float)(mapY/imgSize.height*bmpSize.height);
+
+        return bmpCoor;
+    }
+
+    public Bitmap updateBmp() {
         Imgproc.resize(img, imgResize, bmpSize);
         Utils.matToBitmap(imgResize, imgBmp);
         return imgBmp;
@@ -165,23 +178,57 @@ public class Map2D {
         }
     }
 
-    public void findAffine(List<Point> mapCoors, List<Point> worldCoors) {
-        simpleRegressionX = new SimpleRegression(true);
-        simpleRegressionY = new SimpleRegression(true);
+    private void loadMapping(List<Point> mapCoors, List<Point> worldCoors) {
+        AssetManager am = mContext.getAssets();
+
+        try {
+            InputStream is = am.open("mapping.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                String []tokens = line.split("[,]");
+                Point pt1 = new Point(Double.parseDouble(tokens[0]), Double.parseDouble(tokens[1]));
+                Point pt2 = new Point(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[3]));
+                mapCoors.add(pt1);
+                worldCoors.add(pt2);
+            }
+        } catch (IOException e) {
+            System.out.println("bad");
+            e.printStackTrace();
+        }
+    }
+
+    public void findAffine() {
+        List<Point> mapCoors = new ArrayList<Point>();
+        List<Point> worldCoors = new ArrayList<Point>();
+        loadMapping(mapCoors, worldCoors);
 
         if (mapCoors == null || worldCoors == null)
             return;
-
         assert mapCoors.size() == worldCoors.size();
 
+        // Y = X*b
+        double [][]X = new double[2*mapCoors.size()][];
+        double []Y = new double[2*mapCoors.size()];
         for (int i = 0; i < mapCoors.size(); i++) {
-            simpleRegressionX.addData(worldCoors.get(i).x, mapCoors.get(i).x);
-            simpleRegressionY.addData(worldCoors.get(i).y, mapCoors.get(i).y);
+            X[2*i] = new double[]{worldCoors.get(i).x, worldCoors.get(i).y, 1, 0, 0, 0};
+            X[2*i+1] = new double[]{0, 0, 0, worldCoors.get(i).x, worldCoors.get(i).y, 1};
+            Y[2*i] = mapCoors.get(i).x;
+            Y[2*i+1] = mapCoors.get(i).y;
         }
 
-        System.out.println("slope X = " + simpleRegressionX.getSlope());
-        System.out.println("intercept X = " + simpleRegressionX.getIntercept());
-        System.out.println("slope Y = " + simpleRegressionY.getSlope());
-        System.out.println("intercept Y = " + simpleRegressionY.getIntercept());
+        System.out.println("dim: " + X.length + "," + X[0].length + "," + Y.length);
+        linearRegression.newSampleData(Y, X);
+        beta = linearRegression.estimateRegressionParameters();
+        System.out.println(beta[0]+","+beta[1]+","+beta[2]+","+beta[3]+","+beta[4]+","+beta[5]);
+
+        System.out.println("Check:");
+        for (int i = 0; i < mapCoors.size(); i++) {
+            double tmp1 = beta[0]*worldCoors.get(i).x+beta[1]*worldCoors.get(i).y+beta[2];
+            double tmp2 = beta[3]*worldCoors.get(i).x+beta[4]*worldCoors.get(i).y+beta[5];
+            System.out.println(mapCoors.get(i).x+":"+tmp1);
+            System.out.println(mapCoors.get(i).y+":"+tmp2);
+        }
     }
 }

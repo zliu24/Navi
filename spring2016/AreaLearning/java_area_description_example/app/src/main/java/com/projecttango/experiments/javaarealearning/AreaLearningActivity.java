@@ -33,7 +33,11 @@ import com.projecttango.rajawali.ar.TangoRajawaliView;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -102,6 +106,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
     private Map2D map2D;
     private Point screenSize;
+    private int count;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +130,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
         // Configure OpenGL renderer
         mRenderer = setupGLViewAndRenderer();
+
+        count = 0;
     }
 
     /**
@@ -219,13 +226,14 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         int start = 0;
         int end = 1;
 
-        Map2D map2D = new Map2D(this, screenSize.x, screenSize.y);
-        map2D.computePath(start, end);
+        map2D = new Map2D(this, screenSize.x, screenSize.y);
 
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageBitmap(map2D.getBmp());
+        //map2D.computePath(start, end);
+        //ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        //imageView.setImageBitmap(map2D.getBmp());
+        map2D.updateBmp();
         TextView textView = (TextView) findViewById(R.id.textView);
-        textView.setText("Navigation from "+map2D.getLocation(start)+" to "+map2D.getLocation(end));
+        textView.setText("Navigation from " + map2D.getLocation(start) + " to " + map2D.getLocation(end));
     }
 
     @Override
@@ -451,6 +459,36 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
                 if (updateRenderer) {
                     mRenderer.updateDevicePose(pose, mIsRelocalized);
+
+                    count++;
+                    if (count > 50) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                System.out.println("update!");
+                                float []worldCoor = pose.getTranslationAsFloats();
+                                float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
+                                System.out.println(worldCoor[0] + "," + worldCoor[1]);
+                                System.out.println(bmpCoor[0] + "," + bmpCoor[1]);
+
+                                ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                                Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+                                Canvas canvas = new Canvas(curBmp);
+
+                                Paint paint = new Paint();
+                                paint.setColor(Color.GREEN);
+                                paint.setStyle(Paint.Style.FILL);
+                                canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
+
+                                imageView.setImageBitmap(curBmp);
+
+                                if (mIsRelocalized) {
+                                    System.out.println("localized!");
+                                }
+                            }
+                        });
+                        count = 0;
+                    }
                 }
             }
 
