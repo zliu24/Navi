@@ -16,57 +16,99 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
+              android:layout_width="400dp"
+              android:layout_height="match_parent"
               android:orientation="horizontal">
 
-<RelativeLayout android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+    <RelativeLayout android:layout_width="400dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-    <org.rajawali3d.surface.RajawaliSurfaceView
-        android:id="@+id/gl_surface_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="top" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:orientation="vertical"
-        android:paddingLeft="5dp" >
+        <org.rajawali3d.surface.RajawaliSurfaceView
+            android:id="@+id/gl_surface_view"
+            android:layout_width="fill_parent"
+            android:layout_height="250dp"
+            android:layout_gravity="top" />
 
         <LinearLayout
+            android:id="@+id/first_linear_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
-            <TextView
-                android:id="@+id/adf_uuid_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical"
+            android:paddingLeft="5dp" >
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/relocalization_status"/>
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/adf_uuid_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/relocalization_textview"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/relocalization_status"/>
+
+                <TextView
+                    android:id="@+id/relocalization_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+
+        <Button
+            android:id="@+id/top_down_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/third_person_button"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:paddingRight="5dp"
+            android:text="@string/top_down" />
+
+        <Button
+            android:id="@+id/first_person_button"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/third_person_button"
+            android:layout_alignLeft="@+id/third_person_button"
+            android:layout_alignParentRight="true"
+            android:paddingRight="5dp"
+            android:text="@string/first_person" />
+
+        <Button
+            android:id="@+id/third_person_button"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/top_down_button"
+            android:layout_alignParentRight="true"
+            android:paddingRight="5dp"
+            android:text="@string/third_person" />
+
+        <Button
+            android:id="@+id/save_adf_button"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="@string/save_adf" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_alignParentBottom="true"
             android:orientation="vertical">
 
             <TextView
@@ -83,45 +125,5 @@
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
         </LinearLayout>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/top_down_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/third_person_button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:paddingRight="5dp"
-        android:text="@string/top_down" />
-
-    <Button
-        android:id="@+id/first_person_button"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/third_person_button"
-        android:layout_alignLeft="@+id/third_person_button"
-        android:layout_alignParentRight="true"
-        android:paddingRight="5dp"
-        android:text="@string/first_person" />
-
-    <Button
-        android:id="@+id/third_person_button"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/top_down_button"
-        android:layout_alignParentRight="true"
-        android:paddingRight="5dp"
-        android:text="@string/third_person" />
-
-    <Button
-        android:id="@+id/save_adf_button"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="@string/save_adf" />
-
-</RelativeLayout>
+    </RelativeLayout>
 </LinearLayout>
