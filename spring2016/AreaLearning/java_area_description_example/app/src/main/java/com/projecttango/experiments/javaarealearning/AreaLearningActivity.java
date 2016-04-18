@@ -471,19 +471,18 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                                 System.out.println(worldCoor[0] + "," + worldCoor[1]);
                                 System.out.println(bmpCoor[0] + "," + bmpCoor[1]);
 
-                                ImageView imageView = (ImageView) findViewById(R.id.imageView);
-                                Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
-                                Canvas canvas = new Canvas(curBmp);
-
-                                Paint paint = new Paint();
-                                paint.setColor(Color.GREEN);
-                                paint.setStyle(Paint.Style.FILL);
-                                canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
-
-                                imageView.setImageBitmap(curBmp);
-
                                 if (mIsRelocalized) {
                                     System.out.println("localized!");
+                                    ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                                    Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+                                    Canvas canvas = new Canvas(curBmp);
+
+                                    Paint paint = new Paint();
+                                    paint.setColor(Color.GREEN);
+                                    paint.setStyle(Paint.Style.FILL);
+                                    canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
+
+                                    imageView.setImageBitmap(curBmp);
                                 }
                             }
                         });
