@@ -229,9 +229,9 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         map2D = new Map2D(this, screenSize.x, screenSize.y);
 
         //map2D.computePath(start, end);
-        //ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        //imageView.setImageBitmap(map2D.getBmp());
         map2D.updateBmp();
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        imageView.setImageBitmap(map2D.imgBmp);
         TextView textView = (TextView) findViewById(R.id.textView);
         textView.setText("Navigation from " + map2D.getLocation(start) + " to " + map2D.getLocation(end));
     }
@@ -478,9 +478,9 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                                     Canvas canvas = new Canvas(curBmp);
 
                                     Paint paint = new Paint();
-                                    paint.setColor(Color.GREEN);
+                                    paint.setColor(Color.RED);
                                     paint.setStyle(Paint.Style.FILL);
-                                    canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
+                                    canvas.drawCircle(bmpCoor[0], bmpCoor[1], 40, paint);
 
                                     imageView.setImageBitmap(curBmp);
                                 }

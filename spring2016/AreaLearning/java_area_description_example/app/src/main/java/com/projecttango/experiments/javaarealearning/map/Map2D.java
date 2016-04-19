@@ -207,6 +207,7 @@ public class Map2D {
         if (mapCoors == null || worldCoors == null)
             return;
         assert mapCoors.size() == worldCoors.size();
+        System.out.println("pairs of matching points: "+mapCoors.size());
 
         // Y = X*b
         double [][]X = new double[2*mapCoors.size()][];
