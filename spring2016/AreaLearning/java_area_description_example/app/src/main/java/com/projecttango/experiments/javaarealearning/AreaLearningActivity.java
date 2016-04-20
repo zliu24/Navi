@@ -45,17 +45,22 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.surface.IRajawaliSurface;
 import org.rajawali3d.surface.RajawaliSurfaceView;
+import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -68,7 +73,7 @@ import com.projecttango.experiments.javaarealearning.map.Map2D;
  * delegated to the {@link AreaLearningRajawaliRenderer} class.
  */
 public class AreaLearningActivity extends Activity implements View.OnClickListener,
-        SetADFNameDialog.CallbackListener, SaveAdfTask.SaveAdfListener {
+        SetADFNameDialog.CallbackListener, SaveAdfTask.SaveAdfListener, OnItemSelectedListener {
 
     private static final String TAG = AreaLearningActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
@@ -91,6 +96,10 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private boolean mIsConstantSpaceRelocalize;
     private boolean mIsConnected;
 
+    private ImageView imageView;
+    private TextView textView;
+    private Spinner spinner;
+
     private AreaLearningRajawaliRenderer mRenderer;
 
     // Video Overlay
@@ -107,6 +116,26 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private Map2D map2D;
     private Point screenSize;
     private int count;
+
+    public void onItemSelected(AdapterView<?> parentView, View v, int position, long id) {
+        System.out.println("fuc yeah: " + position);
+
+        float []bmpCoor = map2D.map2bmp((float) map2D.points.get(position).x, (float) map2D.points.get(position).y);
+
+        Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(curBmp);
+
+        Paint paint = new Paint();
+        paint.setColor(Color.GREEN);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(bmpCoor[0], bmpCoor[1], 40, paint);
+
+        imageView.setImageBitmap(curBmp);
+    }
+
+    public void onNothingSelected(AdapterView<?> parentView){
+        System.out.println("fuc no!");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,10 +259,17 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
         //map2D.computePath(start, end);
         map2D.updateBmp();
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+
+        imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
-        TextView textView = (TextView) findViewById(R.id.textView);
+
+        textView = (TextView) findViewById(R.id.textView);
         textView.setText("Navigation from " + map2D.getLocation(start) + " to " + map2D.getLocation(end));
+
+        spinner = (Spinner) findViewById(R.id.spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getLocations());
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -465,15 +501,19 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                System.out.println("update!");
+                                //System.out.println("update!");
                                 float []worldCoor = pose.getTranslationAsFloats();
-                                float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
-                                System.out.println(worldCoor[0] + "," + worldCoor[1]);
-                                System.out.println(bmpCoor[0] + "," + bmpCoor[1]);
+                                //System.out.println(worldCoor[0] + "," + worldCoor[1]);
+                                //System.out.println(bmpCoor[0] + "," + bmpCoor[1]);
+
+                                long startTime = System.currentTimeMillis();
+                                map2D.computePath(0, 1);
+                                long endTime = System.currentTimeMillis();
+                                System.out.println("That took " + (endTime - startTime) + " milliseconds");
 
                                 if (mIsRelocalized) {
-                                    System.out.println("localized!");
-                                    ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                                    //System.out.println("localized!");
+                                    float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
                                     Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
                                     Canvas canvas = new Canvas(curBmp);
 

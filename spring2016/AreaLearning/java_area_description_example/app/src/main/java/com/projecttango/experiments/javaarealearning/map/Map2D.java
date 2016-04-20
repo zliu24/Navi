@@ -33,14 +33,13 @@ public class Map2D {
     private LazyThetaStar lazyThetaStar;
     private List<Scalar> palette = new ArrayList<Scalar>();
     private Context mContext;
-    private List<Point> points = new ArrayList<Point>();
+    public List<Point> points = new ArrayList<Point>();
     private List<String> locations = new ArrayList<String>();
     private Size screenSize;
     private Size bmpSize;
     private Size imgSize;
     private GridGraph gridGraph;
     private byte []buff;
-    private int [][]path;
     private double []beta;
 
     public Map2D(Context context, int screenWidth, int screenHeight) {
@@ -84,6 +83,14 @@ public class Map2D {
         return bmpCoor;
     }
 
+    public float[] map2bmp(float mapX, float mapY) {
+        float []bmpCoor = new float[2];
+        bmpCoor[0] = (float)(mapX/imgSize.width*bmpSize.width);
+        bmpCoor[1] = (float)(mapY/imgSize.height*bmpSize.height);
+
+        return bmpCoor;
+    }
+
     public Bitmap updateBmp() {
         Imgproc.resize(img, imgResize, bmpSize);
         Utils.matToBitmap(imgResize, imgBmp);
@@ -91,23 +98,29 @@ public class Map2D {
     }
 
     public void computePath(int start, int end) {
+        int [][]path;
         lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(start).x, (int)points.get(start).y,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
-        drawPath();
+        //drawPath(path);
     }
 
     public void computePath(Point startPt, int end) {
+        int [][]path;
         lazyThetaStar = new LazyThetaStar(gridGraph, (int)startPt.x, (int)startPt.y,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
-        drawPath();
+        //drawPath(path);
     }
 
     public String getLocation(int i) {
         return locations.get(i);
+    }
+
+    public String [] getLocations() {
+        return locations.toArray(new String[0]);
     }
 
     private void preProcess() {
@@ -136,11 +149,13 @@ public class Map2D {
             e.printStackTrace();
         }
 
+        /*
         for (int i = 0; i < points.size(); i++) {
             Point pt = points.get(i);
             System.out.println(locations.get(i)+": ("+pt.x+", "+pt.y+")");
             Imgproc.circle(img, pt, 30, palette.get(i), -1);
         }
+        */
     }
 
     // reference: http://tools.medialab.sciences-po.fr/iwanthue/
@@ -172,7 +187,7 @@ public class Map2D {
         }
     }
 
-    private void drawPath() {
+    private void drawPath(int [][]path) {
         for (int i = 0; i < path.length-1; i++) {
             Imgproc.line(img, new Point(path[i][0], path[i][1]), new Point(path[i+1][0], path[i+1][1]), new Scalar(255, 0, 0), 15);
         }
