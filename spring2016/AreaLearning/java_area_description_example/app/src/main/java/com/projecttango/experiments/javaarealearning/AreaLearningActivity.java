@@ -506,10 +506,10 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                                 //System.out.println(worldCoor[0] + "," + worldCoor[1]);
                                 //System.out.println(bmpCoor[0] + "," + bmpCoor[1]);
 
-                                long startTime = System.currentTimeMillis();
-                                map2D.computePath(0, 1);
-                                long endTime = System.currentTimeMillis();
-                                System.out.println("That took " + (endTime - startTime) + " milliseconds");
+//                                long startTime = System.currentTimeMillis();
+//                                map2D.computePath(0, 1);
+//                                long endTime = System.currentTimeMillis();
+//                                System.out.println("That took " + (endTime - startTime) + " milliseconds");
 
                                 if (mIsRelocalized) {
                                     //System.out.println("localized!");
