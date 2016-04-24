@@ -43,12 +43,15 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     public static final String USE_AREA_LEARNING =
             "com.projecttango.areadescriptionjava.usearealearning";
     public static final String LOAD_ADF = "com.projecttango.areadescriptionjava.loadadf";
+    public static final String ADF_UUID = "com.projecttango.areadescriptionjava.uuid";
+    public static final String ADF_NAME = "com.projecttango.areadescriptionjava.adfName";
     private ToggleButton mLearningModeToggleButton;
     private ToggleButton mLoadADFToggleButton;
     private Button mStartButton;
     private boolean mIsUseAreaLearning;
     private boolean mIsLoadADF;
-    private String nameADF;
+    private String selectedUUID;
+    private String selectedADFName;
     private Spinner spinner;
     private Tango mTango;
     private ArrayList<String> fullUUIDList;
@@ -109,7 +112,8 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         // On selecting a spinner item
-        String item = parent.getItemAtPosition(position).toString();
+        selectedADFName = parent.getItemAtPosition(position).toString();
+        selectedUUID = name2uuidMap.get(selectedADFName);
 
         // Showing selected spinner item
 //        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
@@ -143,6 +147,8 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
         mIsLoadADF = mLoadADFToggleButton.isChecked();
         startADIntent.putExtra(USE_AREA_LEARNING, mIsUseAreaLearning);
         startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
+        startADIntent.putExtra(ADF_UUID, selectedUUID);
+        startADIntent.putExtra(ADF_NAME, selectedADFName);
         startActivity(startADIntent);
     }
 

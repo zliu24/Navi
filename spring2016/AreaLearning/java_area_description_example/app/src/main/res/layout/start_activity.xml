@@ -17,8 +17,7 @@
         android:id="@+id/selectAdf"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:spinnerMode="dropdown"
-        android:text="@string/select_adf"/>
+        android:spinnerMode="dropdown"/>
 
     <ToggleButton
         android:id="@+id/learningmode"
