@@ -15,6 +15,7 @@
    limitations under the License.
 -->
 <resources>
+    <string name="spinner_title">Select an ADF:</string>
     <string name="selected_adf">Selected ADF</string>
     <string name="app_name">Java Area Description</string>
     <string name="app_name_long">Java Area Description Example</string>
