@@ -13,6 +13,13 @@
         android:textOn="@string/loadadf_on"
         android:textSize="15sp" />
 
+    <Spinner
+        android:id="@+id/selectAdf"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:text="@string/select_adf"/>
+
     <ToggleButton
         android:id="@+id/learningmode"
         android:layout_width="150dp"

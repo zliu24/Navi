@@ -15,6 +15,7 @@
    limitations under the License.
 -->
 <resources>
+    <string name="select_adf">Select an ADF</string>
     <string name="app_name">Java Area Description</string>
     <string name="app_name_long">Java Area Description Example</string>
     <string name="first_person">First</string>
