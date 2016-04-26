@@ -83,6 +83,14 @@ public class Map2D {
         return bmpCoor;
     }
 
+    public float[] world2map(float worldX, float worldY) {
+        float []mapCoor = new float[2];
+        mapCoor[0] = (float)(beta[0]*worldX+beta[1]*worldY+beta[2]);
+        mapCoor[1] = (float)(beta[3]*worldX+beta[4]*worldY+beta[5]);
+
+        return mapCoor;
+    }
+
     public float[] map2bmp(float mapX, float mapY) {
         float []bmpCoor = new float[2];
         bmpCoor[0] = (float)(mapX/imgSize.width*bmpSize.width);
@@ -91,27 +99,40 @@ public class Map2D {
         return bmpCoor;
     }
 
+    public float[][] map2bmp(int [][]mapCoors) {
+        int len = mapCoors.length;
+        float [][]bmpCoors = new float[len][2];
+        for (int i = 0; i < len; i++) {
+            bmpCoors[i][0] = (float)((float)mapCoors[i][0]/imgSize.width*bmpSize.width);
+            bmpCoors[i][1] = (float)((float)mapCoors[i][1]/imgSize.height*bmpSize.height);
+        }
+
+        return bmpCoors;
+    }
+
     public Bitmap updateBmp() {
         Imgproc.resize(img, imgResize, bmpSize);
         Utils.matToBitmap(imgResize, imgBmp);
         return imgBmp;
     }
 
-    public void computePath(int start, int end) {
+    public int [][] computePath(int start, int end) {
         int [][]path;
         lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(start).x, (int)points.get(start).y,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
+        return path;
         //drawPath(path);
     }
 
-    public void computePath(Point startPt, int end) {
+    public int [][] computePath(int mapX, int mapY, int end) {
         int [][]path;
-        lazyThetaStar = new LazyThetaStar(gridGraph, (int)startPt.x, (int)startPt.y,
+        lazyThetaStar = new LazyThetaStar(gridGraph, mapX, mapY,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
+        return path;
         //drawPath(path);
     }
 
@@ -243,8 +264,8 @@ public class Map2D {
         for (int i = 0; i < mapCoors.size(); i++) {
             double tmp1 = beta[0]*worldCoors.get(i).x+beta[1]*worldCoors.get(i).y+beta[2];
             double tmp2 = beta[3]*worldCoors.get(i).x+beta[4]*worldCoors.get(i).y+beta[5];
-            System.out.println(mapCoors.get(i).x+":"+tmp1);
-            System.out.println(mapCoors.get(i).y+":"+tmp2);
+            System.out.println(mapCoors.get(i).x+"/"+tmp1);
+            System.out.println(mapCoors.get(i).y+"/"+tmp2);
         }
     }
 }
