@@ -93,6 +93,9 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
     private boolean mIsRelocalized;
     private boolean mIsLearningMode;
+    private String mSelectedUUID;
+    private String mSelectedADFName;
+
     private boolean mIsConstantSpaceRelocalize;
     private boolean mIsConnected;
 
@@ -163,6 +166,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         Intent intent = getIntent();
         mIsLearningMode = intent.getBooleanExtra(ALStartActivity.USE_AREA_LEARNING, false);
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(ALStartActivity.LOAD_ADF, false);
+        mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
+        mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
 
         // Instantiate the Tango service
         mTango = new Tango(this);
@@ -373,9 +378,12 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
             if (fullUUIDList.size() == 0) {
                 mUuidTextView.setText(R.string.no_uuid);
             } else {
-                mUuidTextView.setText(getString(R.string.number_of_adfs) + fullUUIDList.size()
-                        + getString(R.string.latest_adf_is)
-                        + fullUUIDList.get(fullUUIDList.size() - 1));
+//                mUuidTextView.setText(getString(R.string.number_of_adfs) + fullUUIDList.size()
+//                        + getString(R.string.latest_adf_is)
+//                        + fullUUIDList.get(fullUUIDList.size() - 1));
+                if (mSelectedUUID != null) {
+                    mUuidTextView.setText(getString(R.string.selected_adf) + ": " + mSelectedADFName);
+                }
                 mUuidTextViewCopy = mUuidTextView.getText();
             }
         }
@@ -396,13 +404,16 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         }
         // Check for Load ADF/Constant Space relocalization mode
         if (isLoadAdf) {
-            ArrayList<String> fullUUIDList = new ArrayList<String>();
-            // Returns a list of ADFs with their UUIDs
-            fullUUIDList = tango.listAreaDescriptions();
-            // Load the latest ADF if ADFs are found.
-            if (fullUUIDList.size() > 0) {
-                config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION,
-                        fullUUIDList.get(fullUUIDList.size() - 1));
+//            ArrayList<String> fullUUIDList = new ArrayList<String>();
+//            // Returns a list of ADFs with their UUIDs
+//            fullUUIDList = tango.listAreaDescriptions();
+//            // Load the latest ADF if ADFs are found.
+//            if (fullUUIDList.size() > 0) {
+//                config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION,
+//                        fullUUIDList.get(fullUUIDList.size() - 1));
+//            }
+            if (mSelectedUUID != null) {
+                config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION, mSelectedUUID);
             }
         }
         return config;
@@ -450,7 +461,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                         @Override
                         public void run() {
                             // Display pose data on screen in TextViews
-                            mUuidTextView.setText(mUuidTextViewCopy.toString() + pose.toString());
+                            mUuidTextView.setText(mUuidTextViewCopy.toString() + "\n" + pose.toString());
                         }
                     });
                 }
