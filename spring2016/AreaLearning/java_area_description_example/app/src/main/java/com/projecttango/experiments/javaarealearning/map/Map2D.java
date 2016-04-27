@@ -42,6 +42,7 @@ public class Map2D {
     private GridGraph gridGraph;
     private byte []buff;
     private double []beta;
+    private float[][] worldPath;
     private double scale = 0.25;
 
     public Map2D(Context context, int screenWidth, int screenHeight) {
@@ -100,6 +101,21 @@ public class Map2D {
         return mapCoor;
     }
 
+    public float[][] map2world (int[][] mapCoors) {
+        int len = mapCoors.length;
+        float[][] worldPath = new float[len][2];
+
+        float denom = (float) (beta[1]*beta[3]-beta[0]*beta[4]);
+        for (int i = 0; i < len; i++) {
+            float mapX = (float) mapCoors[i][0];
+            float mapY = (float) mapCoors[i][1];
+            worldPath[i][0] = (float)(beta[1]*mapY-beta[4]*mapX+beta[2]*beta[4]-beta[1]*beta[5])/denom;
+            worldPath[i][1] = (float)(beta[3]*mapX-beta[9]*mapY+beta[0]*beta[5]-beta[2]*beta[3])/denom;
+        }
+
+        return worldPath;
+    }
+
     public float[] map2bmp(float mapX, float mapY) {
         float []bmpCoor = new float[2];
         bmpCoor[0] = (float)(mapX/imgSize.width*bmpSize.width);
@@ -131,24 +147,29 @@ public class Map2D {
 
     public void computePath(int start, int end) {
         cleanImg();
-        int [][]path;
+        int[][] path;
         lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(start).x, (int)points.get(start).y,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
         drawPath(path);
+        worldPath = map2world(path);
         updateBmp();
     }
 
     public void computePath(int mapX, int mapY, int end) {
         cleanImg();
-        int [][]path;
+        int[][] path;
         lazyThetaStar = new LazyThetaStar(gridGraph, mapX, mapY,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
-        drawPath(path);
+        worldPath = map2world(path);
         updateBmp();
+    }
+
+    public float[][] getWolrdPath() {
+        return worldPath;
     }
 
     public String getLocation(int i) {
