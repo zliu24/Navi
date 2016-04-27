@@ -119,34 +119,20 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private Map2D map2D;
     private Point screenSize;
     private int count;
-    private float []worldCoor;
+    private float []worldCoor = {0, 0};
+    float []bmpCoorDestimation;
 
     public void onItemSelected(AdapterView<?> parentView, View v, int position, long id) {
         System.out.println("fuc yeah: " + position);
 
-        float []bmpCoor = map2D.map2bmp((float) map2D.points.get(position).x, (float) map2D.points.get(position).y);
-
-        Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
-        Canvas canvas = new Canvas(curBmp);
-
-        Paint paint = new Paint();
-        paint.setColor(Color.GREEN);
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(bmpCoor[0], bmpCoor[1], 40, paint);
-
+        bmpCoorDestimation = map2D.map2bmp((float) map2D.points.get(position).x, (float) map2D.points.get(position).y);
         if (mIsRelocalized) {
-            paint.setColor(Color.BLUE);
             long startTime = System.currentTimeMillis();
             float []curMapCoor = map2D.world2map(worldCoor[0], worldCoor[1]);
-            int[][] mapPath = map2D.computePath((int)curMapCoor[0], (int)curMapCoor[1], position);
+            map2D.computePath((int)curMapCoor[0], (int)curMapCoor[1], position);
             long endTime = System.currentTimeMillis();
             System.out.println("That took " + (endTime - startTime) + " milliseconds");
-            float[][] bmpPath = map2D.map2bmp(mapPath);
-            for (int i = 0; i < mapPath.length-1; i++) {
-                canvas.drawLine(bmpPath[i][0], bmpPath[i][1], bmpPath[i+1][0], bmpPath[i+1][1], paint);
-            }
         }
-        imageView.setImageBitmap(curBmp);
     }
 
     public void onNothingSelected(AdapterView<?> parentView){
@@ -274,9 +260,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         int end = 1;
 
         map2D = new Map2D(this, screenSize.x, screenSize.y);
-
-        //map2D.computePath(start, end);
-        map2D.updateBmp();
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
@@ -461,7 +444,14 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                         @Override
                         public void run() {
                             // Display pose data on screen in TextViews
-                            mUuidTextView.setText(mUuidTextViewCopy.toString() + "\n" + pose.toString());
+                            if (mIsRelocalized && pose.baseFrame == TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION
+                                    && pose.targetFrame == TangoPoseData.COORDINATE_FRAME_DEVICE) {
+                                mUuidTextView.setText(mUuidTextViewCopy.toString() + "\n" + pose.toString());
+                            }
+                            else if (!mIsRelocalized) {
+                                mUuidTextView.setText(mUuidTextViewCopy.toString() + "\n" + pose.toString());
+                            }
+                            //System.out.println("coor0: " + pose.toString());
                         }
                     });
                 }
@@ -476,6 +466,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
                         if (mIsRelocalized) {
                             updateRenderer = true;
+                            worldCoor[0] = (float)pose.translation[0];
+                            worldCoor[1] = (float)pose.translation[1];
                         }
                     } else if (pose.baseFrame == TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE
                             && pose.targetFrame == TangoPoseData.COORDINATE_FRAME_DEVICE) {
@@ -526,13 +518,9 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                             @Override
                             public void run() {
                                 //System.out.println("update!");
-                                worldCoor = pose.getTranslationAsFloats();
-                                //System.out.println(worldCoor[0] + "," + worldCoor[1]);
-                                //System.out.println(bmpCoor[0] + "," + bmpCoor[1]);
-
 
                                 if (mIsRelocalized) {
-                                    //System.out.println("localized!");
+                                    //System.out.println("world coor1: "+worldCoor[0]+", "+worldCoor[1]);
                                     float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
                                     Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
                                     Canvas canvas = new Canvas(curBmp);
@@ -540,8 +528,11 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                                     Paint paint = new Paint();
                                     paint.setColor(Color.RED);
                                     paint.setStyle(Paint.Style.FILL);
-                                    canvas.drawCircle(bmpCoor[0], bmpCoor[1], 40, paint);
-
+                                    paint.setTextSize(50);
+                                    canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
+                                    canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(bmpCoor[0]) + ", " + Float.toString(bmpCoor[0]), 10, 100, paint);
+                                    paint.setColor(Color.BLUE);
+                                    canvas.drawCircle(bmpCoorDestimation[0], bmpCoorDestimation[1], 20, paint);
                                     imageView.setImageBitmap(curBmp);
                                 }
                             }

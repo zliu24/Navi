@@ -27,6 +27,7 @@ import com.projecttango.experiments.javaarealearning.R;
 public class Map2D {
     public Mat imgBg;
     public Mat img;
+    public Mat imgClean;
     public Mat imgResize;
     public Bitmap imgBmp;
     private OLSMultipleLinearRegression linearRegression;
@@ -41,19 +42,22 @@ public class Map2D {
     private GridGraph gridGraph;
     private byte []buff;
     private double []beta;
+    private double scale = 0.25;
 
     public Map2D(Context context, int screenWidth, int screenHeight) {
         mContext = context;
 
         try {
-            img = Utils.loadResource(mContext, R.drawable.gates);
+            img = Utils.loadResource(mContext, R.drawable.huang2f, CvType.CV_8UC3);
+            Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);
+            Imgproc.resize(img, img, new Size(0, 0), scale, scale, Imgproc.INTER_LINEAR);
             imgBg = Mat.zeros(img.rows(), img.cols(), CvType.CV_8U);
         } catch (IOException e) {
             System.out.println("bad");
             e.printStackTrace();
         }
 
-        System.out.println("width: "+img.cols()+", height: "+img.rows());
+        System.out.println("img width: "+img.cols()+", img height: "+img.rows()+", channel: "+img.channels());
         screenSize = new Size(screenWidth, screenHeight);
         makePalette();
         preProcess();
@@ -61,15 +65,20 @@ public class Map2D {
 
         double bmpWidth = screenSize.width;
         double bmpHeight = (double)img.rows()/img.cols()*screenSize.width;
+        System.out.println("bmp width: "+bmpWidth+", bmp height: "+bmpHeight);
         bmpSize = new Size(bmpWidth, bmpHeight);
         imgSize = new Size(img.cols(), img.rows());
+        // createBitmap(int width, int height, Bitmap.Config config)
         imgBmp = Bitmap.createBitmap((int) bmpSize.width, (int) bmpSize.height, Bitmap.Config.ARGB_8888);
-        imgResize = Mat.zeros((int) bmpSize.width, (int) bmpSize.height, CvType.CV_8U);
+        // Mat::zeros(int rows, int cols, int type)¶
+        imgResize = Mat.zeros((int) bmpSize.height, (int) bmpSize.width, CvType.CV_8U);
         buff = new byte[(int)img.total()];
         img2graph(); // must be called after the memory of buff is allocated
+        imgClean = img.clone();
         linearRegression = new OLSMultipleLinearRegression();
         linearRegression.setNoIntercept(true);
         findAffine();
+        updateBmp();
     }
 
     public float[] world2bmp(float worldX, float worldY) {
@@ -110,30 +119,36 @@ public class Map2D {
         return bmpCoors;
     }
 
-    public Bitmap updateBmp() {
+    private Bitmap updateBmp() {
         Imgproc.resize(img, imgResize, bmpSize);
         Utils.matToBitmap(imgResize, imgBmp);
         return imgBmp;
     }
 
-    public int [][] computePath(int start, int end) {
+    private void cleanImg() {
+        img = imgClean.clone();
+    }
+
+    public void computePath(int start, int end) {
+        cleanImg();
         int [][]path;
         lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(start).x, (int)points.get(start).y,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
-        return path;
-        //drawPath(path);
+        drawPath(path);
+        updateBmp();
     }
 
-    public int [][] computePath(int mapX, int mapY, int end) {
+    public void computePath(int mapX, int mapY, int end) {
+        cleanImg();
         int [][]path;
         lazyThetaStar = new LazyThetaStar(gridGraph, mapX, mapY,
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
-        return path;
-        //drawPath(path);
+        drawPath(path);
+        updateBmp();
     }
 
     public String getLocation(int i) {
@@ -160,7 +175,7 @@ public class Map2D {
 
             while ((line = reader.readLine()) != null) {
                 String []tokens = line.split("[,]");
-                Point pt = new Point(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
+                Point pt = new Point(Integer.parseInt(tokens[0])*scale, Integer.parseInt(tokens[1])*scale);
                 String loc = tokens[2];
                 points.add(pt);
                 locations.add(loc);
@@ -210,7 +225,7 @@ public class Map2D {
 
     private void drawPath(int [][]path) {
         for (int i = 0; i < path.length-1; i++) {
-            Imgproc.line(img, new Point(path[i][0], path[i][1]), new Point(path[i+1][0], path[i+1][1]), new Scalar(255, 0, 0), 15);
+            Imgproc.line(img, new Point(path[i][0], path[i][1]), new Point(path[i+1][0], path[i+1][1]), new Scalar(0, 255, 0), (int)(8*scale));
         }
     }
 
@@ -224,7 +239,7 @@ public class Map2D {
 
             while ((line = reader.readLine()) != null) {
                 String []tokens = line.split("[,]");
-                Point pt1 = new Point(Double.parseDouble(tokens[0]), Double.parseDouble(tokens[1]));
+                Point pt1 = new Point(Double.parseDouble(tokens[0])*scale, Double.parseDouble(tokens[1])*scale);
                 Point pt2 = new Point(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[3]));
                 mapCoors.add(pt1);
                 worldCoors.add(pt2);
