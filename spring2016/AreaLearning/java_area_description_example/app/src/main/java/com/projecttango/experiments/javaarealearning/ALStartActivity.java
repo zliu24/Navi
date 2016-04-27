@@ -48,7 +48,7 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     private ToggleButton mLearningModeToggleButton;
     private ToggleButton mLoadADFToggleButton;
     private Button mStartButton;
-    private boolean mIsUseAreaLearning;
+//    private boolean mIsUseAreaLearning;
     private boolean mIsLoadADF;
     private String selectedUUID;
     private String selectedADFName;
@@ -63,11 +63,9 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_activity);
         setTitle(R.string.app_name);
-        mLearningModeToggleButton = (ToggleButton) findViewById(R.id.learningmode);
         mLoadADFToggleButton = (ToggleButton) findViewById(R.id.loadadf);
         mStartButton = (Button) findViewById(R.id.start);
         findViewById(R.id.ADFListView).setOnClickListener(this);
-        mLearningModeToggleButton.setOnClickListener(this);
         mLoadADFToggleButton.setOnClickListener(this);
         mStartButton.setOnClickListener(this);
         startActivityForResult(
@@ -129,9 +127,6 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
             case R.id.loadadf:
                 mIsLoadADF = mLoadADFToggleButton.isChecked();
                 break;
-            case R.id.learningmode:
-                mIsUseAreaLearning = mLearningModeToggleButton.isChecked();
-                break;
             case R.id.start:
                 startAreaDescriptionActivity();
                 break;
@@ -143,9 +138,7 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
 
     private void startAreaDescriptionActivity() {
         Intent startADIntent = new Intent(this, AreaLearningActivity.class);
-        mIsUseAreaLearning = mLearningModeToggleButton.isChecked();
         mIsLoadADF = mLoadADFToggleButton.isChecked();
-        startADIntent.putExtra(USE_AREA_LEARNING, mIsUseAreaLearning);
         startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
         startADIntent.putExtra(ADF_UUID, selectedUUID);
         startADIntent.putExtra(ADF_NAME, selectedADFName);
