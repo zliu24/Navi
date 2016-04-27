@@ -99,15 +99,6 @@
             android:textSize="12sp"
             android:text="@string/third_person" />
 
-        <Button
-            android:id="@+id/save_adf_button"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:text="@string/save_adf" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="300dp"

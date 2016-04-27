@@ -83,7 +83,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private CharSequence mUuidTextViewCopy;
     private TextView mRelocalizationTextView;
 
-    private Button mSaveAdfButton;
+//    private Button mSaveAdfButton;
     private Button mFirstPersonButton;
     private Button mThirdPersonButton;
     private Button mTopDownButton;
@@ -92,7 +92,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
 
     private boolean mIsRelocalized;
-    private boolean mIsLearningMode;
+//    private boolean mIsLearningMode;
     private String mSelectedUUID;
     private String mSelectedADFName;
 
@@ -150,7 +150,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         setContentView(layout);
 
         Intent intent = getIntent();
-        mIsLearningMode = intent.getBooleanExtra(ALStartActivity.USE_AREA_LEARNING, false);
+//        mIsLearningMode = intent.getBooleanExtra(ALStartActivity.USE_AREA_LEARNING, false);
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(ALStartActivity.LOAD_ADF, false);
         mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
         mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
@@ -158,8 +158,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         // Instantiate the Tango service
         mTango = new Tango(this);
         mIsRelocalized = false;
-        mConfig = setTangoConfig(mTango, mIsLearningMode, mIsConstantSpaceRelocalize);
-        setupTextViewsAndButtons(mConfig, mTango, mIsLearningMode, mIsConstantSpaceRelocalize);
+        mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
+        setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
 
         // Configure OpenGL renderer
         mRenderer = setupGLViewAndRenderer();
@@ -293,10 +293,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
             case R.id.third_person_button:
                 mRenderer.setThirdPersonView();
                 break;
-            case R.id.save_adf_button:
-                // Query the user for an ADF name and save if OK was clicked.
-                showSetADFNameDialog();
-                break;
             default:
                 Log.w(TAG, "Unknown button click");
                 return;
@@ -329,14 +325,12 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
      * objects are initialized since we use them for the SDK related stuff like version number
      * etc.
      */
-    private void setupTextViewsAndButtons(TangoConfig config, Tango tango, boolean
-            isLearningMode, boolean isLoadAdf) {
+    private void setupTextViewsAndButtons(TangoConfig config, Tango tango, boolean isLoadAdf) {
 
         mFirstPersonButton = (Button) findViewById(R.id.first_person_button);
         mThirdPersonButton = (Button) findViewById(R.id.third_person_button);
         mTopDownButton = (Button) findViewById(R.id.top_down_button);
 
-        mSaveAdfButton = (Button) findViewById(R.id.save_adf_button);
         mUuidTextView = (TextView) findViewById(R.id.adf_uuid_textview);
         mRelocalizationTextView = (TextView) findViewById(R.id.relocalization_textview);
 
@@ -345,15 +339,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         mThirdPersonButton.setOnClickListener(this);
         mTopDownButton.setOnClickListener(this);
 
-        if (isLearningMode) {
-            // Disable save ADF button until Tango relocalizes to the current ADF.
-            mSaveAdfButton.setEnabled(false);
-            mSaveAdfButton.setOnClickListener(this);
-        } else {
-            // Hide to save ADF button if leanring mode is off.
-            mSaveAdfButton.setVisibility(View.GONE);
-        }
-
         if (isLoadAdf) {
             ArrayList<String> fullUUIDList = new ArrayList<String>();
             // Returns a list of ADFs with their UUIDs
@@ -361,9 +346,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
             if (fullUUIDList.size() == 0) {
                 mUuidTextView.setText(R.string.no_uuid);
             } else {
-//                mUuidTextView.setText(getString(R.string.number_of_adfs) + fullUUIDList.size()
-//                        + getString(R.string.latest_adf_is)
-//                        + fullUUIDList.get(fullUUIDList.size() - 1));
                 if (mSelectedUUID != null) {
                     mUuidTextView.setText(getString(R.string.selected_adf) + ": " + mSelectedADFName);
                 }
@@ -376,15 +358,10 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
      * Sets up the tango configuration object. Make sure mTango object is initialized before
      * making this call.
      */
-    private TangoConfig setTangoConfig(Tango tango, boolean isLearningMode, boolean isLoadAdf) {
+    private TangoConfig setTangoConfig(Tango tango, boolean isLoadAdf) {
         TangoConfig config = new TangoConfig();
         config = tango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
-        // Check if learning mode
-        if (isLearningMode) {
-            // Set learning mode to config.
-            config.putBoolean(TangoConfig.KEY_BOOLEAN_LEARNINGMODE, true);
 
-        }
         // Check for Load ADF/Constant Space relocalization mode
         if (isLoadAdf) {
 //            ArrayList<String> fullUUIDList = new ArrayList<String>();
@@ -500,7 +477,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                         @Override
                         public void run() {
                             synchronized (mSharedLock) {
-                                mSaveAdfButton.setEnabled(mIsRelocalized);
                                 mRelocalizationTextView.setText(mIsRelocalized ?
                                         getString(R.string.localized) :
                                         getString(R.string.not_localized));
