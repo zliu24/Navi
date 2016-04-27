@@ -28,6 +28,7 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
+import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.ar.TangoRajawaliView;
 
 import android.app.Activity;
@@ -58,12 +59,14 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.rajawali3d.scene.ASceneFrameCallback;
 import org.rajawali3d.surface.IRajawaliSurface;
 import org.rajawali3d.surface.RajawaliSurfaceView;
 import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.projecttango.experiments.javaarealearning.map.Map2D;
 
@@ -95,9 +98,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 //    private boolean mIsLearningMode;
     private String mSelectedUUID;
     private String mSelectedADFName;
-
     private boolean mIsConstantSpaceRelocalize;
-    private boolean mIsConnected;
 
     private ImageView imageView;
     private TextView textView;
@@ -105,8 +106,13 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
     private AreaLearningRajawaliRenderer mRenderer;
 
-    // Video Overlay
-    private TangoCameraPreview tangoCameraPreview;
+    // AR view and renderer
+    private TangoRajawaliView mARView;
+    private AugmentedRealityRenderer mARRenderer;
+    private DeviceExtrinsics mExtrinsics;
+    private TangoCameraIntrinsics mIntrinsics;
+    private AtomicBoolean mIsConnected = new AtomicBoolean(false);
+    private double mCameraPoseTimestamp = 0;
 
     // Long-running task to save the ADF.
     private SaveAdfTask mSaveAdfTask;
@@ -123,7 +129,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     float []bmpCoorDestimation;
 
     public void onItemSelected(AdapterView<?> parentView, View v, int position, long id) {
-        System.out.println("fuc yeah: " + position);
+        System.out.println("Item selected with position: " + position);
 
         bmpCoorDestimation = map2D.map2bmp((float) map2D.points.get(position).x, (float) map2D.points.get(position).y);
         if (mIsRelocalized) {
@@ -136,17 +142,19 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     }
 
     public void onNothingSelected(AdapterView<?> parentView){
-        System.out.println("fuc no!");
+        System.out.println("Nothing selected!");
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Set up AR view
+        mARView = new TangoRajawaliView(this);
+        mARRenderer = new AugmentedRealityRenderer(this);
+        mARView.setSurfaceRenderer(mARRenderer);
 
-        tangoCameraPreview = new TangoCameraPreview(this);
         LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.activity_area_learning, null, false);
-        layout.addView(tangoCameraPreview);
-
+        layout.addView(mARView);
         setContentView(layout);
 
         Intent intent = getIntent();
@@ -187,10 +195,10 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     protected void onPause() {
         super.onPause();
         try {
-            mTango.disconnect();
-            if (mIsConnected) {
-                tangoCameraPreview.disconnectFromTangoCamera();
-                mIsConnected = false;
+            if (mIsConnected.compareAndSet(true, false)) {
+                mARRenderer.getCurrentScene().clearFrameCallbacks();
+                mARView.disconnectCamera();
+                mTango.disconnect();
             }
         } catch (TangoErrorException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
@@ -218,22 +226,23 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         }
 
         // Connect to the tango service (start receiving pose updates).
-        try {
-            tangoCameraPreview.connectToTangoCamera(mTango,
-                    TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
-            mTango.connect(mConfig);
-            if (!mIsConnected) {
-                mIsConnected = true;
+        if (mIsConnected.compareAndSet(false, true)) {
+            try {
+                mTango.connect(mConfig);
+                mExtrinsics = setupExtrinsics(mTango);
+                mIntrinsics = mTango.getCameraIntrinsics(TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+                connectARRenderer();
+
+            } catch (TangoOutOfDateException e) {
+                Toast.makeText(getApplicationContext(), R.string.tango_out_of_date_exception, Toast
+                        .LENGTH_SHORT).show();
+            } catch (TangoErrorException e) {
+                Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
+                        .show();
+            } catch (TangoInvalidException e) {
+                Toast.makeText(getApplicationContext(), R.string.tango_invalid, Toast.LENGTH_SHORT)
+                        .show();
             }
-        } catch (TangoOutOfDateException e) {
-            Toast.makeText(getApplicationContext(), R.string.tango_out_of_date_exception, Toast
-                    .LENGTH_SHORT).show();
-        } catch (TangoErrorException e) {
-            Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
-                    .show();
-        } catch (TangoInvalidException e) {
-            Toast.makeText(getApplicationContext(), R.string.tango_invalid, Toast.LENGTH_SHORT)
-                    .show();
         }
 
         // OpenCV
@@ -243,6 +252,88 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         display.getSize(screenSize);
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
     }
+
+    /**
+     * Connects the view and renderer to the color camara and callbacks.
+     */
+    private void connectARRenderer() {
+        // Connect to color camera.
+        mARView.connectToTangoCamera(mTango, TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+
+        // Register a Rajawali Scene Frame Callback to update the scene camera pose whenever a new
+        // RGB frame is rendered.
+        // (@see https://github.com/Rajawali/Rajawali/wiki/Scene-Frame-Callbacks)
+        mRenderer.getCurrentScene().registerFrameCallback(new ASceneFrameCallback() {
+            @Override
+            public void onPreFrame(long sceneTime, double deltaTime) {
+                if (!mIsConnected.get()) {
+                    return;
+                }
+                // NOTE: This is called from the OpenGL render thread, after all the renderer
+                // onRender callbacks had a chance to run and before scene objects are rendered
+                // into the scene.
+
+                // Note that the TangoRajwaliRenderer will update the RGB frame to the background
+                // texture and update the RGB timestamp before this callback is executed.
+
+                // If a new RGB frame has been rendered, update the camera pose to match.
+                // NOTE: This doesn't need to be synchronized since the renderer provided timestamp
+                // is also set in this same OpenGL thread.
+                double rgbTimestamp = mARRenderer.getTimestamp();
+                if (rgbTimestamp > mCameraPoseTimestamp) {
+                    // Calculate the device pose at the camera frame update time.
+                    TangoPoseData lastFramePose = mTango.getPoseAtTime(rgbTimestamp, new TangoCoordinateFramePair(
+                            TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
+                            TangoPoseData.COORDINATE_FRAME_DEVICE));
+                    if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
+                        // Update the camera pose from the renderer
+                        mARRenderer.updateRenderCameraPose(lastFramePose, mExtrinsics);
+                        mCameraPoseTimestamp = lastFramePose.timestamp;
+                    } else {
+                        Log.w(TAG, "Unable to get device pose at time: " + rgbTimestamp);
+                    }
+                }
+            }
+
+            @Override
+            public void onPreDraw(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public void onPostFrame(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public boolean callPreFrame() {
+                return true;
+            }
+        });
+    }
+
+    /**
+     * Calculates and stores the fixed transformations between the device and
+     * the various sensors to be used later for transformations between frames.
+     */
+    private static DeviceExtrinsics setupExtrinsics(Tango tango) {
+        // Create camera to IMU transform.
+        TangoCoordinateFramePair framePair = new TangoCoordinateFramePair();
+        framePair.baseFrame = TangoPoseData.COORDINATE_FRAME_IMU;
+        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_CAMERA_COLOR;
+        TangoPoseData imuTrgbPose = tango.getPoseAtTime(0.0, framePair);
+
+        // Create device to IMU transform.
+        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_DEVICE;
+        TangoPoseData imuTdevicePose = tango.getPoseAtTime(0.0, framePair);
+
+        // Create depth camera to IMU transform.
+        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_CAMERA_DEPTH;
+        TangoPoseData imuTdepthPose = tango.getPoseAtTime(0.0, framePair);
+
+        return new DeviceExtrinsics(imuTdevicePose, imuTrgbPose, imuTdepthPose);
+    }
+
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -361,6 +452,11 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private TangoConfig setTangoConfig(Tango tango, boolean isLoadAdf) {
         TangoConfig config = new TangoConfig();
         config = tango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
+        // NOTE: Low latency integration is necessary to achieve a precise alignment of
+        // virtual objects with the RBG image and produce a good AR effect.
+        config.putBoolean(TangoConfig.KEY_BOOLEAN_LOWLATENCYIMUINTEGRATION, true);
+        config.putBoolean(TangoConfig.KEY_BOOLEAN_DEPTH, true);
+        config.putBoolean(TangoConfig.KEY_BOOLEAN_COLORCAMERA, true);
 
         // Check for Load ADF/Constant Space relocalization mode
         if (isLoadAdf) {
@@ -520,9 +616,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
             @Override
             public void onFrameAvailable(int cameraId) {
-                // We are not using onFrameAvailable for this application.
                 if (cameraId == TangoCameraIntrinsics.TANGO_CAMERA_COLOR) {
-                    tangoCameraPreview.onFrameAvailable();
+                    mARView.onFrameAvailable();
                 }
 
             }
