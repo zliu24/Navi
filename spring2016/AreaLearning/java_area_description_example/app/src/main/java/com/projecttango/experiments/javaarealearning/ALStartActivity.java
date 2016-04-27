@@ -46,10 +46,10 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     public static final String ADF_UUID = "com.projecttango.areadescriptionjava.uuid";
     public static final String ADF_NAME = "com.projecttango.areadescriptionjava.adfName";
     private ToggleButton mLearningModeToggleButton;
-    private ToggleButton mLoadADFToggleButton;
+//    private ToggleButton mLoadADFToggleButton;
     private Button mStartButton;
 //    private boolean mIsUseAreaLearning;
-    private boolean mIsLoadADF;
+//    private boolean mIsLoadADF;
     private String selectedUUID;
     private String selectedADFName;
     private Spinner spinner;
@@ -63,10 +63,8 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_activity);
         setTitle(R.string.app_name);
-        mLoadADFToggleButton = (ToggleButton) findViewById(R.id.loadadf);
         mStartButton = (Button) findViewById(R.id.start);
         findViewById(R.id.ADFListView).setOnClickListener(this);
-        mLoadADFToggleButton.setOnClickListener(this);
         mStartButton.setOnClickListener(this);
         startActivityForResult(
                 Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_ADF_LOAD_SAVE), 0);
@@ -124,9 +122,6 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.loadadf:
-                mIsLoadADF = mLoadADFToggleButton.isChecked();
-                break;
             case R.id.start:
                 startAreaDescriptionActivity();
                 break;
@@ -138,8 +133,8 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
 
     private void startAreaDescriptionActivity() {
         Intent startADIntent = new Intent(this, AreaLearningActivity.class);
-        mIsLoadADF = mLoadADFToggleButton.isChecked();
-        startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
+//        startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
+        startADIntent.putExtra(LOAD_ADF, true);
         startADIntent.putExtra(ADF_UUID, selectedUUID);
         startADIntent.putExtra(ADF_NAME, selectedADFName);
         startActivity(startADIntent);

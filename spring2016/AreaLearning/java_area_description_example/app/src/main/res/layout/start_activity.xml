@@ -3,15 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:labelFor="@string/app_name"
+    android:gravity="center"
     android:orientation="vertical" >
-
-    <ToggleButton
-        android:id="@+id/loadadf"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:textOff="@string/loadadf_off"
-        android:textOn="@string/loadadf_on"
-        android:textSize="15sp" />
 
     <TextView
         android:layout_width="150dp"
