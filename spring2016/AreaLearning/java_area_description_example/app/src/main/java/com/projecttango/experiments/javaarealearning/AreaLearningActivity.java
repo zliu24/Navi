@@ -39,6 +39,7 @@ import android.graphics.Point;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -51,6 +52,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,7 +77,7 @@ import com.projecttango.experiments.javaarealearning.map.Map2D;
  * and propagation of Tango pose data to OpenGL and Layout views. OpenGL rendering logic is
  * delegated to the {@link AreaLearningRajawaliRenderer} class.
  */
-public class AreaLearningActivity extends Activity implements View.OnClickListener,
+public class AreaLearningActivity extends BaseActivity implements View.OnClickListener,
         SetADFNameDialog.CallbackListener, SaveAdfTask.SaveAdfListener, OnItemSelectedListener {
 
     private static final String TAG = AreaLearningActivity.class.getSimpleName();
@@ -96,7 +98,8 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
 
     private ImageView imageView;
     private TextView textView;
-    private Spinner spinner;
+    // private Spinner spinner;
+    private ListView listOfRooms;
 
     private AreaLearningRajawaliRenderer mRenderer;
 
@@ -162,10 +165,29 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
         setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
 
+        // Set instruction font to Avenir
+        TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
+
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        selectRoomInstruction.setTypeface(face);
+        selectRoomInstruction.setTypeface(face);
+
         // Configure OpenGL renderer
 //        mRenderer = setupGLViewAndRenderer();
 
         count = 0;
+    }
+
+    @Override
+    /**
+     * Bug found in some when toolbar is half-way collapsed and a touch is made on image (some phones only)
+     */
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        try {
+            return super.dispatchTouchEvent(ev);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -349,12 +371,13 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         imageView.setImageBitmap(map2D.imgBmp);
 
         textView = (TextView) findViewById(R.id.textView);
-        textView.setText("Navigation from " + map2D.getLocation(start) + " to " + map2D.getLocation(end));
-
-        spinner = (Spinner) findViewById(R.id.spinner);
+        textView.setText("Navigating from " + map2D.getLocation(start) + " to " + map2D.getLocation(end));
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        textView.setTypeface(face);
+        listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getLocations());
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        listOfRooms.setAdapter(adapter);
+        listOfRooms.setOnItemSelectedListener(this);
     }
 
     @Override

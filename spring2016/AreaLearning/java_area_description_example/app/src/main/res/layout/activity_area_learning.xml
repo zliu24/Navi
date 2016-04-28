@@ -22,25 +22,36 @@
 
     <RelativeLayout android:layout_width="400dp"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="@color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="290dp"
             android:layout_alignParentBottom="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/linearLayout"
+            android:background="@color/white">
+
+
+            <!--<EditText-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:id="@+id/editText"-->
+                <!--android:layout_weight="1" />-->
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Hello World!"
                 android:textSize="15dp"
-                android:id="@+id/textView" />
+                android:id="@+id/textView"
+                android:gravity="center"/>
 
-            <Spinner
-                android:id="@+id/spinner"
-                android:layout_width="fill_parent"
-                android:layout_height="50dp" />
+            <!--<Spinner-->
+                <!--android:id="@+id/spinner"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="50dp" />-->
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -49,5 +60,42 @@
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
         </LinearLayout>
+
+        <ImageView
+            android:layout_width="41dp"
+            android:layout_height="42dp"
+            android:id="@+id/pink_navi_logo"
+            android:src="@drawable/pink_navi_logo"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/listOfRoomNames"
+            android:layout_above="@+id/linearLayout"
+            android:layout_below="@+id/pink_navi_logo"
+            android:choiceMode="singleChoice"
+            android:listSelector="@color/list_view_pressed"
+            android:background="@color/list_view_default"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10px" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select a Room"
+            android:id="@+id/selectRoomInstruction"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:layout_above="@+id/listOfRoomNames"
+            android:layout_alignTop="@+id/pink_navi_logo"
+            android:layout_alignEnd="@+id/listOfRoomNames"
+            android:layout_toEndOf="@+id/pink_navi_logo"
+            android:layout_alignStart="@+id/pink_navi_logo" />
+
     </RelativeLayout>
 </LinearLayout>
