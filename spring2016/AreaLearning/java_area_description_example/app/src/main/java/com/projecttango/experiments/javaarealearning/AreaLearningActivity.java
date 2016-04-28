@@ -591,18 +591,19 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                             public void run() {
                                 //System.out.println("update!");
 
+
                                 if (mIsRelocalized) {
                                     //System.out.println("world coor1: "+worldCoor[0]+", "+worldCoor[1]);
-                                    float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
                                     Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
                                     Canvas canvas = new Canvas(curBmp);
-
                                     Paint paint = new Paint();
+                                    float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
                                     paint.setColor(Color.RED);
                                     paint.setStyle(Paint.Style.FILL);
                                     paint.setTextSize(50);
                                     canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
                                     canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(bmpCoor[0]) + ", " + Float.toString(bmpCoor[0]), 10, 100, paint);
+                                    canvas.drawText("Localized", 200, 100, paint);
                                     paint.setColor(Color.BLUE);
                                     canvas.drawCircle(bmpCoorDestimation[0], bmpCoorDestimation[1], 20, paint);
                                     imageView.setImageBitmap(curBmp);
