@@ -82,20 +82,14 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     private static final int SECS_TO_MILLISECS = 1000;
     private Tango mTango;
     private TangoConfig mConfig;
-    private TextView mUuidTextView;
-    private CharSequence mUuidTextViewCopy;
-    private TextView mRelocalizationTextView;
-
-//    private Button mSaveAdfButton;
-    private Button mFirstPersonButton;
-    private Button mThirdPersonButton;
-    private Button mTopDownButton;
+//    private TextView mUuidTextView;
+//    private CharSequence mUuidTextViewCopy;
+//    private TextView mRelocalizationTextView;
 
     private double mPreviousPoseTimeStamp;
     private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
 
     private boolean mIsRelocalized;
-//    private boolean mIsLearningMode;
     private String mSelectedUUID;
     private String mSelectedADFName;
     private boolean mIsConstantSpaceRelocalize;
@@ -158,7 +152,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         setContentView(layout);
 
         Intent intent = getIntent();
-//        mIsLearningMode = intent.getBooleanExtra(ALStartActivity.USE_AREA_LEARNING, false);
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(ALStartActivity.LOAD_ADF, false);
         mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
         mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
@@ -170,7 +163,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
 
         // Configure OpenGL renderer
-        mRenderer = setupGLViewAndRenderer();
+//        mRenderer = setupGLViewAndRenderer();
 
         count = 0;
     }
@@ -263,7 +256,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         // Register a Rajawali Scene Frame Callback to update the scene camera pose whenever a new
         // RGB frame is rendered.
         // (@see https://github.com/Rajawali/Rajawali/wiki/Scene-Frame-Callbacks)
-        mRenderer.getCurrentScene().registerFrameCallback(new ASceneFrameCallback() {
+        mARRenderer.getCurrentScene().registerFrameCallback(new ASceneFrameCallback() {
             @Override
             public void onPreFrame(long sceneTime, double deltaTime) {
                 if (!mIsConnected.get()) {
@@ -375,15 +368,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.first_person_button:
-                mRenderer.setFirstPersonView();
-                break;
-            case R.id.top_down_button:
-                mRenderer.setTopDownView();
-                break;
-            case R.id.third_person_button:
-                mRenderer.setThirdPersonView();
-                break;
             default:
                 Log.w(TAG, "Unknown button click");
                 return;
@@ -399,16 +383,16 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
     /**
      * Sets Rajawalisurface view and its renderer. This is ideally called only once in onCreate.
      */
-    private AreaLearningRajawaliRenderer setupGLViewAndRenderer() {
-        // Configure OpenGL renderer
-        AreaLearningRajawaliRenderer renderer = new AreaLearningRajawaliRenderer(this);
-        // OpenGL view where all of the graphics are drawn
-        RajawaliSurfaceView glView = (RajawaliSurfaceView) findViewById(R.id.gl_surface_view);
-        glView.setEGLContextClientVersion(2);
-        glView.setRenderMode(IRajawaliSurface.RENDERMODE_CONTINUOUSLY);
-        glView.setSurfaceRenderer(renderer);
-        return renderer;
-    }
+//    private AreaLearningRajawaliRenderer setupGLViewAndRenderer() {
+//        // Configure OpenGL renderer
+//        AreaLearningRajawaliRenderer renderer = new AreaLearningRajawaliRenderer(this);
+//        // OpenGL view where all of the graphics are drawn
+//        RajawaliSurfaceView glView = (RajawaliSurfaceView) findViewById(R.id.gl_surface_view);
+//        glView.setEGLContextClientVersion(2);
+//        glView.setRenderMode(IRajawaliSurface.RENDERMODE_CONTINUOUSLY);
+//        glView.setSurfaceRenderer(renderer);
+//        return renderer;
+//    }
 
     /**
      * Sets Texts views to display statistics of Poses being received. This also sets the buttons
@@ -418,31 +402,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
      */
     private void setupTextViewsAndButtons(TangoConfig config, Tango tango, boolean isLoadAdf) {
 
-        mFirstPersonButton = (Button) findViewById(R.id.first_person_button);
-        mThirdPersonButton = (Button) findViewById(R.id.third_person_button);
-        mTopDownButton = (Button) findViewById(R.id.top_down_button);
-
-        mUuidTextView = (TextView) findViewById(R.id.adf_uuid_textview);
-        mRelocalizationTextView = (TextView) findViewById(R.id.relocalization_textview);
-
-        // Set up button click listeners and button state.
-        mFirstPersonButton.setOnClickListener(this);
-        mThirdPersonButton.setOnClickListener(this);
-        mTopDownButton.setOnClickListener(this);
-
-        if (isLoadAdf) {
-            ArrayList<String> fullUUIDList = new ArrayList<String>();
-            // Returns a list of ADFs with their UUIDs
-            fullUUIDList = tango.listAreaDescriptions();
-            if (fullUUIDList.size() == 0) {
-                mUuidTextView.setText(R.string.no_uuid);
-            } else {
-                if (mSelectedUUID != null) {
-                    mUuidTextView.setText(getString(R.string.selected_adf) + ": " + mSelectedADFName);
-                }
-                mUuidTextViewCopy = mUuidTextView.getText();
-            }
-        }
     }
 
     /**
@@ -519,10 +478,6 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                             // Display pose data on screen in TextViews
                             if (mIsRelocalized && pose.baseFrame == TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION
                                     && pose.targetFrame == TangoPoseData.COORDINATE_FRAME_DEVICE) {
-                                mUuidTextView.setText(mUuidTextViewCopy.toString() + "\n" + pose.toString());
-                            }
-                            else if (!mIsRelocalized) {
-                                mUuidTextView.setText(mUuidTextViewCopy.toString() + "\n" + pose.toString());
                             }
                             //System.out.println("coor0: " + pose.toString());
                         }
@@ -573,16 +528,16 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
                         @Override
                         public void run() {
                             synchronized (mSharedLock) {
-                                mRelocalizationTextView.setText(mIsRelocalized ?
-                                        getString(R.string.localized) :
-                                        getString(R.string.not_localized));
+//                                mRelocalizationTextView.setText(mIsRelocalized ?
+//                                        getString(R.string.localized) :
+//                                        getString(R.string.not_localized));
                             }
                         }
                     });
                 }
 
                 if (updateRenderer) {
-                    mRenderer.updateDevicePose(pose, mIsRelocalized);
+//                    mRenderer.updateDevicePose(pose, mIsRelocalized);
 
                     count++;
                     if (count > 50) {
