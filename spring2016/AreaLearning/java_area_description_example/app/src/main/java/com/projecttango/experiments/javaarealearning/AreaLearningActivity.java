@@ -152,7 +152,7 @@ public class AreaLearningActivity extends Activity implements View.OnClickListen
         setContentView(layout);
 
         Intent intent = getIntent();
-        mIsConstantSpaceRelocalize = intent.getBooleanExtra(ALStartActivity.LOAD_ADF, false);
+        mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
         mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
         mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
 

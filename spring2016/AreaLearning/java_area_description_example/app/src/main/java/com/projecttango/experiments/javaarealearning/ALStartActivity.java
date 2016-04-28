@@ -132,7 +132,7 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     }
 
     private void startAreaDescriptionActivity() {
-        Intent startADIntent = new Intent(this, AreaLearningActivity.class);
+        Intent startADIntent = new Intent(this, Homepage.class);
 //        startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
         startADIntent.putExtra(LOAD_ADF, true);
         startADIntent.putExtra(ADF_UUID, selectedUUID);
