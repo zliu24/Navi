@@ -110,7 +110,7 @@ public class Map2D {
             float mapX = (float) mapCoors[i][0];
             float mapY = (float) mapCoors[i][1];
             worldPath[i][0] = (float)(beta[1]*mapY-beta[4]*mapX+beta[2]*beta[4]-beta[1]*beta[5])/denom;
-            worldPath[i][1] = (float)(beta[3]*mapX-beta[9]*mapY+beta[0]*beta[5]-beta[2]*beta[3])/denom;
+            worldPath[i][1] = (float)(beta[3]*mapX-beta[0]*mapY+beta[0]*beta[5]-beta[2]*beta[3])/denom;
         }
 
         return worldPath;
@@ -164,6 +164,7 @@ public class Map2D {
                 (int)points.get(end).x, (int)points.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
+        drawPath(path);
         worldPath = map2world(path);
         updateBmp();
     }

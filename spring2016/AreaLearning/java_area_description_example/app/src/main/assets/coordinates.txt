@@ -1,9 +1,9 @@
-544,474,Room A
-641,389,Room B
-518,265,Room C
-288,268,Room D
-438,285,Room E
-629,169,Room F
-656,266,Room G
-762,296,Room H
-785,253,Room I
+544,474,Elevator
+641,389,Outdoor
+518,265,Info Computer
+288,268,Room 226
+438,285,Restroom Men
+629,169,Computer Cluster
+656,266,Random point 1
+762,296,Room 214
+785,253,Random point 2

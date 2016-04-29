@@ -56,7 +56,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AdapterView.OnItemClickListener;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -78,7 +78,7 @@ import com.projecttango.experiments.javaarealearning.map.Map2D;
  * delegated to the {@link AreaLearningRajawaliRenderer} class.
  */
 public class AreaLearningActivity extends BaseActivity implements View.OnClickListener,
-        SetADFNameDialog.CallbackListener, SaveAdfTask.SaveAdfListener, OnItemSelectedListener {
+        SetADFNameDialog.CallbackListener, SaveAdfTask.SaveAdfListener, OnItemClickListener {
 
     private static final String TAG = AreaLearningActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
@@ -125,8 +125,11 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     private float []worldCoor = {0, 0};
     float []bmpCoorDestimation;
 
-    public void onItemSelected(AdapterView<?> parentView, View v, int position, long id) {
+    public void onItemClick(AdapterView<?> parentView, View v, int position, long id) {
         System.out.println("Item selected with position: " + position);
+        if (!mIsRelocalized) {
+            return;
+        }
 
         bmpCoorDestimation = map2D.map2bmp((float) map2D.points.get(position).x, (float) map2D.points.get(position).y);
         if (mIsRelocalized) {
@@ -305,7 +308,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                         mARRenderer.updateRenderCameraPose(lastFramePose, mExtrinsics);
                         mCameraPoseTimestamp = lastFramePose.timestamp;
                     } else {
-                        Log.w(TAG, "Unable to get device pose at time: " + rgbTimestamp);
+                        //Log.w(TAG, "Unable to get device pose at time: " + rgbTimestamp);
                     }
                 }
             }
@@ -375,9 +378,10 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         textView.setTypeface(face);
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
+        listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getLocations());
         listOfRooms.setAdapter(adapter);
-        listOfRooms.setOnItemSelectedListener(this);
+        listOfRooms.setOnItemClickListener(this);
     }
 
     @Override
@@ -583,7 +587,9 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                                     canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(bmpCoor[0]) + ", " + Float.toString(bmpCoor[0]), 10, 100, paint);
                                     canvas.drawText("Localized", 200, 100, paint);
                                     paint.setColor(Color.BLUE);
-                                    canvas.drawCircle(bmpCoorDestimation[0], bmpCoorDestimation[1], 20, paint);
+                                    if (bmpCoorDestimation != null) {
+                                        canvas.drawCircle(bmpCoorDestimation[0], bmpCoorDestimation[1], 20, paint);
+                                    }
                                     imageView.setImageBitmap(curBmp);
                                 }
                             }
