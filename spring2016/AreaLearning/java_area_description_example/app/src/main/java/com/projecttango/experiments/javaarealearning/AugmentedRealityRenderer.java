@@ -29,12 +29,15 @@ import org.rajawali3d.materials.textures.ATexture;
 import org.rajawali3d.materials.textures.Texture;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
+import org.rajawali3d.primitives.Line3D;
 import org.rajawali3d.primitives.NPrism;
 
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.Pose;
 import com.projecttango.rajawali.ScenePoseCalculator;
 import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
+
+import java.util.Stack;
 
 /**
  * Very simple example augmented reality renderer which displays a cube fixed in place.
@@ -56,8 +59,10 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
     private Object3D mObject;
     private float offsetScale = 1.5f;
-    private Pose mObjectPose;
-    private boolean mObjectPoseUpdated = false;
+    //private Object3D [] points;
+    float[][] pathPoints;
+    private boolean pathObjectUpdated = false;
+    Material material;
 
     public AugmentedRealityRenderer(Context context) {
         super(context);
@@ -86,25 +91,13 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
         // Set-up a material: green with application of the light and
         // instructions.
-        Material material = new Material();
+        material = new Material();
         material.setColor(0xcc00ff);
-        /*try { //texture is probably unnecessary for us
-            Texture t = new Texture("instructions", R.drawable.instructions);
-            material.addTexture(t);
-        } catch (ATexture.TextureException e) {
-            e.printStackTrace();
-        }*/
+
         material.setColorInfluence(0.1f);
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
-        // Build a Cube and place it initially in the origin.
-        mObject = new NPrism(4, 0.01, 0.3, 0.6);
-        //new Cube(CUBE_SIDE_LENGTH); <-- The original example had this instead
-
-        mObject.setMaterial(material);
-        mObject.setPosition(0, 0, -3);
-        //getCurrentScene().addChild(mObject);
     }
 
     @Override
@@ -112,17 +105,29 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Update the AR object if necessary
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
-            if (mObjectPoseUpdated) {
-                Vector3 currentPose = mObjectPose.getPosition();
+            if (pathObjectUpdated) {
+                // Experiment that creates three cubes and a line in between
+                for(int i = 0; i < 3; i++) {
+                    Object3D point = new Cube(CUBE_SIDE_LENGTH);
+                    point.setMaterial(material);
+                    point.setPosition(0, -1, i*3);
+                    System.out.println("Adding cube at (" + 0 + ", -1, " + i*3 + ")");
+                    getCurrentScene().addChild(point);
+                }
 
-                // Place the 3D object in the location of the detected plane.
-                mObject.setPosition(currentPose);
-                mObject.setOrientation(mObjectPose.getOrientation());
+                Vector3 vec = new Vector3(0,-1,0);
+                Vector3 vec1 = new Vector3(0,-1,3);
 
-                // Move it forward by half of the size of the cube to make it
-                // flush with the plane surface.
-                mObject.moveForward(CUBE_SIDE_LENGTH / 2.0f);
-                mObjectPoseUpdated = false;
+                Stack<Vector3> stack = new Stack<Vector3>();
+                stack.push(vec);
+                stack.push(vec1);
+
+                Line3D line = new Line3D(stack, 100, 0xcc00ff);
+                line.setMaterial(material);
+                getCurrentScene().addChild(line);
+
+                pathObjectUpdated = false;
+
             }
         }
 
@@ -133,9 +138,10 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
      * Save the updated plane fit pose to update the AR object on the next render pass.
      * This is synchronized against concurrent access in the render loop above.
      */
-    public synchronized void updateObjectPose(TangoPoseData planeFitPose) {
-        mObjectPose = ScenePoseCalculator.toOpenGLPose(planeFitPose);
-        mObjectPoseUpdated = true;
+    public synchronized void updatePathObject(float[][] pathPoints) {
+        pathObjectUpdated = true;
+        this.pathPoints = pathPoints;
+
     }
 
     /**

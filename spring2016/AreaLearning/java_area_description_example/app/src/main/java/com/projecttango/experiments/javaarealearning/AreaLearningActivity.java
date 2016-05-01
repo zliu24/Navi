@@ -136,6 +136,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             long startTime = System.currentTimeMillis();
             float []curMapCoor = map2D.world2map(worldCoor[0], worldCoor[1]);
             map2D.computePath((int)curMapCoor[0], (int)curMapCoor[1], position);
+            mARRenderer.updatePathObject(map2D.getWolrdPath());
             long endTime = System.currentTimeMillis();
             System.out.println("That took " + (endTime - startTime) + " milliseconds");
         }
