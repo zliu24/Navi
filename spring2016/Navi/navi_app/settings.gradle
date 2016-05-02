@@ -1,0 +1,4 @@
+include ':app'
+include ':navi_utils'
+project(':navi_utils').projectDir = new File('../navi_utils/app')
+include ':openCVLibrary310'
