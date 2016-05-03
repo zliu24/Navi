@@ -15,27 +15,23 @@
  */
 package edu.stanford.navi;
 
-import com.google.atap.tangoservice.TangoPoseData;
-
 import android.content.Context;
-
+import android.graphics.Color;
 import android.view.MotionEvent;
+
+import com.google.atap.tangoservice.TangoPoseData;
+import com.projecttango.rajawali.DeviceExtrinsics;
+import com.projecttango.rajawali.Pose;
+import com.projecttango.rajawali.ScenePoseCalculator;
+import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
 import org.rajawali3d.Object3D;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
-import org.rajawali3d.materials.textures.ATexture;
-import org.rajawali3d.materials.textures.Texture;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.Line3D;
-import org.rajawali3d.primitives.NPrism;
-
-import com.projecttango.rajawali.DeviceExtrinsics;
-import com.projecttango.rajawali.Pose;
-import com.projecttango.rajawali.ScenePoseCalculator;
-import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
 import java.util.Stack;
 
@@ -57,9 +53,6 @@ import java.util.Stack;
 public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     private static final float CUBE_SIDE_LENGTH = 0.5f;
 
-    private Object3D mObject;
-    private float offsetScale = 1.5f;
-    //private Object3D [] points;
     float[][] pathPoints;
     private boolean pathObjectUpdated = false;
     Material material;
@@ -92,7 +85,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Set-up a material: green with application of the light and
         // instructions.
         material = new Material();
-        material.setColor(0xcc00ff);
+        material.setColor(Color.GREEN); // Purple 0xcc00ff
 
         material.setColorInfluence(0.1f);
         material.enableLighting(true);
@@ -107,22 +100,19 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         synchronized (this) {
             if (pathObjectUpdated) {
                 // Experiment that creates three cubes and a line in between
-                for(int i = 0; i < 3; i++) {
+                Stack<Vector3> stack = new Stack<Vector3>();
+                for(int i = 0; i < pathPoints.length; i++) {
+
+                    Vector3 pose = new Vector3(pathPoints[i][0],-1,pathPoints[i][1]);
                     Object3D point = new Cube(CUBE_SIDE_LENGTH);
                     point.setMaterial(material);
-                    point.setPosition(0, -1, i*3);
-                    System.out.println("Adding cube at (" + 0 + ", -1, " + i*3 + ")");
+                    point.setPosition(pose);
+
+                    System.out.println("Adding cube at (" + pathPoints[i][0] + ", -1, " + pathPoints[i][1] + ")");
                     getCurrentScene().addChild(point);
+                    stack.push(pose);
                 }
-
-                Vector3 vec = new Vector3(0,-1,0);
-                Vector3 vec1 = new Vector3(0,-1,3);
-
-                Stack<Vector3> stack = new Stack<Vector3>();
-                stack.push(vec);
-                stack.push(vec1);
-
-                Line3D line = new Line3D(stack, 100, 0xcc00ff);
+                Line3D line = new Line3D(stack, 100, Color.BLUE);
                 line.setMaterial(material);
                 getCurrentScene().addChild(line);
 
