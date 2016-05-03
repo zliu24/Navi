@@ -15,27 +15,23 @@
  */
 package edu.stanford.navi;
 
-import com.google.atap.tangoservice.TangoPoseData;
-
 import android.content.Context;
-
+import android.graphics.Color;
 import android.view.MotionEvent;
+
+import com.google.atap.tangoservice.TangoPoseData;
+import com.projecttango.rajawali.DeviceExtrinsics;
+import com.projecttango.rajawali.Pose;
+import com.projecttango.rajawali.ScenePoseCalculator;
+import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
 import org.rajawali3d.Object3D;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
-import org.rajawali3d.materials.textures.ATexture;
-import org.rajawali3d.materials.textures.Texture;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.Line3D;
-import org.rajawali3d.primitives.NPrism;
-
-import com.projecttango.rajawali.DeviceExtrinsics;
-import com.projecttango.rajawali.Pose;
-import com.projecttango.rajawali.ScenePoseCalculator;
-import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
 import java.util.Stack;
 
@@ -55,11 +51,8 @@ import java.util.Stack;
  * (@see AugmentedRealityActivity)
  */
 public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
-    private static final float CUBE_SIDE_LENGTH = 0.5f;
+    private static final float CUBE_SIDE_LENGTH = 0.1f;
 
-    private Object3D mObject;
-    private float offsetScale = 1.5f;
-    //private Object3D [] points;
     float[][] pathPoints;
     private boolean pathObjectUpdated = false;
     Material material;
@@ -81,20 +74,16 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         light.setPosition(3, 2, 4);
         getCurrentScene().addLight(light);
 
-        //Adding a second directional light so we can hopefully the model from all angles
-        //**IMPORTANT: Tango died before this was tested
-        DirectionalLight light0 = new DirectionalLight(-1, 0.2, 1);
+        //Adding a second directional light from top
+        DirectionalLight light0 = new DirectionalLight(-1, -1, 0.2);
         light0.setColor(1, 1, 1);
         light0.setPower(0.8f);
         light0.setPosition(3, 2, 4);
         getCurrentScene().addLight(light0);
 
-        // Set-up a material: green with application of the light and
-        // instructions.
+        // Set-up a material
         material = new Material();
-        material.setColor(0xcc00ff);
-
-        material.setColorInfluence(0.1f);
+        material.setColor(Color.GREEN); // Purple 0xcc00ff
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
@@ -106,24 +95,23 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
             if (pathObjectUpdated) {
-                // Experiment that creates three cubes and a line in between
-                for(int i = 0; i < 3; i++) {
+                Stack<Vector3> stack = new Stack<Vector3>();
+                for(int i = 0; i < pathPoints.length; i++) {
+                    // Transform to virtual reference system, where y is the altitude
+                    Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
+
                     Object3D point = new Cube(CUBE_SIDE_LENGTH);
                     point.setMaterial(material);
-                    point.setPosition(0, -1, i*3);
-                    System.out.println("Adding cube at (" + 0 + ", -1, " + i*3 + ")");
+                    point.setPosition(pose);
+
+                    System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
+                    stack.push(pose);
                 }
-
-                Vector3 vec = new Vector3(0,-1,0);
-                Vector3 vec1 = new Vector3(0,-1,3);
-
-                Stack<Vector3> stack = new Stack<Vector3>();
-                stack.push(vec);
-                stack.push(vec1);
-
-                Line3D line = new Line3D(stack, 100, 0xcc00ff);
-                line.setMaterial(material);
+                Material lineMaterial = new Material();
+                lineMaterial.setColor(Color.BLUE);
+                Line3D line = new Line3D(stack, 500f);
+                line.setMaterial(lineMaterial);
                 getCurrentScene().addChild(line);
 
                 pathObjectUpdated = false;

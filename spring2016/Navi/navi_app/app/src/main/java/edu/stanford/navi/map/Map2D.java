@@ -49,7 +49,8 @@ public class Map2D {
         mContext = context;
 
         try {
-            img = Utils.loadResource(mContext, R.drawable.huang2f, CvType.CV_8UC3);
+            // Load map image specified by R.drawable.filename
+            img = Utils.loadResource(mContext, R.drawable.quillen_616, CvType.CV_8UC3);
             Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);
             Imgproc.resize(img, img, new Size(0, 0), scale, scale, Imgproc.INTER_LINEAR);
             imgBg = Mat.zeros(img.rows(), img.cols(), CvType.CV_8U);
