@@ -52,8 +52,6 @@ import java.util.Stack;
  */
 public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     private static final float CUBE_SIDE_LENGTH = 0.1f;
-    private static final float LARGE_RADIUS = 0.2f;
-    private static final float SMALL_RADIUS= 0.18f;
 
     float[][] pathPoints;
     private boolean pathObjectUpdated = false;
@@ -76,20 +74,16 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         light.setPosition(3, 2, 4);
         getCurrentScene().addLight(light);
 
-        //Adding a second directional light so we can hopefully the model from all angles
-        //**IMPORTANT: Tango died before this was tested
+        //Adding a second directional light from top
         DirectionalLight light0 = new DirectionalLight(-1, -1, 0.2);
         light0.setColor(1, 1, 1);
         light0.setPower(0.8f);
         light0.setPosition(3, 2, 4);
         getCurrentScene().addLight(light0);
 
-        // Set-up a material: green with application of the light and
-        // instructions.
+        // Set-up a material
         material = new Material();
         material.setColor(Color.GREEN); // Purple 0xcc00ff
-
-//        material.setColorInfluence(0.1f);
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
@@ -101,16 +95,16 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
             if (pathObjectUpdated) {
-                // Experiment that creates three cubes and a line in between
                 Stack<Vector3> stack = new Stack<Vector3>();
                 for(int i = 0; i < pathPoints.length; i++) {
-
+                    // Transform to virtual reference system, where y is the altitude
                     Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
+
                     Object3D point = new Cube(CUBE_SIDE_LENGTH);
                     point.setMaterial(material);
                     point.setPosition(pose);
 
-                    System.out.println("Adding cube at (" + pathPoints[i][0] + ", -1, " + pathPoints[i][1] + ")");
+                    System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
                     stack.push(pose);
                 }

@@ -564,8 +564,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                //System.out.println("update!");
-
 
                                 if (mIsRelocalized) {
                                     //System.out.println("world coor1: "+worldCoor[0]+", "+worldCoor[1]);
@@ -578,7 +576,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                                     paint.setTextSize(50);
                                     canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
                                     canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(bmpCoor[0]) + ", " + Float.toString(bmpCoor[0]), 10, 100, paint);
-                                    canvas.drawText("Localized", 200, 100, paint);
                                     paint.setColor(Color.BLUE);
                                     if (bmpCoorDestimation != null) {
                                         canvas.drawCircle(bmpCoorDestimation[0], bmpCoorDestimation[1], 20, paint);
