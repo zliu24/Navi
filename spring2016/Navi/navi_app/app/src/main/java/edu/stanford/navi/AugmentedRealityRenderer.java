@@ -51,7 +51,9 @@ import java.util.Stack;
  * (@see AugmentedRealityActivity)
  */
 public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
-    private static final float CUBE_SIDE_LENGTH = 0.5f;
+    private static final float CUBE_SIDE_LENGTH = 0.1f;
+    private static final float LARGE_RADIUS = 0.2f;
+    private static final float SMALL_RADIUS= 0.18f;
 
     float[][] pathPoints;
     private boolean pathObjectUpdated = false;
@@ -76,7 +78,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
         //Adding a second directional light so we can hopefully the model from all angles
         //**IMPORTANT: Tango died before this was tested
-        DirectionalLight light0 = new DirectionalLight(-1, 0.2, 1);
+        DirectionalLight light0 = new DirectionalLight(-1, -1, 0.2);
         light0.setColor(1, 1, 1);
         light0.setPower(0.8f);
         light0.setPosition(3, 2, 4);
@@ -87,7 +89,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         material = new Material();
         material.setColor(Color.GREEN); // Purple 0xcc00ff
 
-        material.setColorInfluence(0.1f);
+//        material.setColorInfluence(0.1f);
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
@@ -103,7 +105,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                 Stack<Vector3> stack = new Stack<Vector3>();
                 for(int i = 0; i < pathPoints.length; i++) {
 
-                    Vector3 pose = new Vector3(pathPoints[i][0],-1,pathPoints[i][1]);
+                    Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
                     Object3D point = new Cube(CUBE_SIDE_LENGTH);
                     point.setMaterial(material);
                     point.setPosition(pose);
@@ -112,8 +114,10 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     getCurrentScene().addChild(point);
                     stack.push(pose);
                 }
-                Line3D line = new Line3D(stack, 100, Color.BLUE);
-                line.setMaterial(material);
+                Material lineMaterial = new Material();
+                lineMaterial.setColor(Color.BLUE);
+                Line3D line = new Line3D(stack, 500f);
+                line.setMaterial(lineMaterial);
                 getCurrentScene().addChild(line);
 
                 pathObjectUpdated = false;
