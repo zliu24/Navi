@@ -33,13 +33,6 @@
             android:id="@+id/linearLayout"
             android:background="@color/white">
 
-
-            <!--<EditText-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/editText"-->
-                <!--android:layout_weight="1" />-->
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,11 +40,6 @@
                 android:textSize="15dp"
                 android:id="@+id/textView"
                 android:gravity="center"/>
-
-            <!--<Spinner-->
-                <!--android:id="@+id/spinner"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="50dp" />-->
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -97,5 +85,9 @@
             android:layout_toEndOf="@+id/pink_navi_logo"
             android:layout_alignStart="@+id/pink_navi_logo" />
 
+        <com.google.atap.tango.ux.TangoUxLayout
+            android:id="@+id/layout_tango"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </RelativeLayout>
 </LinearLayout>

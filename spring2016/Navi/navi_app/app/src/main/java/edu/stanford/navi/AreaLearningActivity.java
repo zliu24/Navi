@@ -39,6 +39,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.atap.tango.ux.TangoUx;
+import com.google.atap.tango.ux.TangoUx.StartParams;
+import com.google.atap.tango.ux.TangoUxLayout;
+import com.google.atap.tango.ux.UxExceptionEvent;
+import com.google.atap.tango.ux.UxExceptionEventListener;
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.Tango.OnTangoUpdateListener;
 import com.google.atap.tangoservice.TangoCameraIntrinsics;
@@ -87,10 +92,11 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
     private ImageView imageView;
     private TextView textView;
-    // private Spinner spinner;
     private ListView listOfRooms;
 
-    private AreaLearningRajawaliRenderer mRenderer;
+    // UX
+    TangoUx mTangoUx;
+    TangoUxLayout mTangoUxLayout;
 
     // AR view and renderer
     private TangoRajawaliView mARView;
@@ -138,6 +144,9 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set up UX
+        mTangoUx = new TangoUx(this);
+
         //Set up AR view
         mARView = new TangoRajawaliView(this);
         mARRenderer = new AugmentedRealityRenderer(this);
@@ -146,6 +155,9 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.activity_area_learning, null, false);
         layout.addView(mARView);
         setContentView(layout);
+
+        mTangoUxLayout = (TangoUxLayout) findViewById(R.id.layout_tango);
+        mTangoUx.setLayout(mTangoUxLayout);
 
         Intent intent = getIntent();
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
@@ -164,9 +176,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         selectRoomInstruction.setTypeface(face);
         selectRoomInstruction.setTypeface(face);
-
-        // Configure OpenGL renderer
-//        mRenderer = setupGLViewAndRenderer();
 
         count = 0;
     }
@@ -207,6 +216,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                 mARRenderer.getCurrentScene().clearFrameCallbacks();
                 mARView.disconnectCamera();
                 mTango.disconnect();
+                mTangoUx.stop();
             }
         } catch (TangoErrorException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
@@ -224,6 +234,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
         // Re-attach listeners.
         try {
+            setUpTangoUXListeners();
             setUpTangoListeners();
         } catch (TangoErrorException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
@@ -236,6 +247,9 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         // Connect to the tango service (start receiving pose updates).
         if (mIsConnected.compareAndSet(false, true)) {
             try {
+                StartParams params = new StartParams();
+//                params.showConnectionScreen = false;
+                mTangoUx.start(params);
                 mTango.connect(mConfig);
                 mExtrinsics = setupExtrinsics(mTango);
                 mIntrinsics = mTango.getCameraIntrinsics(TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
@@ -259,6 +273,44 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         screenSize = new Point();
         display.getSize(screenSize);
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
+    }
+
+    private void setUpTangoUXListeners() {
+        UxExceptionEventListener mUxExceptionEventListener = new UxExceptionEventListener() {
+            @Override
+            public void onUxExceptionEvent(UxExceptionEvent uxExceptionEvent) {
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_LYING_ON_SURFACE) {
+                    Log.i(TAG, "Device lying on surface ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_FEW_DEPTH_POINTS) {
+                    Log.i(TAG, "Very few depth points in mPoint cloud ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_FEW_FEATURES) {
+                    Log.i(TAG, "Invalid poses in MotionTracking ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_INCOMPATIBLE_VM) {
+                    Log.i(TAG, "Device not running on ART");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_MOTION_TRACK_INVALID) {
+                    Log.i(TAG, "Invalid poses in MotionTracking ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_MOVING_TOO_FAST) {
+                    Log.i(TAG, "Invalid poses in MotionTracking ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_OVER_EXPOSED) {
+                    Log.i(TAG, "Camera Over Exposed");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_TANGO_SERVICE_NOT_RESPONDING) {
+                    Log.i(TAG, "TangoService is not responding ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_UNDER_EXPOSED) {
+                    Log.i(TAG, "Camera Under Exposed ");
+                }
+
+            }
+        };
+
+        mTangoUx.setUxExceptionEventListener(mUxExceptionEventListener);
     }
 
     /**
@@ -393,7 +445,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mRenderer.onTouchEvent(event);
         return true;
     }
 
@@ -453,11 +504,17 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             @Override
             public void onXyzIjAvailable(TangoXyzIjData xyzij) {
                 // Not using XyzIj data for this sample
+                if (mTangoUx != null) {
+                    mTangoUx.updateXyzCount(xyzij.xyzCount);
+                }
             }
 
             // Listen to Tango Events
             @Override
             public void onTangoEvent(final TangoEvent event) {
+                if (mTangoUx != null) {
+                    mTangoUx.updateTangoEvent(event);
+                }
             }
 
             @Override
@@ -466,6 +523,11 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                 // Make sure to have atomic access to Tango Data so that
                 // UI loop doesn't interfere while Pose call back is updating
                 // the data.
+
+                if (mTangoUx != null) {
+                    mTangoUx.updatePoseStatus(pose.statusCode);
+//                    System.out.println("coor0: " + pose.toString());
+                }
 
                 if (mIsConstantSpaceRelocalize) {
                     runOnUiThread(new Runnable() {
