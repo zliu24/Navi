@@ -14,16 +14,17 @@
    limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="400dp"
+              android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="horizontal">
 
     <RelativeLayout android:layout_width="400dp"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:background="@color/white">
+                    android:background="@color/white"
+        android:id="@+id/relativeLayout">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -85,9 +86,17 @@
             android:layout_toEndOf="@+id/pink_navi_logo"
             android:layout_alignStart="@+id/pink_navi_logo" />
 
-        <com.google.atap.tango.ux.TangoUxLayout
-            android:id="@+id/layout_tango"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
     </RelativeLayout>
-</LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/ar_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/relativeLayout"></RelativeLayout>
+
+    <com.google.atap.tango.ux.TangoUxLayout
+        android:id="@+id/layout_tango"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</RelativeLayout>
