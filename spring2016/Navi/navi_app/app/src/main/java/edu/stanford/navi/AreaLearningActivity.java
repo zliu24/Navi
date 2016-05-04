@@ -16,7 +16,6 @@
 
 package edu.stanford.navi;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -27,18 +26,22 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.atap.tango.ux.TangoUx;
+import com.google.atap.tango.ux.TangoUx.StartParams;
+import com.google.atap.tango.ux.TangoUxLayout;
+import com.google.atap.tango.ux.UxExceptionEvent;
+import com.google.atap.tango.ux.UxExceptionEventListener;
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.Tango.OnTangoUpdateListener;
 import com.google.atap.tangoservice.TangoCameraIntrinsics;
@@ -58,7 +61,6 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,48 +71,39 @@ import edu.stanford.navi.map.Map2D;
  * and propagation of Tango pose data to OpenGL and Layout views. OpenGL rendering logic is
  * delegated to the {@link AreaLearningRajawaliRenderer} class.
  */
-public class AreaLearningActivity extends BaseActivity implements View.OnClickListener,
-        SetADFNameDialog.CallbackListener, SaveAdfTask.SaveAdfListener, OnItemClickListener {
+public class AreaLearningActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
     private static final String TAG = AreaLearningActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
+    private static final double UPDATE_INTERVAL_MS = 100.0;
+
     private Tango mTango;
     private TangoConfig mConfig;
-//    private TextView mUuidTextView;
-//    private CharSequence mUuidTextViewCopy;
-//    private TextView mRelocalizationTextView;
+    private boolean mIsRelocalized = false;
+    private AtomicBoolean mIsConnected = new AtomicBoolean(false);
 
+    private final Object mSharedLock = new Object();
     private double mPreviousPoseTimeStamp;
     private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
 
-    private boolean mIsRelocalized;
     private String mSelectedUUID;
     private String mSelectedADFName;
     private boolean mIsConstantSpaceRelocalize;
-
     private ImageView imageView;
     private TextView textView;
-    // private Spinner spinner;
     private ListView listOfRooms;
 
-    private AreaLearningRajawaliRenderer mRenderer;
+    // UX
+    TangoUx mTangoUx;
+    TangoUxLayout mTangoUxLayout;
 
     // AR view and renderer
     private TangoRajawaliView mARView;
     private AugmentedRealityRenderer mARRenderer;
     private DeviceExtrinsics mExtrinsics;
-    private TangoCameraIntrinsics mIntrinsics;
-    private AtomicBoolean mIsConnected = new AtomicBoolean(false);
     private double mCameraPoseTimestamp = 0;
 
-    // Long-running task to save the ADF.
-    private SaveAdfTask mSaveAdfTask;
-
-    private static final double UPDATE_INTERVAL_MS = 100.0;
-    private static final DecimalFormat FORMAT_THREE_DECIMAL = new DecimalFormat("00.000");
-
-    private final Object mSharedLock = new Object();
-
+    //2D Map
     private Map2D map2D;
     private Point screenSize;
     private int count;
@@ -134,32 +127,14 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    public void onNothingSelected(AdapterView<?> parentView){
-        System.out.println("Nothing selected!");
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Set up AR view
-        mARView = new TangoRajawaliView(this);
-        mARRenderer = new AugmentedRealityRenderer(this);
-        mARView.setSurfaceRenderer(mARRenderer);
+        setContentView(R.layout.activity_area_learning);
 
-        LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.activity_area_learning, null, false);
-        layout.addView(mARView);
-        setContentView(layout);
-
-        Intent intent = getIntent();
-        mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
-        mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
-        mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
-
-        // Instantiate the Tango service
-        mTango = new Tango(this);
-        mIsRelocalized = false;
-        mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
-        setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
+        setupARViewAndRenderer();
+        setupTangoUX();
+        setupTango();
 
         // Set instruction font to Avenir
         TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
@@ -167,9 +142,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         selectRoomInstruction.setTypeface(face);
         selectRoomInstruction.setTypeface(face);
-
-        // Configure OpenGL renderer
-//        mRenderer = setupGLViewAndRenderer();
 
         count = 0;
     }
@@ -186,22 +158,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    /**
-     * Implements SetADFNameDialog.CallbackListener.
-     */
-    @Override
-    public void onAdfNameOk(String name, String uuid) {
-        saveAdf(name);
-    }
-
-    /**
-     * Implements SetADFNameDialog.CallbackListener.
-     */
-    @Override
-    public void onAdfNameCancelled() {
-        // Continue running.
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -210,6 +166,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                 mARRenderer.getCurrentScene().clearFrameCallbacks();
                 mARView.disconnectCamera();
                 mTango.disconnect();
+                mTangoUx.stop();
             }
         } catch (TangoErrorException e) {
             Toast.makeText(getApplicationContext(), R.string.tango_error, Toast.LENGTH_SHORT)
@@ -239,9 +196,9 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         // Connect to the tango service (start receiving pose updates).
         if (mIsConnected.compareAndSet(false, true)) {
             try {
+                mTangoUx.start(new StartParams());
                 mTango.connect(mConfig);
                 mExtrinsics = setupExtrinsics(mTango);
-                mIntrinsics = mTango.getCameraIntrinsics(TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
                 connectARRenderer();
 
             } catch (TangoOutOfDateException e) {
@@ -262,6 +219,87 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         screenSize = new Point();
         display.getSize(screenSize);
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    /**
+     * Listens for click events from any button in the view.
+     */
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            default:
+                Log.w(TAG, "Unknown button click");
+                return;
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
+
+    private void setupARViewAndRenderer() {
+        mARView = new TangoRajawaliView(this);
+        mARRenderer = new AugmentedRealityRenderer(this);
+        mARView.setSurfaceRenderer(mARRenderer);
+
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.ar_view);
+        layout.addView(mARView);
+    }
+
+    private void setupTangoUX () {
+        mTangoUx = new TangoUx(this);
+        mTangoUxLayout = (TangoUxLayout) findViewById(R.id.layout_tango);
+        mTangoUx.setLayout(mTangoUxLayout);
+        mTangoUx.setUxExceptionEventListener(new UxExceptionEventListener() {
+            @Override
+            public void onUxExceptionEvent(UxExceptionEvent uxExceptionEvent) {
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_LYING_ON_SURFACE) {
+                    Log.i(TAG, "Device lying on surface ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_FEW_DEPTH_POINTS) {
+                    Log.i(TAG, "Very few depth points in mPoint cloud ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_FEW_FEATURES) {
+                    Log.i(TAG, "Invalid poses in MotionTracking ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_INCOMPATIBLE_VM) {
+                    Log.i(TAG, "Device not running on ART");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_MOTION_TRACK_INVALID) {
+                    Log.i(TAG, "Invalid poses in MotionTracking ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_MOVING_TOO_FAST) {
+                    Log.i(TAG, "Invalid poses in MotionTracking ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_OVER_EXPOSED) {
+                    Log.i(TAG, "Camera Over Exposed");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_TANGO_SERVICE_NOT_RESPONDING) {
+                    Log.i(TAG, "TangoService is not responding ");
+                }
+                if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_UNDER_EXPOSED) {
+                    Log.i(TAG, "Camera Under Exposed ");
+                }
+
+            }
+        });
+    }
+
+    private void setupTango () {
+        Intent intent = getIntent();
+        mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
+        mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
+        mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
+
+        mTango = new Tango(this);
+        mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
+        setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
     }
 
     /**
@@ -350,14 +388,14 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         @Override
         public void onManagerConnected(int status) {
             if (status == LoaderCallbackInterface.SUCCESS) {
-                helloWorld();
+                initNaviPanel();
             } else {
                 super.onManagerConnected(status);
             }
         }
     };
 
-    private void helloWorld() {
+    private void initNaviPanel() {
         int start = 0;
         int end = 1;
 
@@ -376,43 +414,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         listOfRooms.setAdapter(adapter);
         listOfRooms.setOnItemClickListener(this);
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    /**
-     * Listens for click events from any button in the view.
-     */
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            default:
-                Log.w(TAG, "Unknown button click");
-                return;
-        }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mRenderer.onTouchEvent(event);
-        return true;
-    }
-
-    /**
-     * Sets Rajawalisurface view and its renderer. This is ideally called only once in onCreate.
-     */
-//    private AreaLearningRajawaliRenderer setupGLViewAndRenderer() {
-//        // Configure OpenGL renderer
-//        AreaLearningRajawaliRenderer renderer = new AreaLearningRajawaliRenderer(this);
-//        // OpenGL view where all of the graphics are drawn
-//        RajawaliSurfaceView glView = (RajawaliSurfaceView) findViewById(R.id.gl_surface_view);
-//        glView.setEGLContextClientVersion(2);
-//        glView.setRenderMode(IRajawaliSurface.RENDERMODE_CONTINUOUSLY);
-//        glView.setSurfaceRenderer(renderer);
-//        return renderer;
-//    }
 
     /**
      * Sets Texts views to display statistics of Poses being received. This also sets the buttons
@@ -439,14 +440,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
         // Check for Load ADF/Constant Space relocalization mode
         if (isLoadAdf) {
-//            ArrayList<String> fullUUIDList = new ArrayList<String>();
-//            // Returns a list of ADFs with their UUIDs
-//            fullUUIDList = tango.listAreaDescriptions();
-//            // Load the latest ADF if ADFs are found.
-//            if (fullUUIDList.size() > 0) {
-//                config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION,
-//                        fullUUIDList.get(fullUUIDList.size() - 1));
-//            }
             if (mSelectedUUID != null) {
                 config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION, mSelectedUUID);
             }
@@ -477,11 +470,17 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             @Override
             public void onXyzIjAvailable(TangoXyzIjData xyzij) {
                 // Not using XyzIj data for this sample
+                if (mTangoUx != null) {
+                    mTangoUx.updateXyzCount(xyzij.xyzCount);
+                }
             }
 
             // Listen to Tango Events
             @Override
             public void onTangoEvent(final TangoEvent event) {
+                if (mTangoUx != null) {
+                    mTangoUx.updateTangoEvent(event);
+                }
             }
 
             @Override
@@ -490,6 +489,11 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
                 // Make sure to have atomic access to Tango Data so that
                 // UI loop doesn't interfere while Pose call back is updating
                 // the data.
+
+                if (mTangoUx != null) {
+                    mTangoUx.updatePoseStatus(pose.statusCode);
+//                    System.out.println("coor0: " + pose.toString());
+                }
 
                 if (mIsConstantSpaceRelocalize) {
                     runOnUiThread(new Runnable() {
@@ -543,22 +547,9 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
                 if (mTimeToNextUpdate < 0.0) {
                     mTimeToNextUpdate = UPDATE_INTERVAL_MS;
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            synchronized (mSharedLock) {
-//                                mRelocalizationTextView.setText(mIsRelocalized ?
-//                                        getString(R.string.localized) :
-//                                        getString(R.string.not_localized));
-                            }
-                        }
-                    });
                 }
 
                 if (updateRenderer) {
-//                    mRenderer.updateDevicePose(pose, mIsRelocalized);
-
                     count++;
                     if (count > 50) {
                         runOnUiThread(new Runnable() {
@@ -597,53 +588,5 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
             }
         });
-    }
-
-    /**
-     * Save the current Area Description File.
-     * Performs saving on a background thread and displays a progress dialog.
-     */
-    private void saveAdf(String adfName) {
-        mSaveAdfTask = new SaveAdfTask(this, this, mTango, adfName);
-        mSaveAdfTask.execute();
-    }
-
-    /**
-     * Handles failed save from mSaveAdfTask.
-     */
-    @Override
-    public void onSaveAdfFailed(String adfName) {
-        String toastMessage = String.format(
-                getResources().getString(R.string.save_adf_failed_toast_format),
-                adfName);
-        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
-        mSaveAdfTask = null;
-    }
-
-    /**
-     * Handles successful save from mSaveAdfTask.
-     */
-    @Override
-    public void onSaveAdfSuccess(String adfName, String adfUuid) {
-        String toastMessage = String.format(
-                getResources().getString(R.string.save_adf_success_toast_format),
-                adfName, adfUuid);
-        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
-        mSaveAdfTask = null;
-        finish();
-    }
-
-    /**
-     * Shows a dialog for setting the ADF name.
-     */
-    private void showSetADFNameDialog() {
-        Bundle bundle = new Bundle();
-        bundle.putString("name", "New ADF");
-        bundle.putString("id", ""); // UUID is generated after the ADF is saved.
-
-        FragmentManager manager = getFragmentManager();
-        SetADFNameDialog setADFNameDialog = new SetADFNameDialog();
-        setADFNameDialog.setArguments(bundle);
-        setADFNameDialog.show(manager, "ADFNameDialog");
     }
 }
