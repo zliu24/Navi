@@ -95,6 +95,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
             if (pathObjectUpdated) {
+                getCurrentScene().clearChildren();
                 Stack<Vector3> stack = new Stack<Vector3>();
                 for(int i = 0; i < pathPoints.length; i++) {
                     // Transform to virtual reference system, where y is the altitude
