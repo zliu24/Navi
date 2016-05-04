@@ -16,7 +16,6 @@
 
 package edu.stanford.navi;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -27,14 +26,12 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -64,7 +61,6 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
