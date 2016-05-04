@@ -30,6 +30,11 @@ if (project.hasProperty("Tango.catkin_devel_prefix")) {
     external_lib_prefix = "../../TangoReleaseLibs"
 }
 
+repositories {
+    flatDir {
+        dirs external_lib_prefix + '/aar'
+    }
+}
 
 dependencies {
     compile fileTree(dir: external_lib_prefix + '/jar', include: ['**/*.jar'])
@@ -37,4 +42,5 @@ dependencies {
     compile files('libs/commons-math3-3.6.1.jar')
     compile project(':openCVLibrary310')
     compile project(':navi_utils')
+    compile(name: 'tango-ux-support-library', ext: 'aar')
 }

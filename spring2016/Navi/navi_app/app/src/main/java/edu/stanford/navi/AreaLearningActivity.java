@@ -76,9 +76,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     private static final int SECS_TO_MILLISECS = 1000;
     private Tango mTango;
     private TangoConfig mConfig;
-//    private TextView mUuidTextView;
-//    private CharSequence mUuidTextViewCopy;
-//    private TextView mRelocalizationTextView;
 
     private double mPreviousPoseTimeStamp;
     private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
@@ -400,19 +397,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         return true;
     }
 
-    /**
-     * Sets Rajawalisurface view and its renderer. This is ideally called only once in onCreate.
-     */
-//    private AreaLearningRajawaliRenderer setupGLViewAndRenderer() {
-//        // Configure OpenGL renderer
-//        AreaLearningRajawaliRenderer renderer = new AreaLearningRajawaliRenderer(this);
-//        // OpenGL view where all of the graphics are drawn
-//        RajawaliSurfaceView glView = (RajawaliSurfaceView) findViewById(R.id.gl_surface_view);
-//        glView.setEGLContextClientVersion(2);
-//        glView.setRenderMode(IRajawaliSurface.RENDERMODE_CONTINUOUSLY);
-//        glView.setSurfaceRenderer(renderer);
-//        return renderer;
-//    }
 
     /**
      * Sets Texts views to display statistics of Poses being received. This also sets the buttons
@@ -439,14 +423,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
         // Check for Load ADF/Constant Space relocalization mode
         if (isLoadAdf) {
-//            ArrayList<String> fullUUIDList = new ArrayList<String>();
-//            // Returns a list of ADFs with their UUIDs
-//            fullUUIDList = tango.listAreaDescriptions();
-//            // Load the latest ADF if ADFs are found.
-//            if (fullUUIDList.size() > 0) {
-//                config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION,
-//                        fullUUIDList.get(fullUUIDList.size() - 1));
-//            }
             if (mSelectedUUID != null) {
                 config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION, mSelectedUUID);
             }
@@ -543,22 +519,9 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
                 if (mTimeToNextUpdate < 0.0) {
                     mTimeToNextUpdate = UPDATE_INTERVAL_MS;
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            synchronized (mSharedLock) {
-//                                mRelocalizationTextView.setText(mIsRelocalized ?
-//                                        getString(R.string.localized) :
-//                                        getString(R.string.not_localized));
-                            }
-                        }
-                    });
                 }
 
                 if (updateRenderer) {
-//                    mRenderer.updateDevicePose(pose, mIsRelocalized);
-
                     count++;
                     if (count > 50) {
                         runOnUiThread(new Runnable() {
