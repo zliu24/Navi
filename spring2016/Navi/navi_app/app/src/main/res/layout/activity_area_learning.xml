@@ -37,7 +37,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hello World!"
+                android:text=""
                 android:textSize="15dp"
                 android:id="@+id/textView"
                 android:gravity="center"/>

@@ -124,6 +124,11 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             mARRenderer.updatePathObject(map2D.getWolrdPath());
             long endTime = System.currentTimeMillis();
             System.out.println("That took " + (endTime - startTime) + " milliseconds");
+
+            textView = (TextView) findViewById(R.id.textView);
+            textView.setText("Navigating to " + map2D.getLocation(position));
+            Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+            textView.setTypeface(face);
         }
     }
 
@@ -404,10 +409,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
 
-        textView = (TextView) findViewById(R.id.textView);
-        textView.setText("Navigating from " + map2D.getLocation(start) + " to " + map2D.getLocation(end));
-        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-        textView.setTypeface(face);
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getLocations());
