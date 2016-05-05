@@ -1,7 +1,7 @@
 # navi-code
 
-### Active branches
-- Master
+### Active code branches
+- master
 - splitCameraview
 
 ### Flowchart: 
