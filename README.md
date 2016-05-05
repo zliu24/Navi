@@ -1,5 +1,9 @@
 # navi-code
 
+### Active branches
+- Master
+- splitCameraview
+
 ### Flowchart: 
 ------------------
 <img src="https://github.com/cs210/daqri-code/blob/master/document/img1.png" width="400">
