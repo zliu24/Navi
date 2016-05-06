@@ -33,6 +33,8 @@ import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.Line3D;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -52,8 +54,11 @@ import java.util.Stack;
  */
 public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     private static final float CUBE_SIDE_LENGTH = 0.1f;
+    private static final String TAG = AugmentedRealityRenderer.class.getSimpleName();
 
     float[][] pathPoints;
+    List<Object3D> pathObjects;
+    Line3D line;
     private boolean pathObjectUpdated = false;
     Material material;
 
@@ -95,7 +100,14 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
             if (pathObjectUpdated) {
-                getCurrentScene().clearChildren();
+                if(pathObjects != null && line != null) {
+                    for(int i = 0; i < pathObjects.size(); i++) {
+                        getCurrentScene().removeChild(pathObjects.get(i));
+                    }
+                    getCurrentScene().removeChild(line);
+                }
+
+                pathObjects = new ArrayList<Object3D>();
                 Stack<Vector3> stack = new Stack<Vector3>();
                 for(int i = 0; i < pathPoints.length; i++) {
                     // Transform to virtual reference system, where y is the altitude
@@ -107,14 +119,10 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                     System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
+                    pathObjects.add(point);
                     stack.push(pose);
                 }
-                Material lineMaterial = new Material();
-                lineMaterial.setColor(Color.BLUE);
-                Line3D line = new Line3D(stack, 500f);
-                line.setMaterial(lineMaterial);
-                getCurrentScene().addChild(line);
-
+                addLine(stack);
                 pathObjectUpdated = false;
 
             }
@@ -130,7 +138,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     public synchronized void updatePathObject(float[][] pathPoints) {
         pathObjectUpdated = true;
         this.pathPoints = pathPoints;
-
     }
 
     /**
@@ -144,6 +151,14 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         Pose cameraPose = ScenePoseCalculator.toOpenGlCameraPose(devicePose, extrinsics);
         getCurrentCamera().setRotation(cameraPose.getOrientation());
         getCurrentCamera().setPosition(cameraPose.getPosition());
+    }
+
+    private void addLine(Stack<Vector3> stack) {
+        Material lineMaterial = new Material();
+        lineMaterial.setColor(Color.BLUE);
+        line = new Line3D(stack, 500f);
+        line.setMaterial(lineMaterial);
+        getCurrentScene().addChild(line);
     }
 
     @Override

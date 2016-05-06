@@ -1,0 +1,5 @@
+279,115,Window
+305,378,DoorB
+343,414,Hallway
+381,485,Door
+550,467,Kitchen
