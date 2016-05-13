@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/TangoReleaseLibs/jar/tango_java_lib.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a457680a88df2b3a1cffc74e302a20d439a32882">
+        <dex dex="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/pre-dexed/debug/tango_java_lib-e08fb3748733c99de6247073c6f32797d9204235.jar" />
+    </item>
+    <item
+        jar="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/libs/commons-math3-3.6.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e4ba98f1d4b3c80ec46392f25e094a6a2e58fcbf">
+        <dex dex="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/pre-dexed/debug/commons-math3-3.6.1-db6164a33269f8cc43942511ad30c5922fdc5cf4.jar" />
+    </item>
+    <item
+        jar="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/exploded-aar/org.rajawali3d/rajawali/1.0.294-SNAPSHOT/jars/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d2d9278b181a6f41ac9fa2b4e18f873cd6a5b7d7">
+        <dex dex="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/pre-dexed/debug/classes-02315685a49a79f0cbb6e5ad502b4925f52d2f87.jar" />
+    </item>
+    <item
+        jar="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/exploded-aar/java_area_description_example/openCVLibrary310emma/unspecified/jars/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="df662bfc49b90873f5b4b9504358dde1ac3d54f0">
+        <dex dex="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/pre-dexed/debug/classes-602706541cea4284436f8717dc91172e3df010f4.jar" />
+    </item>
+    <item
+        jar="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/exploded-aar/java_area_description_example/java_examples_utils/unspecified/jars/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="df86ddcd61648ad0bc0358b83641d5367389699d">
+        <dex dex="/Users/geniehyatt/Documents/daqri-code/spring2016/AreaLearning/java_area_description_example/app/build/intermediates/pre-dexed/debug/classes-c4e06b728250bf09e4794f29895e2064863617f9.jar" />
+    </item>
+
+</items>

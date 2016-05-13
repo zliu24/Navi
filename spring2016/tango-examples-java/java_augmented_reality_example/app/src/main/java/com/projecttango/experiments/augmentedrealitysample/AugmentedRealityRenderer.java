@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 
 import org.rajawali3d.Object3D;
 import org.rajawali3d.lights.DirectionalLight;
+import org.rajawali3d.loader.LoaderOBJ;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.materials.textures.ATexture;
@@ -30,6 +31,8 @@ import org.rajawali3d.materials.textures.Texture;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.NPrism;
+import org.rajawali3d.loader.LoaderOBJ;
+import org.rajawali3d.loader.ParsingException;
 
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.Pose;
@@ -98,8 +101,19 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
+
+        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow1);
+        try {
+            objParser.parse();
+            mObject = objParser.getParsedObject();
+        } catch (ParsingException e) {
+            e.printStackTrace();
+        }
+        //mObject.setLight(mLight);
+
+
         // Build a Cube and place it initially in the origin.
-        mObject = new NPrism(4, 0.01, 0.3, 0.6);
+        //mObject = new NPrism(4, 0.01, 0.3, 0.6);
         //new Cube(CUBE_SIDE_LENGTH); <-- The original example had this instead
 
         mObject.setMaterial(material);
