@@ -1,5 +1,8 @@
-281,181,HomeOrganization
+281,181,Home Organization
 183,145,Shortcut
-374,163,Hangers
-408,209,LaundryBags
-232,258,TrashCan
+374,147,Hangers
+420,184,Laundry Bags
+232,258,Trash Can
+273,269,Baskets
+342,238,Gift Wraps
+402,264,Organization Boxes

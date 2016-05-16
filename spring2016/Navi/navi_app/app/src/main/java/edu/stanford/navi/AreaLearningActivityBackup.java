@@ -16,7 +16,6 @@
 
 package edu.stanford.navi;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -72,7 +71,7 @@ import edu.stanford.navi.map.Map2D;
  * and propagation of Tango pose data to OpenGL and Layout views. OpenGL rendering logic is
  * delegated to the {@link AreaLearningRajawaliRenderer} class.
  */
-public class AreaLearningActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
+public class AreaLearningActivityBackup extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
     private static final String TAG = AreaLearningActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
@@ -98,6 +97,12 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     TangoUx mTangoUx;
     TangoUxLayout mTangoUxLayout;
 
+    // AR view and renderer
+    private TangoRajawaliView mARView;
+    private AugmentedRealityRenderer mARRenderer;
+    private DeviceExtrinsics mExtrinsics;
+    private double mCameraPoseTimestamp = 0;
+
     //2D Map
     private Map2D map2D;
     private Point screenSize;
@@ -105,13 +110,8 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     private float []worldCoor = {0, 0};
     float []bmpCoorDestimation;
 
-    TextView navigateBtn;
-
     public void onItemClick(AdapterView<?> parentView, View v, int position, long id) {
-        Log.d(TAG, "Item selected with position: " + position);
-        if (navigateBtn.getVisibility() == View.INVISIBLE)
-            navigateBtn.setVisibility(View.VISIBLE);
-
+        System.out.println("Item selected with position: " + position);
         if (!mIsRelocalized) {
             return;
         }
@@ -121,6 +121,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             long startTime = System.currentTimeMillis();
             float []curMapCoor = map2D.world2map(worldCoor[0], worldCoor[1]);
             map2D.computePath((int)curMapCoor[0], (int)curMapCoor[1], position);
+            mARRenderer.updatePathObject(map2D.getWolrdPath());
             long endTime = System.currentTimeMillis();
             System.out.println("That took " + (endTime - startTime) + " milliseconds");
 
@@ -133,10 +134,10 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_area_learning);
 
+        setupARViewAndRenderer();
         setupTangoUX();
         setupTango();
 
@@ -145,19 +146,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         selectRoomInstruction.setTypeface(face);
-
-        final Context context = this;
-        navigateBtn = (TextView) findViewById(R.id.navigate);
-        navigateBtn.setTypeface(face);
-        navigateBtn.setVisibility(View.INVISIBLE);
-        navigateBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.d(TAG, "onClick");
-                Intent intent = new Intent(context, NavigationActivity.class);
-                startActivity(intent);
-                Log.d(TAG, "Intent");
-            }
-        });
+        selectRoomInstruction.setTypeface(face);
 
         count = 0;
     }
@@ -179,6 +168,8 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         super.onPause();
         try {
             if (mIsConnected.compareAndSet(true, false)) {
+                mARRenderer.getCurrentScene().clearFrameCallbacks();
+                mARView.disconnectCamera();
                 mTango.disconnect();
                 mTangoUx.stop();
             }
@@ -212,6 +203,8 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             try {
                 mTangoUx.start(new StartParams());
                 mTango.connect(mConfig);
+                mExtrinsics = setupExtrinsics(mTango);
+                connectARRenderer();
 
             } catch (TangoOutOfDateException e) {
                 Toast.makeText(getApplicationContext(), R.string.tango_out_of_date_exception, Toast
@@ -253,6 +246,15 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return true;
+    }
+
+    private void setupARViewAndRenderer() {
+        mARView = new TangoRajawaliView(this);
+        mARRenderer = new AugmentedRealityRenderer(this);
+        mARView.setSurfaceRenderer(mARRenderer);
+
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.ar_view);
+        layout.addView(mARView);
     }
 
     private void setupTangoUX () {
@@ -303,6 +305,65 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         mTango = new Tango(this);
         mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
         setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
+    }
+
+    /**
+     * Connects the view and renderer to the color camara and callbacks.
+     */
+    private void connectARRenderer() {
+        // Connect to color camera.
+        mARView.connectToTangoCamera(mTango, TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+
+        // Register a Rajawali Scene Frame Callback to update the scene camera pose whenever a new
+        // RGB frame is rendered.
+        // (@see https://github.com/Rajawali/Rajawali/wiki/Scene-Frame-Callbacks)
+        mARRenderer.getCurrentScene().registerFrameCallback(new ASceneFrameCallback() {
+            @Override
+            public void onPreFrame(long sceneTime, double deltaTime) {
+                if (!mIsConnected.get()) {
+                    return;
+                }
+                // NOTE: This is called from the OpenGL render thread, after all the renderer
+                // onRender callbacks had a chance to run and before scene objects are rendered
+                // into the scene.
+
+                // Note that the TangoRajwaliRenderer will update the RGB frame to the background
+                // texture and update the RGB timestamp before this callback is executed.
+
+                // If a new RGB frame has been rendered, update the camera pose to match.
+                // NOTE: This doesn't need to be synchronized since the renderer provided timestamp
+                // is also set in this same OpenGL thread.
+                double rgbTimestamp = mARRenderer.getTimestamp();
+                if (rgbTimestamp > mCameraPoseTimestamp) {
+                    // Calculate the device pose at the camera frame update time.
+                    TangoPoseData lastFramePose = mTango.getPoseAtTime(rgbTimestamp, new TangoCoordinateFramePair(
+                            TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
+                            TangoPoseData.COORDINATE_FRAME_DEVICE));
+                    if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
+                        // Update the camera pose from the renderer
+                        mARRenderer.updateRenderCameraPose(lastFramePose, mExtrinsics);
+                        mCameraPoseTimestamp = lastFramePose.timestamp;
+                    } else {
+                        //Log.w(TAG, "Unable to get device pose at time: " + rgbTimestamp);
+                    }
+                }
+            }
+
+            @Override
+            public void onPreDraw(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public void onPostFrame(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public boolean callPreFrame() {
+                return true;
+            }
+        });
     }
 
     /**
@@ -523,6 +584,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             @Override
             public void onFrameAvailable(int cameraId) {
                 if (cameraId == TangoCameraIntrinsics.TANGO_CAMERA_COLOR) {
+                    mARView.onFrameAvailable();
                 }
 
             }

@@ -16,7 +16,6 @@
 
 package edu.stanford.navi;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -72,94 +71,35 @@ import edu.stanford.navi.map.Map2D;
  * and propagation of Tango pose data to OpenGL and Layout views. OpenGL rendering logic is
  * delegated to the {@link AreaLearningRajawaliRenderer} class.
  */
-public class AreaLearningActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
+public class NavigationActivity extends BaseActivity {
 
-    private static final String TAG = AreaLearningActivity.class.getSimpleName();
-    private static final int SECS_TO_MILLISECS = 1000;
-    private static final double UPDATE_INTERVAL_MS = 100.0;
+    private static final String TAG = NavigationActivity.class.getSimpleName();
 
     private Tango mTango;
     private TangoConfig mConfig;
-    private boolean mIsRelocalized = false;
     private AtomicBoolean mIsConnected = new AtomicBoolean(false);
-
-    private final Object mSharedLock = new Object();
-    private double mPreviousPoseTimeStamp;
-    private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
-
-    private String mSelectedUUID;
-    private String mSelectedADFName;
-    private boolean mIsConstantSpaceRelocalize;
-    private ImageView imageView;
-    private TextView textView;
-    private ListView listOfRooms;
 
     // UX
     TangoUx mTangoUx;
     TangoUxLayout mTangoUxLayout;
 
-    //2D Map
-    private Map2D map2D;
-    private Point screenSize;
-    private int count;
-    private float []worldCoor = {0, 0};
-    float []bmpCoorDestimation;
+    // AR view and renderer
+    private TangoRajawaliView mARView;
+    private AugmentedRealityRenderer mARRenderer;
+    private DeviceExtrinsics mExtrinsics;
+    private double mCameraPoseTimestamp = 0;
 
-    TextView navigateBtn;
-
-    public void onItemClick(AdapterView<?> parentView, View v, int position, long id) {
-        Log.d(TAG, "Item selected with position: " + position);
-        if (navigateBtn.getVisibility() == View.INVISIBLE)
-            navigateBtn.setVisibility(View.VISIBLE);
-
-        if (!mIsRelocalized) {
-            return;
-        }
-
-        bmpCoorDestimation = map2D.map2bmp((float) map2D.points.get(position).x, (float) map2D.points.get(position).y);
-        if (mIsRelocalized) {
-            long startTime = System.currentTimeMillis();
-            float []curMapCoor = map2D.world2map(worldCoor[0], worldCoor[1]);
-            map2D.computePath((int)curMapCoor[0], (int)curMapCoor[1], position);
-            long endTime = System.currentTimeMillis();
-            System.out.println("That took " + (endTime - startTime) + " milliseconds");
-
-            textView = (TextView) findViewById(R.id.textView);
-            textView.setText("Navigating to " + map2D.getLocation(position));
-            Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-            textView.setTypeface(face);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate");
+        Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_area_learning);
+        setContentView(R.layout.navigation);
 
+        setupARViewAndRenderer();
         setupTangoUX();
         setupTango();
 
-        // Set instruction font to Avenir
-        TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
-
-        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-        selectRoomInstruction.setTypeface(face);
-
-        final Context context = this;
-        navigateBtn = (TextView) findViewById(R.id.navigate);
-        navigateBtn.setTypeface(face);
-        navigateBtn.setVisibility(View.INVISIBLE);
-        navigateBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.d(TAG, "onClick");
-                Intent intent = new Intent(context, NavigationActivity.class);
-                startActivity(intent);
-                Log.d(TAG, "Intent");
-            }
-        });
-
-        count = 0;
     }
 
     @Override
@@ -179,6 +119,8 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         super.onPause();
         try {
             if (mIsConnected.compareAndSet(true, false)) {
+                mARRenderer.getCurrentScene().clearFrameCallbacks();
+                mARView.disconnectCamera();
                 mTango.disconnect();
                 mTangoUx.stop();
             }
@@ -191,10 +133,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Clear the relocalization state: we don't know where the device has been since our app
-        // was paused.
-        mIsRelocalized = false;
 
         // Re-attach listeners.
         try {
@@ -212,6 +150,8 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             try {
                 mTangoUx.start(new StartParams());
                 mTango.connect(mConfig);
+                mExtrinsics = setupExtrinsics(mTango);
+                connectARRenderer();
 
             } catch (TangoOutOfDateException e) {
                 Toast.makeText(getApplicationContext(), R.string.tango_out_of_date_exception, Toast
@@ -225,12 +165,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
             }
         }
 
-        // OpenCV
-        System.out.println("\n\nOn Resume\n\n");
-        Display display = getWindowManager().getDefaultDisplay();
-        screenSize = new Point();
-        display.getSize(screenSize);
-        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
     }
 
     @Override
@@ -238,21 +172,18 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         super.onDestroy();
     }
 
-    /**
-     * Listens for click events from any button in the view.
-     */
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            default:
-                Log.w(TAG, "Unknown button click");
-                return;
-        }
-    }
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return true;
+    }
+
+    private void setupARViewAndRenderer() {
+        mARView = new TangoRajawaliView(this);
+        mARRenderer = new AugmentedRealityRenderer(this);
+        mARView.setSurfaceRenderer(mARRenderer);
+
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.ar_view);
+        layout.addView(mARView);
     }
 
     private void setupTangoUX () {
@@ -296,13 +227,68 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
     private void setupTango () {
         Intent intent = getIntent();
-        mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
-        mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
-        mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
 
         mTango = new Tango(this);
-        mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
-        setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
+        mConfig = setTangoConfig(mTango);
+    }
+
+    /**
+     * Connects the view and renderer to the color camara and callbacks.
+     */
+    private void connectARRenderer() {
+        // Connect to color camera.
+        mARView.connectToTangoCamera(mTango, TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+
+        // Register a Rajawali Scene Frame Callback to update the scene camera pose whenever a new
+        // RGB frame is rendered.
+        // (@see https://github.com/Rajawali/Rajawali/wiki/Scene-Frame-Callbacks)
+        mARRenderer.getCurrentScene().registerFrameCallback(new ASceneFrameCallback() {
+            @Override
+            public void onPreFrame(long sceneTime, double deltaTime) {
+                if (!mIsConnected.get()) {
+                    return;
+                }
+                // NOTE: This is called from the OpenGL render thread, after all the renderer
+                // onRender callbacks had a chance to run and before scene objects are rendered
+                // into the scene.
+
+                // Note that the TangoRajwaliRenderer will update the RGB frame to the background
+                // texture and update the RGB timestamp before this callback is executed.
+
+                // If a new RGB frame has been rendered, update the camera pose to match.
+                // NOTE: This doesn't need to be synchronized since the renderer provided timestamp
+                // is also set in this same OpenGL thread.
+                double rgbTimestamp = mARRenderer.getTimestamp();
+                if (rgbTimestamp > mCameraPoseTimestamp) {
+                    // Calculate the device pose at the camera frame update time.
+                    TangoPoseData lastFramePose = mTango.getPoseAtTime(rgbTimestamp, new TangoCoordinateFramePair(
+                            TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
+                            TangoPoseData.COORDINATE_FRAME_DEVICE));
+                    if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
+                        // Update the camera pose from the renderer
+                        mARRenderer.updateRenderCameraPose(lastFramePose, mExtrinsics);
+                        mCameraPoseTimestamp = lastFramePose.timestamp;
+                    } else {
+                        //Log.w(TAG, "Unable to get device pose at time: " + rgbTimestamp);
+                    }
+                }
+            }
+
+            @Override
+            public void onPreDraw(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public void onPostFrame(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public boolean callPreFrame() {
+                return true;
+            }
+        });
     }
 
     /**
@@ -332,44 +318,19 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         @Override
         public void onManagerConnected(int status) {
             if (status == LoaderCallbackInterface.SUCCESS) {
-                initNaviPanel();
+//                initNaviPanel();
+                System.out.println("Removed initNaviPanel here!");
             } else {
                 super.onManagerConnected(status);
             }
         }
     };
 
-    private void initNaviPanel() {
-        int start = 0;
-        int end = 1;
-
-        map2D = new Map2D(this, screenSize.x, screenSize.y);
-
-        imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageBitmap(map2D.imgBmp);
-
-        listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
-        listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getLocations());
-        listOfRooms.setAdapter(adapter);
-        listOfRooms.setOnItemClickListener(this);
-    }
-
-    /**
-     * Sets Texts views to display statistics of Poses being received. This also sets the buttons
-     * used in the UI. Please note that this needs to be called after TangoService and Config
-     * objects are initialized since we use them for the SDK related stuff like version number
-     * etc.
-     */
-    private void setupTextViewsAndButtons(TangoConfig config, Tango tango, boolean isLoadAdf) {
-
-    }
-
     /**
      * Sets up the tango configuration object. Make sure mTango object is initialized before
      * making this call.
      */
-    private TangoConfig setTangoConfig(Tango tango, boolean isLoadAdf) {
+    private TangoConfig setTangoConfig(Tango tango) {
         TangoConfig config = new TangoConfig();
         config = tango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
         // NOTE: Low latency integration is necessary to achieve a precise alignment of
@@ -378,12 +339,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         config.putBoolean(TangoConfig.KEY_BOOLEAN_DEPTH, true);
         config.putBoolean(TangoConfig.KEY_BOOLEAN_COLORCAMERA, true);
 
-        // Check for Load ADF/Constant Space relocalization mode
-        if (isLoadAdf) {
-            if (mSelectedUUID != null) {
-                config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION, mSelectedUUID);
-            }
-        }
         return config;
     }
 
@@ -399,12 +354,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         framePairs.add(new TangoCoordinateFramePair(
                 TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE,
                 TangoPoseData.COORDINATE_FRAME_DEVICE));
-        framePairs.add(new TangoCoordinateFramePair(
-                TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
-                TangoPoseData.COORDINATE_FRAME_DEVICE));
-        framePairs.add(new TangoCoordinateFramePair(
-                TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
-                TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE));
 
         mTango.connectListener(framePairs, new OnTangoUpdateListener() {
             @Override
@@ -425,104 +374,20 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onPoseAvailable(final TangoPoseData pose) {
-                boolean updateRenderer = false;
                 // Make sure to have atomic access to Tango Data so that
                 // UI loop doesn't interfere while Pose call back is updating
                 // the data.
 
                 if (mTangoUx != null) {
                     mTangoUx.updatePoseStatus(pose.statusCode);
-//                    System.out.println("coor0: " + pose.toString());
                 }
 
-                if (mIsConstantSpaceRelocalize) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // Display pose data on screen in TextViews
-                            if (mIsRelocalized && pose.baseFrame == TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION
-                                    && pose.targetFrame == TangoPoseData.COORDINATE_FRAME_DEVICE) {
-                            }
-                            //System.out.println("coor0: " + pose.toString());
-                        }
-                    });
-                }
-
-                synchronized (mSharedLock) {
-                    // Check for Device wrt ADF pose, Device wrt Start of Service pose,
-                    // Start of Service wrt ADF pose (This pose determines if the device
-                    // is relocalized or not).
-
-                    if (pose.baseFrame == TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION
-                            && pose.targetFrame == TangoPoseData.COORDINATE_FRAME_DEVICE) {
-
-                        if (mIsRelocalized) {
-                            updateRenderer = true;
-                            worldCoor[0] = (float)pose.translation[0];
-                            worldCoor[1] = (float)pose.translation[1];
-                        }
-                    } else if (pose.baseFrame == TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE
-                            && pose.targetFrame == TangoPoseData.COORDINATE_FRAME_DEVICE) {
-                        if (!mIsRelocalized) {
-                            updateRenderer = true;
-                        }
-
-                    } else if (pose.baseFrame == TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION
-                            && pose.targetFrame == TangoPoseData
-                            .COORDINATE_FRAME_START_OF_SERVICE) {
-                        if (pose.statusCode == TangoPoseData.POSE_VALID) {
-                            mIsRelocalized = true;
-                            // Set the color to green
-                        } else {
-                            mIsRelocalized = false;
-                            // Set the color blue
-                        }
-                    }
-                }
-
-                final double deltaTime = (pose.timestamp - mPreviousPoseTimeStamp) *
-                        SECS_TO_MILLISECS;
-                mPreviousPoseTimeStamp = pose.timestamp;
-                mTimeToNextUpdate -= deltaTime;
-
-                if (mTimeToNextUpdate < 0.0) {
-                    mTimeToNextUpdate = UPDATE_INTERVAL_MS;
-                }
-
-                if (updateRenderer) {
-                    count++;
-                    if (count > 50) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                if (mIsRelocalized) {
-                                    //System.out.println("world coor1: "+worldCoor[0]+", "+worldCoor[1]);
-                                    Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
-                                    Canvas canvas = new Canvas(curBmp);
-                                    Paint paint = new Paint();
-                                    float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
-                                    paint.setColor(Color.RED);
-                                    paint.setStyle(Paint.Style.FILL);
-                                    paint.setTextSize(50);
-                                    canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
-                                    canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(bmpCoor[0]) + ", " + Float.toString(bmpCoor[0]), 10, 100, paint);
-                                    paint.setColor(Color.BLUE);
-                                    if (bmpCoorDestimation != null) {
-                                        canvas.drawCircle(bmpCoorDestimation[0], bmpCoorDestimation[1], 20, paint);
-                                    }
-                                    imageView.setImageBitmap(curBmp);
-                                }
-                            }
-                        });
-                        count = 0;
-                    }
-                }
             }
 
             @Override
             public void onFrameAvailable(int cameraId) {
                 if (cameraId == TangoCameraIntrinsics.TANGO_CAMERA_COLOR) {
+                    mARView.onFrameAvailable();
                 }
 
             }

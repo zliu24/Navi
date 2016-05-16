@@ -1,54 +1,14 @@
-<!--
-   Copyright 2014 Google Inc.
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
--->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="horizontal">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-    <RelativeLayout android:layout_width="400dp"
+    <RelativeLayout android:layout_width="330dp"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:background="@color/white"
-        android:id="@+id/relativeLayout">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="290dp"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical"
-            android:id="@+id/linearLayout"
-            android:background="@color/white">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="15dp"
-                android:id="@+id/textView"
-                android:gravity="center"/>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/imageView"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true" />
-        </LinearLayout>
+                    android:id="@+id/relativeLayout">
 
         <ImageView
             android:layout_width="41dp"
@@ -64,13 +24,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/listOfRoomNames"
-            android:layout_above="@+id/linearLayout"
             android:layout_below="@+id/pink_navi_logo"
             android:choiceMode="singleChoice"
             android:listSelector="@color/list_view_pressed"
             android:background="@color/list_view_default"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:layout_marginTop="10px" />
 
         <TextView
@@ -86,17 +44,45 @@
             android:layout_toEndOf="@+id/pink_navi_logo"
             android:layout_alignStart="@+id/pink_navi_logo" />
 
+        <Button
+            android:background="@drawable/custom_button"
+            style="@style/button_text"
+            android:layout_height="wrap_content"
+            android:text="Navigate"
+            android:id="@+id/navigate"
+            android:layout_marginBottom="85dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/pink_navi_logo" />
+
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/ar_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/relativeLayout"></RelativeLayout>
+        android:layout_height="290dp"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout"
+        android:background="@color/white"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/relativeLayout"
+        android:layout_alignParentBottom="true"
+        android:weightSum="1">
 
-    <com.google.atap.tango.ux.TangoUxLayout
-        android:id="@+id/layout_tango"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="15dp"
+            android:id="@+id/textView"
+            android:gravity="center"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/imageView"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            />
+    </LinearLayout>
+
 
 </RelativeLayout>

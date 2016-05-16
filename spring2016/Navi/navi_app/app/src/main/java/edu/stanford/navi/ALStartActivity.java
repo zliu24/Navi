@@ -22,6 +22,7 @@ import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -57,6 +58,8 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     private ArrayList<String> fullUUIDList;
     private ArrayList<String> fullADFnameList;
     private HashMap<String, String> name2uuidMap;
+
+    private static final String TAG = ALStartActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +110,7 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     }
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
+        Log.d(TAG, "ALstart");
         // On selecting a spinner item
         selectedADFName = parent.getItemAtPosition(position).toString();
         selectedUUID = name2uuidMap.get(selectedADFName);
