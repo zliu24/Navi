@@ -1,9 +1,0 @@
-544,474,Elevator
-641,389,Outdoor
-518,265,Info Computer
-288,268,Room 226
-438,285,Restroom Men
-629,169,Computer Cluster
-656,266,Random point 1
-762,296,Room 214
-785,253,Random point 2
