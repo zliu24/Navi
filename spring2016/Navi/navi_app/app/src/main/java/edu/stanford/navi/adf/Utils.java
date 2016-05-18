@@ -1,8 +1,14 @@
 package edu.stanford.navi.adf;
 
+import android.content.res.AssetManager;
+
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,5 +41,18 @@ public class Utils {
             } // Do something if null
         }
         return map;
+    }
+
+    public static String loadADF(String filePath, AssetManager assetManager) {
+        String adfName = "616b";
+        try {
+            InputStream adfFile = assetManager.open(filePath);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(adfFile));
+            adfName = (reader.readLine()).split("\n")[0];
+        } catch (IOException e) {
+            System.out.println("Fail to read adfFile: " + filePath);
+            e.printStackTrace();
+        }
+        return adfName;
     }
 }

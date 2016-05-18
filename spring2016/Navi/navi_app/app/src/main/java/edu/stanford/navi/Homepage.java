@@ -1,6 +1,7 @@
 package edu.stanford.navi;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -22,8 +23,9 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
     private ArrayList<String> fullUUIDList;
     private ArrayList<String> fullADFnameList;
     private HashMap<String, String> name2uuidMap;
-    String mSelectedUUID;
-    String mSelectedADFName;
+    private String mSelectedUUID;
+    private String mSelectedADFName;
+    private final String ADF_FILE = "adfList.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,15 +44,9 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         select_str_ownr_btn.setOnClickListener(this);
 
         // Set up tango and ADF
-        startActivityForResult(Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_ADF_LOAD_SAVE), 0);
         mTango = new Tango(this);
-        fullUUIDList = mTango.listAreaDescriptions();
-        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
-        name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-
-        mSelectedADFName = fullADFnameList.get(0);
-        mSelectedUUID = name2uuidMap.get(mSelectedADFName);
-        System.out.println("Selected ADF: " + mSelectedADFName);
+        startActivityForResult(Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_ADF_LOAD_SAVE), 0);
+        setUpADF();
     }
 
     @Override
@@ -61,5 +57,17 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         passADIntent2AreaLearning.putExtra(ADF_UUID, mSelectedUUID);
         passADIntent2AreaLearning.putExtra(ADF_NAME, mSelectedADFName);
         startActivity(passADIntent2AreaLearning);
+    }
+
+    private void setUpADF() {
+        fullUUIDList = mTango.listAreaDescriptions();
+        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
+        name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
+
+        AssetManager assetManager = this.getAssets();
+        mSelectedADFName = Utils.loadADF(ADF_FILE, assetManager);
+        mSelectedUUID = name2uuidMap.get(mSelectedADFName);
+        System.out.println("Selected ADF: " + mSelectedADFName);
+        System.out.println("Selected ADF UUID: " + mSelectedUUID);
     }
 }
