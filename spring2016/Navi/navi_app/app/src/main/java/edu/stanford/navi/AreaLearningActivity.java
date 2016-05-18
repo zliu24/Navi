@@ -34,7 +34,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,13 +53,10 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
-import com.projecttango.rajawali.DeviceExtrinsics;
-import com.projecttango.rajawali.ar.TangoRajawaliView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.rajawali3d.scene.ASceneFrameCallback;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,6 +71,7 @@ import edu.stanford.navi.map.Map2D;
 public class AreaLearningActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
     private static final String TAG = AreaLearningActivity.class.getSimpleName();
+    public static final String WORLD_COORD = "world_coord";
     private static final int SECS_TO_MILLISECS = 1000;
     private static final double UPDATE_INTERVAL_MS = 100.0;
 
@@ -152,10 +149,13 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         navigateBtn.setVisibility(View.INVISIBLE);
         navigateBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.d(TAG, "onClick");
                 Intent intent = new Intent(context, NavigationActivity.class);
+                map2D.creatPathSingleton();
+                intent.putExtra(ALStartActivity.ADF_UUID, mSelectedUUID);
+                synchronized (mSharedLock) {
+                    intent.putExtra(WORLD_COORD, worldCoor);
+                }
                 startActivity(intent);
-                Log.d(TAG, "Intent");
             }
         });
 
@@ -304,29 +304,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
         mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
         setupTextViewsAndButtons(mConfig, mTango, mIsConstantSpaceRelocalize);
     }
-
-    /**
-     * Calculates and stores the fixed transformations between the device and
-     * the various sensors to be used later for transformations between frames.
-     */
-    private static DeviceExtrinsics setupExtrinsics(Tango tango) {
-        // Create camera to IMU transform.
-        TangoCoordinateFramePair framePair = new TangoCoordinateFramePair();
-        framePair.baseFrame = TangoPoseData.COORDINATE_FRAME_IMU;
-        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_CAMERA_COLOR;
-        TangoPoseData imuTrgbPose = tango.getPoseAtTime(0.0, framePair);
-
-        // Create device to IMU transform.
-        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_DEVICE;
-        TangoPoseData imuTdevicePose = tango.getPoseAtTime(0.0, framePair);
-
-        // Create depth camera to IMU transform.
-        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_CAMERA_DEPTH;
-        TangoPoseData imuTdepthPose = tango.getPoseAtTime(0.0, framePair);
-
-        return new DeviceExtrinsics(imuTdevicePose, imuTrgbPose, imuTdepthPose);
-    }
-
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override

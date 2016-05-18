@@ -16,25 +16,10 @@
 
 package edu.stanford.navi;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.atap.tango.ux.TangoUx;
@@ -56,15 +41,12 @@ import com.google.atap.tangoservice.TangoXyzIjData;
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.ar.TangoRajawaliView;
 
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import edu.stanford.navi.map.Map2D;
+import edu.stanford.navi.map.Path;
 
 /**
  * Main Activity class for the Area Description example. Handles the connection to the Tango service
@@ -78,7 +60,8 @@ public class NavigationActivity extends BaseActivity {
     private Tango mTango;
     private TangoConfig mConfig;
     private AtomicBoolean mIsConnected = new AtomicBoolean(false);
-
+    private boolean mIsRelocalized = false;
+    private String mSelectedUUID;
     // UX
     TangoUx mTangoUx;
     TangoUxLayout mTangoUxLayout;
@@ -88,14 +71,17 @@ public class NavigationActivity extends BaseActivity {
     private AugmentedRealityRenderer mARRenderer;
     private DeviceExtrinsics mExtrinsics;
     private double mCameraPoseTimestamp = 0;
+    private float[][] path;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigation);
+        mSelectedUUID = getIntent().getStringExtra(ALStartActivity.ADF_UUID);
+        path = Path.getSingletonObject().getPath();
 
+        setContentView(R.layout.navigation);
         setupARViewAndRenderer();
         setupTangoUX();
         setupTango();
@@ -134,6 +120,8 @@ public class NavigationActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        mIsRelocalized = false;
+
         // Re-attach listeners.
         try {
             setUpTangoListeners();
@@ -164,7 +152,6 @@ public class NavigationActivity extends BaseActivity {
                         .show();
             }
         }
-
     }
 
     @Override
@@ -220,13 +207,11 @@ public class NavigationActivity extends BaseActivity {
                 if (uxExceptionEvent.getType() == UxExceptionEvent.TYPE_UNDER_EXPOSED) {
                     Log.i(TAG, "Camera Under Exposed ");
                 }
-
             }
         });
     }
 
     private void setupTango () {
-        Intent intent = getIntent();
 
         mTango = new Tango(this);
         mConfig = setTangoConfig(mTango);
@@ -265,6 +250,10 @@ public class NavigationActivity extends BaseActivity {
                             TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
                             TangoPoseData.COORDINATE_FRAME_DEVICE));
                     if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
+                        if (mIsRelocalized == false) {
+                            mARRenderer.updatePathObject(path);
+                            mIsRelocalized = true;
+                        }
                         // Update the camera pose from the renderer
                         mARRenderer.updateRenderCameraPose(lastFramePose, mExtrinsics);
                         mCameraPoseTimestamp = lastFramePose.timestamp;
@@ -289,6 +278,7 @@ public class NavigationActivity extends BaseActivity {
                 return true;
             }
         });
+
     }
 
     /**
@@ -313,32 +303,18 @@ public class NavigationActivity extends BaseActivity {
         return new DeviceExtrinsics(imuTdevicePose, imuTrgbPose, imuTdepthPose);
     }
 
-
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            if (status == LoaderCallbackInterface.SUCCESS) {
-//                initNaviPanel();
-                System.out.println("Removed initNaviPanel here!");
-            } else {
-                super.onManagerConnected(status);
-            }
-        }
-    };
-
     /**
      * Sets up the tango configuration object. Make sure mTango object is initialized before
      * making this call.
      */
     private TangoConfig setTangoConfig(Tango tango) {
-        TangoConfig config = new TangoConfig();
-        config = tango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
+        TangoConfig config = tango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
         // NOTE: Low latency integration is necessary to achieve a precise alignment of
         // virtual objects with the RBG image and produce a good AR effect.
         config.putBoolean(TangoConfig.KEY_BOOLEAN_LOWLATENCYIMUINTEGRATION, true);
         config.putBoolean(TangoConfig.KEY_BOOLEAN_DEPTH, true);
         config.putBoolean(TangoConfig.KEY_BOOLEAN_COLORCAMERA, true);
-
+        config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION, mSelectedUUID);
         return config;
     }
 
@@ -393,4 +369,5 @@ public class NavigationActivity extends BaseActivity {
             }
         });
     }
+
 }
