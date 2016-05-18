@@ -4,25 +4,29 @@ package edu.stanford.navi.map;
  * Created by alan on 4/14/16.
  */
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import android.graphics.Bitmap;
 import android.content.Context;
 import android.content.res.AssetManager;
-import org.opencv.core.*;
+import android.graphics.Bitmap;
+
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import org.opencv.android.Utils;
-import org.opencv.imgproc.Imgproc;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
+import org.opencv.imgproc.Imgproc;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.stanford.navi.R;
 import edu.stanford.navi.pathfinding.LazyThetaStar;
 import edu.stanford.navi.pathfinding.datatypes.GridGraph;
-import edu.stanford.navi.R;
 
 public class Map2D {
     public Mat imgBg;
@@ -50,7 +54,7 @@ public class Map2D {
 
         try {
             // Load map image specified by R.drawable.filename
-            img = Utils.loadResource(mContext, R.drawable.quillen_616, CvType.CV_8UC3);
+            img = Utils.loadResource(mContext, R.drawable.ikea, CvType.CV_8UC3);
             Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);
             Imgproc.resize(img, img, new Size(0, 0), scale, scale, Imgproc.INTER_LINEAR);
             imgBg = Mat.zeros(img.rows(), img.cols(), CvType.CV_8U);
@@ -172,6 +176,11 @@ public class Map2D {
 
     public float[][] getWolrdPath() {
         return worldPath;
+    }
+
+    public void creatPathSingleton() {
+        Path path = Path.getSingletonObject();
+        path.setpath(worldPath);
     }
 
     public String getLocation(int i) {
