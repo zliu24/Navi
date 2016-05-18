@@ -65,7 +65,6 @@ import edu.stanford.navi.map.Map2D;
 
 public class MapActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
-    public static final String WORLD_COORD = "world_coord";
     private static final String TAG = MapActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
     private static final double UPDATE_INTERVAL_MS = 100.0;
@@ -80,7 +79,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
 
     private String mSelectedUUID;
-    private String mSelectedADFName;
     private boolean mIsConstantSpaceRelocalize;
     private ImageView imageView;
     private TextView textView;
@@ -146,9 +144,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                 Intent intent = new Intent(context, NavigationActivity.class);
                 map2D.creatPathSingleton();
                 intent.putExtra(ALStartActivity.ADF_UUID, mSelectedUUID);
-                synchronized (mSharedLock) {
-                    intent.putExtra(WORLD_COORD, worldCoor);
-                }
                 startActivity(intent);
             }
         });
@@ -292,7 +287,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         Intent intent = getIntent();
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
         mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
-        mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
 
         mTango = new Tango(this);
         mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);
