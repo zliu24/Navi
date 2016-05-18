@@ -63,15 +63,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.map.Map2D;
 
-/**
- * Main Activity class for the Area Description example. Handles the connection to the Tango service
- * and propagation of Tango pose data to OpenGL and Layout views. OpenGL rendering logic is
- * delegated to the {@link AreaLearningRajawaliRenderer} class.
- */
-public class AreaLearningActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
+public class MapActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
     public static final String WORLD_COORD = "world_coord";
-    private static final String TAG = AreaLearningActivity.class.getSimpleName();
+    private static final String TAG = MapActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
     private static final double UPDATE_INTERVAL_MS = 100.0;
 
@@ -131,7 +126,7 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_area_learning);
+        setContentView(R.layout.map);
 
         setupTangoUX();
         setupTango();

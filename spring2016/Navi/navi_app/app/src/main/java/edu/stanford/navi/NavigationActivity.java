@@ -48,11 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.map.Path;
 
-/**
- * Main Activity class for the Area Description example. Handles the connection to the Tango service
- * and propagation of Tango pose data to OpenGL and Layout views. OpenGL rendering logic is
- * delegated to the {@link AreaLearningRajawaliRenderer} class.
- */
+
 public class NavigationActivity extends BaseActivity {
 
     private static final String TAG = NavigationActivity.class.getSimpleName();

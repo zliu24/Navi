@@ -1,6 +1,5 @@
 package edu.stanford.navi;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -38,7 +37,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         String mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
 
         // Pass intent to AreaLearning
-        Intent passADIntent2AreaLearning = new Intent(this, AreaLearningActivity.class);
+        Intent passADIntent2AreaLearning = new Intent(this, MapActivity.class);
 //        startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
         passADIntent2AreaLearning.putExtra(LOAD_ADF, true);
         passADIntent2AreaLearning.putExtra(ADF_UUID, mSelectedUUID);
