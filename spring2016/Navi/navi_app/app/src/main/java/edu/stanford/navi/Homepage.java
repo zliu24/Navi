@@ -6,7 +6,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.atap.tangoservice.Tango;
+import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class Homepage extends BaseActivity implements View.OnClickListener {
+
+    private Tango mTango;
+    private ArrayList<String> fullUUIDList;
+    private ArrayList<String> fullADFnameList;
+    private HashMap<String, String> name2uuidMap;
+    String mSelectedUUID;
+    String mSelectedADFName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,27 +34,53 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         select_shpr_btn.setTypeface(face);
         select_str_ownr_btn.setTypeface(face);
 
-        // Onclick listener: Transition to menupage
-//        Button select = (Button) findViewById(R.id.select_shopper_button);
-
         select_shpr_btn.setOnClickListener(this);
         select_str_ownr_btn.setOnClickListener(this);
+
+        // Set up tango and ADF
+        mTango = new Tango(this);
+        fullUUIDList = mTango.listAreaDescriptions();
+        fullADFnameList = getADFNameList(fullUUIDList, mTango);
+        name2uuidMap = getName2uuidMap(fullUUIDList, mTango);
+
+        mSelectedADFName = fullADFnameList.get(0);
+        mSelectedUUID = name2uuidMap.get(mSelectedADFName);
+        System.out.println("Selected ADF: " + mSelectedADFName);
     }
 
     @Override
     public void onClick(View view) {
-        // Get intent pass from ALStarActivity
-        Intent intent = getIntent();
-        boolean mIsConstantSpaceRelocalize = intent.getBooleanExtra(ALStartActivity.LOAD_ADF, false);
-        String mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
-        String mSelectedADFName = intent.getStringExtra(ALStartActivity.ADF_NAME);
-
         // Pass intent to AreaLearning
         Intent passADIntent2AreaLearning = new Intent(this, MapActivity.class);
-//        startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
         passADIntent2AreaLearning.putExtra(LOAD_ADF, true);
         passADIntent2AreaLearning.putExtra(ADF_UUID, mSelectedUUID);
         passADIntent2AreaLearning.putExtra(ADF_NAME, mSelectedADFName);
         startActivity(passADIntent2AreaLearning);
+    }
+
+    private ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
+        ArrayList<String> nameList = new ArrayList<String>();
+        for (String uuid: uuidList) {
+            TangoAreaDescriptionMetaData metadata = mTango.loadAreaDescriptionMetaData(uuid);
+            byte[] nameBytes = metadata.get(TangoAreaDescriptionMetaData.KEY_NAME);
+            if (nameBytes != null) {
+                String name = new String(nameBytes);
+                nameList.add(name);
+            } // Do something if null
+        }
+        return nameList;
+    }
+
+    private HashMap<String, String> getName2uuidMap(ArrayList<String> uuidList, Tango tango) {
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (String uuid: uuidList) {
+            TangoAreaDescriptionMetaData metadata = mTango.loadAreaDescriptionMetaData(uuid);
+            byte[] nameBytes = metadata.get(TangoAreaDescriptionMetaData.KEY_NAME);
+            if (nameBytes != null) {
+                String name = new String(nameBytes);
+                map.put(name, uuid);
+            } // Do something if null
+        }
+        return map;
     }
 }

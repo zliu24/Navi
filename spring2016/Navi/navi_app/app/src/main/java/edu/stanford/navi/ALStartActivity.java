@@ -46,11 +46,7 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     public static final String LOAD_ADF = "com.projecttango.areadescriptionjava.loadadf";
     public static final String ADF_UUID = "com.projecttango.areadescriptionjava.uuid";
     public static final String ADF_NAME = "com.projecttango.areadescriptionjava.adfName";
-    private ToggleButton mLearningModeToggleButton;
-//    private ToggleButton mLoadADFToggleButton;
     private Button mStartButton;
-//    private boolean mIsUseAreaLearning;
-//    private boolean mIsLoadADF;
     private String selectedUUID;
     private String selectedADFName;
     private Spinner spinner;
