@@ -76,7 +76,6 @@ public class NavigationActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         mSelectedUUID = getIntent().getStringExtra(ALStartActivity.ADF_UUID);
         path = Path.getSingletonObject().getPath();
@@ -251,14 +250,13 @@ public class NavigationActivity extends BaseActivity {
                             TangoPoseData.COORDINATE_FRAME_DEVICE));
                     if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
                         if (mIsRelocalized == false) {
+                            Log.d(TAG, "Navigation view has localized. ");
                             mARRenderer.updatePathObject(path);
                             mIsRelocalized = true;
                         }
                         // Update the camera pose from the renderer
                         mARRenderer.updateRenderCameraPose(lastFramePose, mExtrinsics);
                         mCameraPoseTimestamp = lastFramePose.timestamp;
-                    } else {
-                        //Log.w(TAG, "Unable to get device pose at time: " + rgbTimestamp);
                     }
                 }
             }
@@ -334,13 +332,11 @@ public class NavigationActivity extends BaseActivity {
         mTango.connectListener(framePairs, new OnTangoUpdateListener() {
             @Override
             public void onXyzIjAvailable(TangoXyzIjData xyzij) {
-                // Not using XyzIj data for this sample
                 if (mTangoUx != null) {
                     mTangoUx.updateXyzCount(xyzij.xyzCount);
                 }
             }
 
-            // Listen to Tango Events
             @Override
             public void onTangoEvent(final TangoEvent event) {
                 if (mTangoUx != null) {
@@ -350,9 +346,6 @@ public class NavigationActivity extends BaseActivity {
 
             @Override
             public void onPoseAvailable(final TangoPoseData pose) {
-                // Make sure to have atomic access to Tango Data so that
-                // UI loop doesn't interfere while Pose call back is updating
-                // the data.
 
                 if (mTangoUx != null) {
                     mTangoUx.updatePoseStatus(pose.statusCode);

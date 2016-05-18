@@ -70,8 +70,8 @@ import edu.stanford.navi.map.Map2D;
  */
 public class AreaLearningActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
-    private static final String TAG = AreaLearningActivity.class.getSimpleName();
     public static final String WORLD_COORD = "world_coord";
+    private static final String TAG = AreaLearningActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
     private static final double UPDATE_INTERVAL_MS = 100.0;
 
@@ -130,7 +130,6 @@ public class AreaLearningActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_area_learning);
 
