@@ -5,12 +5,16 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
+import com.google.atap.tangoservice.TangoErrorException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import edu.stanford.navi.adf.Utils;
 
 public class Homepage extends BaseActivity implements View.OnClickListener {
 
@@ -38,10 +42,11 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         select_str_ownr_btn.setOnClickListener(this);
 
         // Set up tango and ADF
+        startActivityForResult(Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_ADF_LOAD_SAVE), 0);
         mTango = new Tango(this);
         fullUUIDList = mTango.listAreaDescriptions();
-        fullADFnameList = getADFNameList(fullUUIDList, mTango);
-        name2uuidMap = getName2uuidMap(fullUUIDList, mTango);
+        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
+        name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
 
         mSelectedADFName = fullADFnameList.get(0);
         mSelectedUUID = name2uuidMap.get(mSelectedADFName);
@@ -56,31 +61,5 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         passADIntent2AreaLearning.putExtra(ADF_UUID, mSelectedUUID);
         passADIntent2AreaLearning.putExtra(ADF_NAME, mSelectedADFName);
         startActivity(passADIntent2AreaLearning);
-    }
-
-    private ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
-        ArrayList<String> nameList = new ArrayList<String>();
-        for (String uuid: uuidList) {
-            TangoAreaDescriptionMetaData metadata = mTango.loadAreaDescriptionMetaData(uuid);
-            byte[] nameBytes = metadata.get(TangoAreaDescriptionMetaData.KEY_NAME);
-            if (nameBytes != null) {
-                String name = new String(nameBytes);
-                nameList.add(name);
-            } // Do something if null
-        }
-        return nameList;
-    }
-
-    private HashMap<String, String> getName2uuidMap(ArrayList<String> uuidList, Tango tango) {
-        HashMap<String, String> map = new HashMap<String, String>();
-        for (String uuid: uuidList) {
-            TangoAreaDescriptionMetaData metadata = mTango.loadAreaDescriptionMetaData(uuid);
-            byte[] nameBytes = metadata.get(TangoAreaDescriptionMetaData.KEY_NAME);
-            if (nameBytes != null) {
-                String name = new String(nameBytes);
-                map.put(name, uuid);
-            } // Do something if null
-        }
-        return map;
     }
 }
