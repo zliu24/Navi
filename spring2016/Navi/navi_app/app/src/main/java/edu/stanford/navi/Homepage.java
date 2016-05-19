@@ -1,16 +1,12 @@
 package edu.stanford.navi;
 
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.atap.tangoservice.Tango;
-import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
-import com.google.atap.tangoservice.TangoErrorException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
