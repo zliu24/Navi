@@ -50,6 +50,12 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        setUpADF();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.select_shopper_button:
@@ -65,8 +71,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         fullUUIDList = mTango.listAreaDescriptions();
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
 
-        AssetManager assetManager = this.getAssets();
-        mSelectedADFName = Utils.loadADF(ADF_FILE, assetManager);
+        mSelectedADFName = Utils.loadADFfromFile(ADF_FILE, this);
         mSelectedUUID = name2uuidMap.get(mSelectedADFName);
         System.out.println("Selected ADF: " + mSelectedADFName);
         System.out.println("Selected ADF UUID: " + mSelectedUUID);

@@ -42,6 +42,7 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
     public static final String LOAD_ADF = "com.projecttango.areadescriptionjava.loadadf";
     public static final String ADF_UUID = "com.projecttango.areadescriptionjava.uuid";
     public static final String ADF_NAME = "com.projecttango.areadescriptionjava.adfName";
+    private final String ADF_FILE = "adfList.txt";
     private Button mStartButton;
     private Button mManageButton;
     private String selectedUUID;
@@ -90,6 +91,8 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         selectedADFName = parent.getItemAtPosition(position).toString();
         selectedUUID = name2uuidMap.get(selectedADFName);
+
+        Utils.writeADFtoFile(ADF_FILE, selectedADFName, this);
     }
 
     public void onNothingSelected(AdapterView<?> parentView){
