@@ -28,7 +28,7 @@
     <string name="save_adf">Save ADF</string>
     <string name="name">Name</string>
     <string name="ok">OK</string>
-    <string name="start_config">Start</string>
+    <string name="start_config">Next</string>
     <string name="manage_adfs">Manage ADFs</string>
     <string name="api_adfs">Project Tango Local ADFs:</string>
     <string name="application_adfs">Application ADFs</string>

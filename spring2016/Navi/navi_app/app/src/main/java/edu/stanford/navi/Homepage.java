@@ -20,7 +20,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
     private HashMap<String, String> name2uuidMap;
     private String mSelectedUUID;
     private String mSelectedADFName;
-    private final String ADF_FILE = "adfList.txt";
+    private final String CONFIG_FILE = "config.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         fullUUIDList = mTango.listAreaDescriptions();
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
 
-        mSelectedADFName = Utils.loadADFfromFile(ADF_FILE, this);
+        mSelectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
         mSelectedUUID = name2uuidMap.get(mSelectedADFName);
         System.out.println("Selected ADF: " + mSelectedADFName);
         System.out.println("Selected ADF UUID: " + mSelectedUUID);

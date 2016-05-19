@@ -16,7 +16,7 @@ import java.util.HashMap;
  * Created by Emma on 5/18/16.
  */
 public class Utils {
-    private static final String DEFAULT_ADF = "616b";
+    private static final String DEFAULT_ADF = "quillen_616b";
 
     public static ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
         ArrayList<String> nameList = new ArrayList<String>();
