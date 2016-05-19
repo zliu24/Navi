@@ -16,6 +16,7 @@ import java.util.HashMap;
  * Created by Emma on 5/18/16.
  */
 public class Utils {
+    private static final String DEFAULT_ADF = "616b";
 
     public static ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
         ArrayList<String> nameList = new ArrayList<String>();
@@ -44,7 +45,7 @@ public class Utils {
     }
 
     public static String loadADF(String filePath, AssetManager assetManager) {
-        String adfName = "616b";
+        String adfName = DEFAULT_ADF;
         try {
             InputStream adfFile = assetManager.open(filePath);
             BufferedReader reader = new BufferedReader(new InputStreamReader(adfFile));
