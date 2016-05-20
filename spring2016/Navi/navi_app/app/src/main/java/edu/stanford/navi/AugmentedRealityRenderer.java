@@ -25,8 +25,11 @@ import com.projecttango.rajawali.Pose;
 import com.projecttango.rajawali.ScenePoseCalculator;
 import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
+import org.apache.commons.math3.complex.Quaternion;
 import org.rajawali3d.Object3D;
 import org.rajawali3d.lights.DirectionalLight;
+import org.rajawali3d.loader.LoaderOBJ;
+import org.rajawali3d.loader.ParsingException;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.math.vector.Vector3;
@@ -36,6 +39,7 @@ import org.rajawali3d.primitives.Line3D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.Vector;
 
 /**
  * Very simple example augmented reality renderer which displays a cube fixed in place.
@@ -113,7 +117,33 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     // Transform to virtual reference system, where y is the altitude
                     Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
 
-                    Object3D point = new Cube(CUBE_SIDE_LENGTH);
+                    Object3D point = new Cube(CUBE_SIDE_LENGTH); // default in case of parsing failure
+
+                    if(i == pathPoints.length - 1) {
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.star);
+                        try {
+                            objParser.parse();
+                            point = objParser.getParsedObject();
+                        } catch (ParsingException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow);
+                        try {
+                            objParser.parse();
+                            point = objParser.getParsedObject();
+                            point.setScale(new Vector3(0.75, 0.75, 0.75));
+                        } catch (ParsingException e) {
+                            e.printStackTrace();
+                        }
+
+                        //Vector3 nextArrow = new Vector3(pathPoints[i+1][0], -1, pathPoints[i+1][1]);
+                        //org.rajawali3d.math.Quaternion rotation = pose.getRotationTo(nextArrow);
+
+                        //point.rotate(rotation);
+
+                    }
+
                     point.setMaterial(material);
                     point.setPosition(pose);
 
