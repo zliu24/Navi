@@ -17,12 +17,10 @@
 package edu.stanford.navi;
 
 import com.google.atap.tangoservice.Tango;
-import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -30,23 +28,23 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.ToggleButton;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import edu.stanford.navi.adf.Utils;
 
 /**
  * Start Activity for Area Description example. Gives the ability to choose a particular
  * configuration and also Manage Area Description Files (ADF).
  */
-public class ALStartActivity extends Activity implements View.OnClickListener, OnItemSelectedListener {
+public class OwnerStartActivity extends Activity implements View.OnClickListener, OnItemSelectedListener {
 
-    public static final String USE_AREA_LEARNING =
-            "com.projecttango.areadescriptionjava.usearealearning";
     public static final String LOAD_ADF = "com.projecttango.areadescriptionjava.loadadf";
     public static final String ADF_UUID = "com.projecttango.areadescriptionjava.uuid";
     public static final String ADF_NAME = "com.projecttango.areadescriptionjava.adfName";
+    private final String CONFIG_FILE = "config.txt";
     private Button mStartButton;
+    private Button mManageButton;
     private String selectedUUID;
     private String selectedADFName;
     private Spinner spinner;
@@ -55,64 +53,46 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     private ArrayList<String> fullADFnameList;
     private HashMap<String, String> name2uuidMap;
 
-    private static final String TAG = ALStartActivity.class.getSimpleName();
+    private static final String TAG = OwnerStartActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start_activity);
-        setTitle(R.string.app_name);
-        mStartButton = (Button) findViewById(R.id.start);
-        findViewById(R.id.ADFListView).setOnClickListener(this);
-        mStartButton.setOnClickListener(this);
+        setContentView(R.layout.owner_start_activity);
         startActivityForResult(
                 Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_ADF_LOAD_SAVE), 0);
 
         mTango = new Tango(this);
-        fullUUIDList = mTango.listAreaDescriptions();
-        fullADFnameList = getADFNameList(fullUUIDList, mTango);
-        name2uuidMap = getName2uuidMap(fullUUIDList, mTango);
+        setUpButtons();
+        setUpADF();
+        setUpSpinner();
+    }
 
+    private void setUpButtons() {
+        mStartButton = (Button) findViewById(R.id.start);
+        mManageButton = (Button) findViewById(R.id.manageADF);
+        mManageButton.setOnClickListener(this);
+        mStartButton.setOnClickListener(this);
+    }
+
+    private void setUpADF() {
+        fullUUIDList = mTango.listAreaDescriptions();
+        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
+        name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
+    }
+
+    private void setUpSpinner() {
         spinner = (Spinner) findViewById(R.id.selectAdf);
         spinner.setOnItemSelectedListener(this);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, fullADFnameList);
         spinner.setAdapter(adapter);
     }
 
-    private ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
-        ArrayList<String> nameList = new ArrayList<String>();
-        for (String uuid: uuidList) {
-            TangoAreaDescriptionMetaData metadata = mTango.loadAreaDescriptionMetaData(uuid);
-            byte[] nameBytes = metadata.get(TangoAreaDescriptionMetaData.KEY_NAME);
-            if (nameBytes != null) {
-                String name = new String(nameBytes);
-                nameList.add(name);
-            } // Do something if null
-        }
-        return nameList;
-    }
-
-    private HashMap<String, String> getName2uuidMap(ArrayList<String> uuidList, Tango tango) {
-        HashMap<String, String> map = new HashMap<String, String>();
-        for (String uuid: uuidList) {
-            TangoAreaDescriptionMetaData metadata = mTango.loadAreaDescriptionMetaData(uuid);
-            byte[] nameBytes = metadata.get(TangoAreaDescriptionMetaData.KEY_NAME);
-            if (nameBytes != null) {
-                String name = new String(nameBytes);
-                map.put(name, uuid);
-            } // Do something if null
-        }
-        return map;
-    }
-
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
-        Log.d(TAG, "ALstart");
-        // On selecting a spinner item
         selectedADFName = parent.getItemAtPosition(position).toString();
         selectedUUID = name2uuidMap.get(selectedADFName);
 
-        // Showing selected spinner item
-//        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+        Utils.writeADFtoFile(CONFIG_FILE, selectedADFName, this);
     }
 
     public void onNothingSelected(AdapterView<?> parentView){
@@ -123,21 +103,16 @@ public class ALStartActivity extends Activity implements View.OnClickListener, O
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.start:
-                startAreaDescriptionActivity();
+                startOwnerMapActivity();
                 break;
-            case R.id.ADFListView:
+            case R.id.manageADF:
                 startADFListView();
                 break;
         }
     }
 
-    private void startAreaDescriptionActivity() {
-        Intent startADIntent = new Intent(this, Homepage.class);
-//        startADIntent.putExtra(LOAD_ADF, mIsLoadADF);
-        startADIntent.putExtra(LOAD_ADF, true);
-        startADIntent.putExtra(ADF_UUID, selectedUUID);
-        startADIntent.putExtra(ADF_NAME, selectedADFName);
-        startActivity(startADIntent);
+    private void startOwnerMapActivity() {
+
     }
 
     private void startADFListView() {

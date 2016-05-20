@@ -1,16 +1,12 @@
 package edu.stanford.navi;
 
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.atap.tangoservice.Tango;
-import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
-import com.google.atap.tangoservice.TangoErrorException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,16 +17,16 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
 
     private Tango mTango;
     private ArrayList<String> fullUUIDList;
-    private ArrayList<String> fullADFnameList;
     private HashMap<String, String> name2uuidMap;
     private String mSelectedUUID;
     private String mSelectedADFName;
-    private final String ADF_FILE = "adfList.txt";
+    private final String CONFIG_FILE = "config.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
+        setTitle(R.string.app_name);
 
         // Set homepage buttons font to Avenir
         TextView select_shpr_btn = (TextView) findViewById(R.id.select_shopper_button);
@@ -50,24 +46,43 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        setUpADF();
+    }
+
+    @Override
     public void onClick(View view) {
-        // Pass intent to AreaLearning
-        Intent passADIntent2AreaLearning = new Intent(this, MapActivity.class);
-        passADIntent2AreaLearning.putExtra(LOAD_ADF, true);
-        passADIntent2AreaLearning.putExtra(ADF_UUID, mSelectedUUID);
-        passADIntent2AreaLearning.putExtra(ADF_NAME, mSelectedADFName);
-        startActivity(passADIntent2AreaLearning);
+        switch (view.getId()) {
+            case R.id.select_shopper_button:
+                startShopperActivity();
+                break;
+            case R.id.select_store_owner_button:
+                startOwnerActivity();
+                break;
+        }
     }
 
     private void setUpADF() {
         fullUUIDList = mTango.listAreaDescriptions();
-        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
 
-        AssetManager assetManager = this.getAssets();
-        mSelectedADFName = Utils.loadADF(ADF_FILE, assetManager);
+        mSelectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
         mSelectedUUID = name2uuidMap.get(mSelectedADFName);
         System.out.println("Selected ADF: " + mSelectedADFName);
         System.out.println("Selected ADF UUID: " + mSelectedUUID);
+    }
+
+    private void startShopperActivity() {
+        Intent passIntent2Shopper = new Intent(this, MapActivity.class);
+        passIntent2Shopper.putExtra(LOAD_ADF, true);
+        passIntent2Shopper.putExtra(ADF_UUID, mSelectedUUID);
+        passIntent2Shopper.putExtra(ADF_NAME, mSelectedADFName);
+        startActivity(passIntent2Shopper);
+    }
+
+    private void startOwnerActivity() {
+        Intent passIntent2Owner = new Intent(this, OwnerStartActivity.class);
+        startActivity(passIntent2Owner);
     }
 }

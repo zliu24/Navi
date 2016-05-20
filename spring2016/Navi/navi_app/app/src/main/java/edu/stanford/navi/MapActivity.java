@@ -143,7 +143,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             public void onClick(View v) {
                 Intent intent = new Intent(context, NavigationActivity.class);
                 map2D.creatPathSingleton();
-                intent.putExtra(ALStartActivity.ADF_UUID, mSelectedUUID);
+                intent.putExtra(OwnerStartActivity.ADF_UUID, mSelectedUUID);
                 startActivity(intent);
             }
         });
@@ -286,7 +286,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private void setupTango () {
         Intent intent = getIntent();
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
-        mSelectedUUID = intent.getStringExtra(ALStartActivity.ADF_UUID);
+        mSelectedUUID = intent.getStringExtra(OwnerStartActivity.ADF_UUID);
 
         mTango = new Tango(this);
         mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);

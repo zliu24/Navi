@@ -1,14 +1,14 @@
 package edu.stanford.navi.adf;
 
-import android.content.res.AssetManager;
+import android.content.Context;
 
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,7 +16,7 @@ import java.util.HashMap;
  * Created by Emma on 5/18/16.
  */
 public class Utils {
-    private static final String DEFAULT_ADF = "616b";
+    private static final String DEFAULT_ADF = "quillen_616b";
 
     public static ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
         ArrayList<String> nameList = new ArrayList<String>();
@@ -44,16 +44,33 @@ public class Utils {
         return map;
     }
 
-    public static String loadADF(String filePath, AssetManager assetManager) {
+    public static String loadADFfromFile(String filePath, Context context) {
         String adfName = DEFAULT_ADF;
         try {
-            InputStream adfFile = assetManager.open(filePath);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(adfFile));
-            adfName = (reader.readLine()).split("\n")[0];
+            String line;
+            BufferedReader input = new BufferedReader(new InputStreamReader(context.openFileInput(filePath)));
+            if ((line = input.readLine()) != null) {
+                adfName = line.split("\n")[0];
+                System.out.println("Read from file: " + filePath + " " + adfName);
+            }
         } catch (IOException e) {
             System.out.println("Fail to read adfFile: " + filePath);
             e.printStackTrace();
         }
         return adfName;
+    }
+
+    public static void writeADFtoFile(String filePath, String adfName, Context context) {
+        if (adfName == null)
+            adfName = DEFAULT_ADF;
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filePath, Context.MODE_PRIVATE));
+            outputStreamWriter.write(adfName);
+            outputStreamWriter.close();
+            System.out.println("Write to file: " + filePath + " " + adfName);
+        } catch (IOException e) {
+            System.out.println("Fail to write adfFile: " + filePath);
+            e.printStackTrace();
+        }
     }
 }
