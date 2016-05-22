@@ -4,32 +4,60 @@
     android:layout_height="match_parent"
     android:labelFor="@string/app_name"
     android:gravity="center"
-    android:orientation="vertical" >
+    android:orientation="horizontal" >
 
-    <TextView
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="@string/spinner_title"
-        android:textSize="15dp"
-        android:id="@+id/selectADFtext" />
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/menu"
+        android:background="@color/white">
 
-    <Spinner
-        android:id="@+id/selectAdf"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:textSize="15sp"/>
-    <Button
-        android:id="@+id/start"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="@string/start_config"
-        android:textSize="15sp" />
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/spinner_title"
+            android:textSize="15dp"
+            android:id="@+id/selectADFtext" />
 
-    <Button
-        android:id="@+id/manageADF"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="@string/manage_adfs"
-        android:textSize="15sp" />
+        <Spinner
+            android:id="@+id/selectAdf"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:textSize="15sp"/>
+        <Button
+            android:id="@+id/start"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/start_config"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/manageADF"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_adfs"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="600dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/map"
+        android:background="@color/white"
+        android:layout_toEndOf="@+id/menu"
+        android:weightSum="1">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/ownerMap"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>
