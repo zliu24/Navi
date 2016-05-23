@@ -29,23 +29,34 @@ import edu.stanford.navi.pathfinding.LazyThetaStar;
 import edu.stanford.navi.pathfinding.datatypes.GridGraph;
 
 public class Map2D {
-    public Mat imgBg; // a binary image
     public Mat img;
+    public Mat imgBg; // a binary image
     public Mat imgClean; // with no drawings
     public Bitmap imgBmp;
+
+    private Context mContext;
+
+    private GridGraph gridGraph;
     private OLSMultipleLinearRegression linearRegression;
     private LazyThetaStar lazyThetaStar;
+
     private List<Scalar> palette = new ArrayList<Scalar>();
-    private Context mContext;
-    public List<Point> points = new ArrayList<Point>();
-    private List<String> locations = new ArrayList<String>();
+
+    private List<Point> keypoints = new ArrayList<Point>();
+    private List<String> keypointsNames = new ArrayList<String>();
+
     private Size screenSize;
     private Size imgSize; // For both map and bmp
-    private GridGraph gridGraph;
+
     private byte []buff;
     private double []beta;
     private float[][] worldPath;
-    private double scale = 0.25;
+    private double scale;
+
+    // load resource
+    private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
+    private String mapping_txt = "mapping.txt";
+    private int imgId = R.drawable.ikea5;
 
     /*
      * Three coordinate systems:
@@ -58,7 +69,7 @@ public class Map2D {
 
         try {
             // Load map image specified by R.drawable.filename
-            img = Utils.loadResource(mContext, R.drawable.ikea5, CvType.CV_8UC3);
+            img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
             Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);
 
             // calculate image size
@@ -70,6 +81,7 @@ public class Map2D {
             } else {
                 double imgWidth = screenSize.width;
                 double imgHeight = imgWidth*img.rows()/img.cols();
+                scale = imgWidth/img.cols();
                 imgSize = new Size(imgWidth, imgHeight);
             }
 
@@ -83,7 +95,7 @@ public class Map2D {
         System.out.println("img width: " + img.cols() + ", img height: " + img.rows() + ", channel: " + img.channels());
         makePalette();
         preProcess();
-        loadCoordinates();
+        loadKeypoints();
 
         // createBitmap(int width, int height, Bitmap.Config config)
         imgBmp = Bitmap.createBitmap((int) imgSize.width, (int) imgSize.height, Bitmap.Config.ARGB_8888);
@@ -131,8 +143,9 @@ public class Map2D {
     public void computePath(int start, int end) {
         cleanImg();
         int[][] path;
-        lazyThetaStar = new LazyThetaStar(gridGraph, (int)points.get(start).x, (int)points.get(start).y,
-                (int)points.get(end).x, (int)points.get(end).y);
+        lazyThetaStar = new LazyThetaStar(gridGraph,
+                (int)keypoints.get(start).x, (int)keypoints.get(start).y,
+                (int)keypoints.get(end).x, (int)keypoints.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
         drawPath(path); // draw directly on img, that's why we need to call cleanImg()
@@ -144,7 +157,7 @@ public class Map2D {
         cleanImg();
         int[][] path;
         lazyThetaStar = new LazyThetaStar(gridGraph, imgX, imgY,
-                (int)points.get(end).x, (int)points.get(end).y);
+                (int)keypoints.get(end).x, (int)keypoints.get(end).y);
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
         drawPath(path); // draw directly on img, that's why we need to call cleanImg()
@@ -156,17 +169,24 @@ public class Map2D {
         return worldPath;
     }
 
+    public float[] getKeypoint(int position) {
+        float []keypoint = new float[2];
+        keypoint[0] = (float) keypoints.get(position).x;
+        keypoint[1] = (float) keypoints.get(position).y;
+        return keypoint;
+    }
+
     public void creatPathSingleton() {
         Path path = Path.getSingletonObject();
         path.setpath(worldPath);
     }
 
-    public String getLocation(int i) {
-        return locations.get(i);
+    public String getKeypointName(int i) {
+        return keypointsNames.get(i);
     }
 
-    public String [] getLocations() {
-        return locations.toArray(new String[0]);
+    public String [] getKeypointsNames() {
+        return keypointsNames.toArray(new String[0]);
     }
 
     private void preProcess() {
@@ -175,33 +195,25 @@ public class Map2D {
         Imgproc.cvtColor(imgBg, img, Imgproc.COLOR_GRAY2RGB);
     }
 
-    private void loadCoordinates() {
+    private void loadKeypoints() {
         AssetManager am = mContext.getAssets();
 
         try {
-            InputStream is = am.open("coordinates.txt");
+            InputStream is = am.open(keypoints_txt);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             String line;
 
             while ((line = reader.readLine()) != null) {
                 String []tokens = line.split("[,]");
-                Point pt = new Point(Integer.parseInt(tokens[0])*scale, Integer.parseInt(tokens[1])*scale);
-                String loc = tokens[2];
-                points.add(pt);
-                locations.add(loc);
+                Point keypoint = new Point(Integer.parseInt(tokens[0])*scale, Integer.parseInt(tokens[1])*scale);
+                String keypointName = tokens[2];
+                keypoints.add(keypoint);
+                keypointsNames.add(keypointName);
             }
         } catch (IOException e) {
             System.out.println("bad");
             e.printStackTrace();
         }
-
-        /*
-        for (int i = 0; i < points.size(); i++) {
-            Point pt = points.get(i);
-            System.out.println(locations.get(i)+": ("+pt.x+", "+pt.y+")");
-            Imgproc.circle(img, pt, 30, palette.get(i), -1);
-        }
-        */
     }
 
     // reference: http://tools.medialab.sciences-po.fr/iwanthue/
@@ -243,7 +255,7 @@ public class Map2D {
         AssetManager am = mContext.getAssets();
 
         try {
-            InputStream is = am.open("mapping.txt");
+            InputStream is = am.open(mapping_txt);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             String line;
 

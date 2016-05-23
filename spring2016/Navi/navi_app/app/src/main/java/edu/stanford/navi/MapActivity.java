@@ -106,9 +106,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             return;
         }
 
-        imgCoorDestimation = new float[2];
-        imgCoorDestimation[0] = (float) map2D.points.get(position).x;
-        imgCoorDestimation[1] = (float) map2D.points.get(position).y;
+        imgCoorDestimation = map2D.getKeypoint(position);
 
         if (mIsRelocalized) {
             long startTime = System.currentTimeMillis();
@@ -118,7 +116,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             System.out.println("That took " + (endTime - startTime) + " milliseconds");
 
             textView = (TextView) findViewById(R.id.textView);
-            textView.setText("Navigating to " + map2D.getLocation(position));
+            textView.setText("Navigating to " + map2D.getKeypointName(position));
             Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
             textView.setTypeface(face);
         }
@@ -318,7 +316,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getLocations());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getKeypointsNames());
         listOfRooms.setAdapter(adapter);
         listOfRooms.setOnItemClickListener(this);
     }
