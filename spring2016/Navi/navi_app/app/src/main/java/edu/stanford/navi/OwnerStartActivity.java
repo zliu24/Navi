@@ -20,12 +20,14 @@ import com.google.atap.tangoservice.Tango;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
     private final String CONFIG_FILE = "config.txt";
     private Button mStartButton;
     private Button mManageButton;
+    private ImageView imageView;
     private String selectedUUID;
     private String selectedADFName;
     private Spinner spinner;
@@ -66,6 +69,30 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
         setUpButtons();
         setUpADF();
         setUpSpinner();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.start:
+                startOwnerMapActivity();
+                break;
+            case R.id.manageADF:
+                startADFListView();
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 0) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, R.string.arealearning_permission, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
     }
 
     private void setUpButtons() {
@@ -93,23 +120,20 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
         selectedUUID = name2uuidMap.get(selectedADFName);
 
         Utils.writeADFtoFile(CONFIG_FILE, selectedADFName, this);
+        setUpMap();
+    }
+
+    public void setUpMap() {
+        System.out.println("Selected Map: " + selectedADFName);
+        Drawable img = Utils.getImage(this, selectedADFName);
+        imageView = (ImageView) findViewById(R.id.ownerMap);
+        imageView.setImageDrawable(img);
     }
 
     public void onNothingSelected(AdapterView<?> parentView){
         System.out.println("fuc no!");
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.start:
-                startOwnerMapActivity();
-                break;
-            case R.id.manageADF:
-                startADFListView();
-                break;
-        }
-    }
 
     private void startOwnerMapActivity() {
 
@@ -118,18 +142,6 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
     private void startADFListView() {
         Intent startADFListViewIntent = new Intent(this, ADFUUIDListViewActivity.class);
         startActivity(startADFListViewIntent);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == 0) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, R.string.arealearning_permission, Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
     }
 
 }

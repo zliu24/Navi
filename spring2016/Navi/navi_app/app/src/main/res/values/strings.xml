@@ -15,7 +15,7 @@
    limitations under the License.
 -->
 <resources>
-    <string name="spinner_title">Select an ADF:</string>
+    <string name="spinner_title">Select a location:</string>
     <string name="selected_adf">Selected ADF</string>
     <string name="app_name">Navi</string>
     <string name="app_name_long">Navi</string>
