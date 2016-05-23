@@ -93,7 +93,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private Point screenSize;
     private int count;
     private float []worldCoor = {0, 0};
-    float []bmpCoorDestimation;
+    float []imgCoorDestimation;
 
     TextView navigateBtn;
 
@@ -106,11 +106,14 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             return;
         }
 
-        bmpCoorDestimation = map2D.map2bmp((float) map2D.points.get(position).x, (float) map2D.points.get(position).y);
+        imgCoorDestimation = new float[2];
+        imgCoorDestimation[0] = (float) map2D.points.get(position).x;
+        imgCoorDestimation[1] = (float) map2D.points.get(position).y;
+
         if (mIsRelocalized) {
             long startTime = System.currentTimeMillis();
-            float []curMapCoor = map2D.world2map(worldCoor[0], worldCoor[1]);
-            map2D.computePath((int)curMapCoor[0], (int)curMapCoor[1], position);
+            float []imgCoorCurrent = map2D.world2img(worldCoor[0], worldCoor[1]);
+            map2D.computePath((int)imgCoorCurrent[0], (int)imgCoorCurrent[1], position);
             long endTime = System.currentTimeMillis();
             System.out.println("That took " + (endTime - startTime) + " milliseconds");
 
@@ -466,15 +469,15 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                     Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
                                     Canvas canvas = new Canvas(curBmp);
                                     Paint paint = new Paint();
-                                    float []bmpCoor = map2D.world2bmp(worldCoor[0], worldCoor[1]);
+                                    float []imgCoor = map2D.world2img(worldCoor[0], worldCoor[1]);
                                     paint.setColor(Color.RED);
                                     paint.setStyle(Paint.Style.FILL);
                                     paint.setTextSize(50);
-                                    canvas.drawCircle(bmpCoor[0], bmpCoor[1], 20, paint);
-                                    canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(bmpCoor[0]) + ", " + Float.toString(bmpCoor[0]), 10, 100, paint);
+                                    canvas.drawCircle(imgCoor[0], imgCoor[1], 20, paint);
+                                    canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(imgCoor[0]) + ", " + Float.toString(imgCoor[0]), 10, 100, paint);
                                     paint.setColor(Color.BLUE);
-                                    if (bmpCoorDestimation != null) {
-                                        canvas.drawCircle(bmpCoorDestimation[0], bmpCoorDestimation[1], 20, paint);
+                                    if (imgCoorDestimation != null) {
+                                        canvas.drawCircle(imgCoorDestimation[0], imgCoorDestimation[1], 20, paint);
                                     }
                                     imageView.setImageBitmap(curBmp);
                                 }

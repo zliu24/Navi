@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/alan/Documents/Zelun-Documents/abroad/Stanford/academic/CS_210/daqri-code/spring2016/Map/app/libs/commons-math3-3.6.1.jar"
+        jumboMode="false"
+        revision="23.0.3"
+        sha1="e4ba98f1d4b3c80ec46392f25e094a6a2e58fcbf">
+        <dex dex="/Users/alan/Documents/Zelun-Documents/abroad/Stanford/academic/CS_210/daqri-code/spring2016/Map/app/build/intermediates/pre-dexed/debug/commons-math3-3.6.1_df53ded35a4babedc24ab4c1e3747a5774a46453.jar" />
+    </item>
+
+</items>

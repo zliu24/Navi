@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:labelFor="@string/app_name"
+    android:orientation="vertical" >
+
+    <ToggleButton
+        android:id="@+id/loadadf"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:textOff="@string/loadadf_off"
+        android:textOn="@string/loadadf_on"
+        android:textSize="15sp" />
+
+    <TextView
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/spinner_title"
+        android:textSize="15dp"
+        android:id="@+id/selectADFtext" />
+
+    <Spinner
+        android:id="@+id/selectAdf"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:textSize="15sp"/>
+
+    <ToggleButton
+        android:id="@+id/learningmode"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:textOff="@string/learningmode_off"
+        android:textOn="@string/learningmode_on"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/start_config"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/ADFListView"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/manage_adfs"
+        android:textSize="15sp" />
+
+</LinearLayout><!-- From: file:/Users/alan/Documents/Zelun-Documents/abroad/Stanford/academic/CS_210/daqri-code/spring2016/AreaLearning/java_area_description_example/app/src/main/res/layout/start_activity.xml -->
