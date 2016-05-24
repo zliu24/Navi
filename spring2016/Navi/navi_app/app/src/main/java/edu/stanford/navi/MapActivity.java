@@ -84,6 +84,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private ImageView imageView;
     private TextView textView;
     private ListView listOfRooms;
+    private TextView localize_text;
 
     // UX
     TangoUx mTangoUx;
@@ -93,6 +94,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private Map2D map2D;
     private Point screenSize;
     private int count;
+    private int countDots;
     private float []worldCoor = {0, 0};
     float []imgCoorDestimation;
     float []imgCoorCurrent;
@@ -155,6 +157,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         });
 
         count = 0;
+        countDots = 0;
     }
 
     @Override
@@ -466,23 +469,19 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-
                                 if (mIsRelocalized) {
-                                    //System.out.println("world coor1: "+worldCoor[0]+", "+worldCoor[1]);
-                                    Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
-                                    Canvas canvas = new Canvas(curBmp);
-                                    Paint paint = new Paint();
-                                    float []imgCoor = map2D.world2img(worldCoor[0], worldCoor[1]);
-                                    paint.setColor(Color.RED);
-                                    paint.setStyle(Paint.Style.FILL);
-                                    paint.setTextSize(50);
-                                    canvas.drawCircle(imgCoor[0], imgCoor[1], 20, paint);
-                                    canvas.drawText(Float.toString(worldCoor[0]) + ", " + Float.toString(worldCoor[1]) + "," + Float.toString(imgCoor[0]) + ", " + Float.toString(imgCoor[0]), 10, 100, paint);
-                                    paint.setColor(Color.BLUE);
-                                    if (imgCoorDestimation != null) {
-                                        canvas.drawCircle(imgCoorDestimation[0], imgCoorDestimation[1], 20, paint);
+                                    imageView.setImageBitmap(map2D.imgBmp);
+                                } else {
+                                    countDots++;
+                                    localize_text = (TextView) findViewById(R.id.localize_text);
+                                    System.out.println(countDots);
+                                    if (countDots%3 == 0) {
+                                        localize_text.setText("Localizing.");
+                                    } else if (countDots%3 == 1) {
+                                        localize_text.setText("Localizing..");
+                                    } else if (countDots%3 == 2) {
+                                        localize_text.setText("Localizing...");
                                     }
-                                    imageView.setImageBitmap(curBmp);
                                 }
                             }
                         });
