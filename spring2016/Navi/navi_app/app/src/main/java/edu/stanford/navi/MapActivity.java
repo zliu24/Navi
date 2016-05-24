@@ -25,8 +25,10 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -36,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.FrameLayout.LayoutParams;
 
 import com.google.atap.tango.ux.TangoUx;
 import com.google.atap.tango.ux.TangoUx.StartParams;
@@ -98,6 +101,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private float []worldCoor = {0, 0};
     float []imgCoorDestimation;
     float []imgCoorCurrent;
+    LayoutParams params_localizing;
+    LayoutParams params_localized;
 
     TextView navigateBtn;
 
@@ -108,9 +113,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
         imgCoorDestimation = map2D.getKeypoint(position);
 
-        if (mIsRelocalized) {
-            imgCoorCurrent = map2D.world2img(worldCoor[0], worldCoor[1]);
-        } else {
+        if (!mIsRelocalized) {
             imgCoorCurrent = new float[] {100, 100};
         }
 
@@ -158,6 +161,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
         count = 0;
         countDots = 0;
+
+        params_localizing = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params_localizing.gravity = Gravity.CENTER_VERTICAL;
+        params_localized = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params_localized.gravity = Gravity.BOTTOM;
     }
 
     @Override
@@ -434,6 +442,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             updateRenderer = true;
                             worldCoor[0] = (float)pose.translation[0];
                             worldCoor[1] = (float)pose.translation[1];
+                            imgCoorCurrent = map2D.world2img(worldCoor[0], worldCoor[1]);
                         }
                     } else if (pose.baseFrame == TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE
                             && pose.targetFrame == TangoPoseData.COORDINATE_FRAME_DEVICE) {
@@ -470,11 +479,21 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             @Override
                             public void run() {
                                 if (mIsRelocalized) {
+                                    map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1]);
                                     imageView.setImageBitmap(map2D.imgBmp);
+                                    localize_text = (TextView) findViewById(R.id.localize_text);
+                                    localize_text.setTextSize(20.0f);
+                                    localize_text.setPadding(5, 5, 5, 5);
+                                    localize_text.setLayoutParams(params_localized);
+                                    localize_text.setText(String.format("%.2f", worldCoor[0]) +
+                                            ", " + String.format("%.2f", worldCoor[1]));
                                 } else {
                                     countDots++;
                                     localize_text = (TextView) findViewById(R.id.localize_text);
-                                    System.out.println(countDots);
+                                    localize_text.setTextSize(60.0f);
+                                    localize_text.setPadding(20, 20, 20, 20);
+                                    localize_text.setLayoutParams(params_localizing);
+
                                     if (countDots%3 == 0) {
                                         localize_text.setText("Localizing.");
                                     } else if (countDots%3 == 1) {

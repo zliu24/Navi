@@ -96,11 +96,7 @@
         android:id="@+id/localize_text"
 
         android:layout_centerInParent="true"
-        android:layout_gravity="center_vertical"
         android:gravity="center"
-
-        android:padding="20dip"
-        android:textSize="60sp"
 
         android:background="#AA000000"
         android:textColor="#ffffffff"
