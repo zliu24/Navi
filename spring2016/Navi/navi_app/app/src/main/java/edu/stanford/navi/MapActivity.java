@@ -95,6 +95,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private int count;
     private float []worldCoor = {0, 0};
     float []imgCoorDestimation;
+    float []imgCoorCurrent;
 
     TextView navigateBtn;
 
@@ -103,24 +104,27 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         if (navigateBtn.getVisibility() == View.INVISIBLE)
             navigateBtn.setVisibility(View.VISIBLE);
 
-        if (!mIsRelocalized) {
-            return;
-        }
-
         imgCoorDestimation = map2D.getKeypoint(position);
 
         if (mIsRelocalized) {
-            long startTime = System.currentTimeMillis();
-            float []imgCoorCurrent = map2D.world2img(worldCoor[0], worldCoor[1]);
-            map2D.computePath((int)imgCoorCurrent[0], (int)imgCoorCurrent[1], position);
-            long endTime = System.currentTimeMillis();
-            System.out.println("That took " + (endTime - startTime) + " milliseconds");
-
-            textView = (TextView) findViewById(R.id.textView);
-            textView.setText("Navigating to " + map2D.getKeypointName(position));
-            Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-            textView.setTypeface(face);
+            imgCoorCurrent = map2D.world2img(worldCoor[0], worldCoor[1]);
+        } else {
+            imgCoorCurrent = new float[] {100, 100};
         }
+
+        long startTime = System.currentTimeMillis();
+        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+        long endTime = System.currentTimeMillis();
+        System.out.println("That took " + (endTime - startTime) + " milliseconds");
+        map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1]);
+
+        imageView = (ImageView) findViewById(R.id.imageView);
+        imageView.setImageBitmap(map2D.imgBmp);
+
+        textView = (TextView) findViewById(R.id.textView);
+        textView.setText("Navigating to " + map2D.getKeypointName(position));
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        textView.setTypeface(face);
     }
 
     @Override
@@ -311,21 +315,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         int end = 1;
 
         map2D = new Map2D(this, screenSize.x, screenSize.y);
-        Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
-        Canvas canvas = new Canvas(curBmp);
-        Paint paint = new Paint();
-        paint.setColor(Color.RED);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setTextSize(20);
-
-        for (int i = 0; i < map2D.nKeypoints; i++) {
-            float []keypoint = map2D.getKeypoint(i);
-            canvas.drawCircle(keypoint[0], keypoint[1], 10, paint);
-            canvas.drawText(map2D.getKeypointName(i), keypoint[0]+10, keypoint[1]-10, paint);
-        }
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageBitmap(curBmp);
+        imageView.setImageBitmap(map2D.imgBmp);
 
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);

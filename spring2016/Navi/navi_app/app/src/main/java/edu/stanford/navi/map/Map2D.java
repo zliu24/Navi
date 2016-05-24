@@ -7,6 +7,9 @@ package edu.stanford.navi.map;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import org.opencv.android.Utils;
@@ -31,8 +34,9 @@ import edu.stanford.navi.pathfinding.datatypes.GridGraph;
 public class Map2D {
     public Mat img;
     public Mat imgBg; // a binary image
-    public Mat imgClean; // with no drawings
     public Bitmap imgBmp;
+    public Bitmap imgBmpNoPath;
+    public Bitmap imgBmpNoCurLoc;
     public int nKeypoints;
 
     private Context mContext;
@@ -52,12 +56,19 @@ public class Map2D {
     private byte []buff;
     private double []beta;
     private float[][] worldPath;
-    private double scale;
+    private double scale_png2img;
+    private double scale_img2graph = 0.25;
 
     // load resource
     private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
     private String mapping_txt = "mapping.txt";
-    private int imgId = R.drawable.ikea5;
+    private int imgId = R.drawable.ikea;
+
+    // drawings
+    Canvas canvas;
+    Paint paintKeypoints;
+    Paint paintCurLoc;
+    Paint paintPath;
 
     /*
      * Three coordinate systems:
@@ -78,17 +89,16 @@ public class Map2D {
             if (screenSize.width/screenSize.height >= img.cols()/img.rows()) {
                 double imgHeight = screenSize.height;
                 double imgWidth = (double) imgHeight*img.cols()/img.rows();
-                scale = (double) imgWidth/img.cols();
+                scale_png2img = (double) imgWidth/img.cols();
                 imgSize = new Size(imgWidth, imgHeight);
             } else {
                 double imgWidth = screenSize.width;
                 double imgHeight = (double) imgWidth*img.rows()/img.cols();
-                scale = (double) imgWidth/img.cols();
+                scale_png2img = (double) imgWidth/img.cols();
                 imgSize = new Size(imgWidth, imgHeight);
             }
 
             Imgproc.resize(img, img, imgSize, 0, 0, Imgproc.INTER_CUBIC);
-            imgBg = Mat.zeros(img.rows(), img.cols(), CvType.CV_8U);
         } catch (IOException e) {
             System.out.println("bad");
             e.printStackTrace();
@@ -101,13 +111,36 @@ public class Map2D {
 
         // createBitmap(int width, int height, Bitmap.Config config)
         imgBmp = Bitmap.createBitmap((int) imgSize.width, (int) imgSize.height, Bitmap.Config.ARGB_8888);
-        buff = new byte[(int)img.total()];
+        Utils.matToBitmap(img, imgBmp);
+
+        buff = new byte[(int)imgBg.total()]; // must be called after preProcess() to get imgBg
         img2graph(); // must be called after the memory of buff is allocated
-        imgClean = img.clone();
         linearRegression = new OLSMultipleLinearRegression();
         linearRegression.setNoIntercept(true);
         findAffine();
-        updateBmp();
+
+        canvas = new Canvas(imgBmp);
+        paintKeypoints = new Paint();
+        paintCurLoc = new Paint();
+        paintPath = new Paint();
+
+        paintKeypoints.setARGB(255, 86, 208, 193);
+        paintKeypoints.setStyle(Paint.Style.FILL);
+        paintKeypoints.setTextSize(30);
+        paintCurLoc.setARGB(255, 255, 196, 37);
+        paintCurLoc.setStyle(Paint.Style.FILL);
+        paintCurLoc.setTextSize(30);
+        paintPath.setARGB(255, 255, 155, 155);
+        paintPath.setStrokeWidth(3);
+
+        for (int i = 0; i < nKeypoints; i++) {
+            float []keypoint = this.getKeypoint(i);
+            canvas.drawCircle(keypoint[0], keypoint[1], 15, paintKeypoints);
+            canvas.drawText(this.getKeypointName(i), keypoint[0]+10, keypoint[1]-10, paintKeypoints);
+        }
+
+        imgBmpNoPath = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+        imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
     }
 
     public float[] world2img(float worldX, float worldY) {
@@ -133,41 +166,52 @@ public class Map2D {
         return worldPath;
     }
 
-    private Bitmap updateBmp() {
-        Utils.matToBitmap(img, imgBmp);
-        return imgBmp;
-    }
+    public void computeAndDrawPath(int start, int end) {
+        System.out.println("computing");
+        imgBmp = imgBmpNoPath.copy(Bitmap.Config.ARGB_8888, true);
+        canvas = new Canvas(imgBmp);
 
-    private void cleanImg() {
-        img = imgClean.clone();
-    }
-
-    public void computePath(int start, int end) {
-        cleanImg();
         int[][] path;
         lazyThetaStar = new LazyThetaStar(gridGraph,
-                (int)keypoints.get(start).x, (int)keypoints.get(start).y,
-                (int)keypoints.get(end).x, (int)keypoints.get(end).y);
+                (int)(keypoints.get(start).x*scale_img2graph),
+                (int)(keypoints.get(start).y*scale_img2graph),
+                (int)(keypoints.get(end).x*scale_img2graph),
+                (int)(keypoints.get(end).y*scale_img2graph));
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
-        drawPath(path); // draw directly on img, that's why we need to call cleanImg()
+        drawPath(path);
         worldPath = img2world(path);
-        updateBmp(); // img -> imgBmp
+        imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+        System.out.println("computing done");
     }
 
-    public void computePath(int imgX, int imgY, int end) {
-        cleanImg();
+    public void computeAndDrawPath(int imgX, int imgY, int end) {
+        System.out.println("computing");
+        imgBmp = imgBmpNoPath.copy(Bitmap.Config.ARGB_8888, true);
+        canvas = new Canvas(imgBmp);
+
         int[][] path;
-        lazyThetaStar = new LazyThetaStar(gridGraph, imgX, imgY,
-                (int)keypoints.get(end).x, (int)keypoints.get(end).y);
+        lazyThetaStar = new LazyThetaStar(gridGraph,
+                (int)(imgX*scale_img2graph),
+                (int)(imgY*scale_img2graph),
+                (int)(keypoints.get(end).x*scale_img2graph),
+                (int)(keypoints.get(end).y*scale_img2graph));
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
-        drawPath(path); // draw directly on img, that's why we need to call cleanImg()
+        drawPath(path);
         worldPath = img2world(path);
-        updateBmp(); // img -> imgBmp
+        imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+        System.out.println("computing done");
     }
 
-    public float[][] getWolrdPath() {
+    public void drawCurLoc(int imgX, int imgY) {
+        imgBmp = imgBmpNoCurLoc.copy(Bitmap.Config.ARGB_8888, true);
+        canvas = new Canvas(imgBmp);
+        canvas.drawCircle(imgX, imgY, 15, paintCurLoc);
+        canvas.drawText("You are here!", imgX + 10, imgY - 10, paintCurLoc);
+    }
+
+    public float[][] getWorldPath() {
         return worldPath;
     }
 
@@ -192,9 +236,11 @@ public class Map2D {
     }
 
     private void preProcess() {
+        imgBg = Mat.zeros(img.rows(), img.cols(), CvType.CV_8U);
         Imgproc.cvtColor(img, imgBg, Imgproc.COLOR_RGB2GRAY);
         Imgproc.threshold(imgBg, imgBg, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
         Imgproc.cvtColor(imgBg, img, Imgproc.COLOR_GRAY2RGB);
+        Imgproc.resize(imgBg, imgBg, new Size(0, 0), scale_img2graph, scale_img2graph, Imgproc.INTER_CUBIC);
     }
 
     private void loadKeypoints() {
@@ -207,7 +253,7 @@ public class Map2D {
 
             while ((line = reader.readLine()) != null) {
                 String []tokens = line.split("[,]");
-                Point keypoint = new Point(Integer.parseInt(tokens[0])*scale, Integer.parseInt(tokens[1])*scale);
+                Point keypoint = new Point(Integer.parseInt(tokens[0])*scale_png2img, Integer.parseInt(tokens[1])*scale_png2img);
                 String keypointName = tokens[2];
                 keypoints.add(keypoint);
                 keypointsNames.add(keypointName);
@@ -239,18 +285,25 @@ public class Map2D {
     }
 
     private void img2graph() {
-        gridGraph = new GridGraph((int)imgSize.width, (int)imgSize.height);
+        System.out.println("GridGraph: " + imgBg.cols() + ", " + imgBg.rows());
+        gridGraph = new GridGraph((int)imgBg.cols(), (int)imgBg.rows());
         imgBg.get(0, 0, buff);
-        for (int i = 0; i < (int)imgSize.height; i++) {
-            for (int j = 0; j < (int)imgSize.width; j++) {
-                gridGraph.setBlocked(j, i, buff[i*(int)imgSize.width+j] == 0);
+        for (int i = 0; i < (int)imgBg.rows(); i++) {
+            for (int j = 0; j < (int)imgBg.cols(); j++) {
+                gridGraph.setBlocked(j, i, buff[i*(int)imgBg.cols()+j] == 0);
             }
         }
     }
 
     private void drawPath(int [][]path) {
+        System.out.println("path length: " + path.length);
+
         for (int i = 0; i < path.length-1; i++) {
-            Imgproc.line(img, new Point(path[i][0], path[i][1]), new Point(path[i+1][0], path[i+1][1]), new Scalar(0, 255, 0), (int)(8*scale));
+            canvas.drawLine((float)(path[i][0]/scale_img2graph),
+                    (float)(path[i][1]/scale_img2graph),
+                    (float)(path[i + 1][0]/scale_img2graph),
+                    (float)(path[i + 1][1]/scale_img2graph),
+                    paintPath);
         }
     }
 
@@ -264,7 +317,7 @@ public class Map2D {
 
             while ((line = reader.readLine()) != null) {
                 String []tokens = line.split("[,]");
-                Point pt1 = new Point(Double.parseDouble(tokens[0])*scale, Double.parseDouble(tokens[1])*scale);
+                Point pt1 = new Point(Double.parseDouble(tokens[0])*scale_png2img, Double.parseDouble(tokens[1])*scale_png2img);
                 Point pt2 = new Point(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[3]));
                 imgCoors.add(pt1);
                 worldCoors.add(pt2);
