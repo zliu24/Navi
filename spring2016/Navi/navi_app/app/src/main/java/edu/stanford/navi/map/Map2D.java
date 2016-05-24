@@ -59,6 +59,7 @@ public class Map2D {
     private int[][] path;
     private double scale_png2img;
     private double scale_img2graph = 0.25;
+    public float minDistThres = 80;
 
     // load resource
     private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
@@ -207,15 +208,17 @@ public class Map2D {
         System.out.println("computing done");
     }
 
-    public void drawCurLoc(int imgX, int imgY) {
+    public float drawCurLoc(int imgX, int imgY, int position) {
         imgBmp = imgBmpNoCurLoc.copy(Bitmap.Config.ARGB_8888, true);
         canvas = new Canvas(imgBmp);
         canvas.drawCircle(imgX, imgY, 15, paintCurLoc);
         canvas.drawText("You are here!", imgX + 10, imgY - 10, paintCurLoc);
-        float[] closestPt = getCurLocOnPath(imgX, imgY);
+        float[] closestPt = getCurLocOnPath(imgX, imgY, position);
         if (closestPt != null) {
             canvas.drawCircle(closestPt[0], closestPt[1], 15, paintClosestPt);
+            return closestPt[2];
         }
+        return -1;
     }
 
     public float[][] getWorldPath() {
@@ -314,7 +317,7 @@ public class Map2D {
         }
     }
 
-    private float distPtAndLineSegment(float x1, float y1, float x2, float y2, float x, float y) {
+    private double distPtAndLineSegment(float x1, float y1, float x2, float y2, float x, float y) {
         float A = x - x1;
         float B = y - y1;
         float C = x2 - x1;
@@ -341,7 +344,7 @@ public class Map2D {
 
         float dx = x - xx;
         float dy = y - yy;
-        return dx*dx + dy*dy; // actually square distance
+        return Math.sqrt(dx*dx + dy*dy);
     }
 
     private float[] getClosestPt(float x1, float y1, float x2, float y2, float x, float y) {
@@ -352,8 +355,8 @@ public class Map2D {
         return new float[] {x1 + u * px, y1 + u * py};
     }
 
-    private float[] getCurLocOnPath(int imgX, int imgY) {
-        float minDist = 999999999;
+    private float[] getCurLocOnPath(int imgX, int imgY, int position) {
+        double minDist = 999999999;
         float []closestPt = null;
         if (path == null) {
             return null;
@@ -363,13 +366,18 @@ public class Map2D {
             float y1 = (float)(path[i][1]/scale_img2graph);
             float x2 = (float)(path[i + 1][0]/scale_img2graph);
             float y2 = (float)(path[i + 1][1]/scale_img2graph);
-            float dist = distPtAndLineSegment(x1, y1, x2, y2, imgX, imgY);
+            double dist = distPtAndLineSegment(x1, y1, x2, y2, imgX, imgY);
             if (dist < minDist) {
                 minDist = dist;
                 closestPt = getClosestPt(x1, y1, x2, y2, imgX, imgY);
             }
         }
-        return closestPt;
+        System.out.println("minDist: " + minDist + "/" + minDistThres);
+        if (minDist > minDistThres) {
+            computeAndDrawPath(imgX, imgY, position);
+            return null;
+        }
+        return new float[] {closestPt[0], closestPt[1], (float)minDist};
     }
 
     private void loadMapping(List<Point> imgCoors, List<Point> worldCoors) {

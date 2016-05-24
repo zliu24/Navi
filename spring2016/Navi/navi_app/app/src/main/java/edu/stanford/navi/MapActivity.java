@@ -104,10 +104,13 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     LayoutParams params_localizing;
     LayoutParams params_localized;
 
+    private int position;
+
     TextView navigateBtn;
 
-    public void onItemClick(AdapterView<?> parentView, View v, int position, long id) {
+    public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
         Log.d(TAG, "Item selected with position: " + position);
+        position = pos;
         if (navigateBtn.getVisibility() == View.INVISIBLE)
             navigateBtn.setVisibility(View.VISIBLE);
 
@@ -121,7 +124,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds");
-        map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1]);
+        map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
@@ -322,6 +325,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     };
 
     private void initNaviPanel() {
+        System.out.println("initNaviPanel");
         int start = 0;
         int end = 1;
 
@@ -479,14 +483,15 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             @Override
                             public void run() {
                                 if (mIsRelocalized) {
-                                    map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1]);
+                                    float minDist = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
                                     imageView.setImageBitmap(map2D.imgBmp);
                                     localize_text = (TextView) findViewById(R.id.localize_text);
                                     localize_text.setTextSize(20.0f);
                                     localize_text.setPadding(5, 5, 5, 5);
                                     localize_text.setLayoutParams(params_localized);
-                                    localize_text.setText(String.format("%.2f", worldCoor[0]) +
-                                            ", " + String.format("%.2f", worldCoor[1]));
+                                    localize_text.setText("[" + String.format("%.2f", worldCoor[0]) +
+                                            ", " + String.format("%.2f", worldCoor[1]) + "], minDist: " +
+                                            String.format("%.2f", minDist) + "/" + String.format("%.2f", map2D.minDistThres));
                                 } else {
                                     countDots++;
                                     localize_text = (TextView) findViewById(R.id.localize_text);
