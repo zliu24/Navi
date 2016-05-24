@@ -33,6 +33,7 @@ public class Map2D {
     public Mat imgBg; // a binary image
     public Mat imgClean; // with no drawings
     public Bitmap imgBmp;
+    public int nKeypoints;
 
     private Context mContext;
 
@@ -76,12 +77,13 @@ public class Map2D {
             screenSize = new Size(screenWidth, screenHeight);
             if (screenSize.width/screenSize.height >= img.cols()/img.rows()) {
                 double imgHeight = screenSize.height;
-                double imgWidth = imgHeight*img.cols()/img.rows();
+                double imgWidth = (double) imgHeight*img.cols()/img.rows();
+                scale = (double) imgWidth/img.cols();
                 imgSize = new Size(imgWidth, imgHeight);
             } else {
                 double imgWidth = screenSize.width;
-                double imgHeight = imgWidth*img.rows()/img.cols();
-                scale = imgWidth/img.cols();
+                double imgHeight = (double) imgWidth*img.rows()/img.cols();
+                scale = (double) imgWidth/img.cols();
                 imgSize = new Size(imgWidth, imgHeight);
             }
 
@@ -210,6 +212,7 @@ public class Map2D {
                 keypoints.add(keypoint);
                 keypointsNames.add(keypointName);
             }
+            nKeypoints = keypoints.size();
         } catch (IOException e) {
             System.out.println("bad");
             e.printStackTrace();

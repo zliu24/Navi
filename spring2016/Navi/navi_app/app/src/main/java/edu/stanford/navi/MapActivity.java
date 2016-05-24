@@ -59,6 +59,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.map.Map2D;
@@ -310,9 +311,21 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         int end = 1;
 
         map2D = new Map2D(this, screenSize.x, screenSize.y);
+        Bitmap curBmp = map2D.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(curBmp);
+        Paint paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTextSize(20);
+
+        for (int i = 0; i < map2D.nKeypoints; i++) {
+            float []keypoint = map2D.getKeypoint(i);
+            canvas.drawCircle(keypoint[0], keypoint[1], 10, paint);
+            canvas.drawText(map2D.getKeypointName(i), keypoint[0]+10, keypoint[1]-10, paint);
+        }
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageBitmap(map2D.imgBmp);
+        imageView.setImageBitmap(curBmp);
 
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
