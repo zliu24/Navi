@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:labelFor="@string/app_name"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:weightSum="4">
+
+    <RelativeLayout
+        android:id="@+id/tab"
+        android:layout_width="match_parent"
+        android:layout_height="81dp">
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:layout_gravity="bottom">
+
+        <ImageView
+            android:layout_width="600dp"
+            android:layout_height="match_parent"
+            android:id="@+id/ownerMap"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentLeft="true" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/next"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/start_config"
+                android:textSize="15sp"
+                android:layout_gravity="center_vertical"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select a location on the map"
+                android:id="@+id/textView"
+                android:layout_alignParentTop="true"
+                android:layout_toStartOf="@+id/next"
+                android:layout_marginTop="166dp"
+                android:textSize="30dp" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

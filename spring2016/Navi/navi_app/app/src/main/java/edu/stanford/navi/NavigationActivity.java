@@ -73,7 +73,7 @@ public class NavigationActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSelectedUUID = getIntent().getStringExtra(OwnerStartActivity.ADF_UUID);
+        mSelectedUUID = getIntent().getStringExtra(ADF_UUID);
         path = Path.getSingletonObject().getPath();
 
         setContentView(R.layout.navigation);
