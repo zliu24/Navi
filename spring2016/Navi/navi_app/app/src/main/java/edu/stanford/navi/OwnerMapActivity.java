@@ -163,7 +163,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     public void setUpMap() {
-        Drawable img = Utils.getImage(this, selectedADFName);
+        final Drawable img = Utils.getImage(this, selectedADFName);
         imageView = (ImageView) findViewById(R.id.ownerMap);
         imageView.setImageDrawable(img);
 
@@ -172,7 +172,9 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 textView.setText("Map coordinates : " +
-                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
+                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()) +
+                        "\n Map Size : " + imageView.getWidth() + "x" + imageView.getHeight() +
+                        "\n Image Size : " + img.getIntrinsicWidth() + "x" + img.getIntrinsicHeight());
                 return true;
             }
         });

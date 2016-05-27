@@ -37,7 +37,6 @@ import edu.stanford.navi.adf.Utils;
 
 public class OwnerStartActivity extends BaseActivity implements View.OnClickListener, OnItemSelectedListener {
 
-    private final String CONFIG_FILE = "config.txt";
     private Button mStartButton;
     private Button mManageButton;
     private ImageView imageView;
@@ -84,7 +83,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         fullUUIDList = mTango.listAreaDescriptions();
         fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-        selectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
+        selectedADFName = Utils.loadADFfromFile(Homepage.CONFIG_FILE, this);
     }
 
     private void setUpSpinner() {
@@ -100,7 +99,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         selectedADFName = parent.getItemAtPosition(position).toString();
-        Utils.writeADFtoFile(CONFIG_FILE, selectedADFName, this);
+        Utils.writeADFtoFile(Homepage.CONFIG_FILE, selectedADFName, this);
         setUpMap();
     }
 

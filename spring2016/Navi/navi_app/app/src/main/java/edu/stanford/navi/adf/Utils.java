@@ -18,7 +18,7 @@ import java.util.Map;
  * Created by Emma on 5/18/16.
  */
 public class Utils {
-    private static final String DEFAULT_LOC = "quillen_616b";
+    public static final String DEFAULT_LOC = "quillen_616b";
 
     public static ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
         ArrayList<String> nameList = new ArrayList<String>();
@@ -79,13 +79,17 @@ public class Utils {
     public static Drawable getImage(Context context, String name) {
         Drawable img;
         try {
-            img = context.getResources().getDrawable(context.getResources().getIdentifier(name, "drawable", context.getPackageName()));
+            img = context.getResources().getDrawable(findIdByName(context, name));
             System.out.println("Load owner map: " + name);
         } catch (Exception e) {
             e.printStackTrace();
-            img = context.getResources().getDrawable(context.getResources().getIdentifier(DEFAULT_LOC, "drawable", context.getPackageName()));
+            img = context.getResources().getDrawable(findIdByName(context, DEFAULT_LOC));
             System.out.println("Load default map: " + DEFAULT_LOC);
         }
         return img;
+    }
+
+    public static int findIdByName(Context context, String name) {
+        return context.getResources().getIdentifier(name, "drawable", context.getPackageName());
     }
 }

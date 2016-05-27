@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
@@ -27,7 +26,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.stanford.navi.R;
+import edu.stanford.navi.Homepage;
 import edu.stanford.navi.pathfinding.LazyThetaStar;
 import edu.stanford.navi.pathfinding.datatypes.GridGraph;
 
@@ -64,7 +63,6 @@ public class Map2D {
     // load resource
     private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
     private String mapping_txt = "mapping.txt";
-    private int imgId = R.drawable.ikea;
 
     // drawings
     Canvas canvas;
@@ -83,29 +81,39 @@ public class Map2D {
         mContext = context;
 
         try {
-            // Load map image specified by R.drawable.filename
+            // Load map image specified in the config file
+            String location = edu.stanford.navi.adf.Utils.loadADFfromFile(Homepage.CONFIG_FILE, context);
+            int imgId = edu.stanford.navi.adf.Utils.findIdByName(context, location);
             img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
-            Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);
 
-            // calculate image size
-            screenSize = new Size(screenWidth, screenHeight);
-            if (screenSize.width/screenSize.height >= img.cols()/img.rows()) {
-                double imgHeight = screenSize.height;
-                double imgWidth = (double) imgHeight*img.cols()/img.rows();
-                scale_png2img = (double) imgWidth/img.cols();
-                imgSize = new Size(imgWidth, imgHeight);
-            } else {
-                double imgWidth = screenSize.width;
-                double imgHeight = (double) imgWidth*img.rows()/img.cols();
-                scale_png2img = (double) imgWidth/img.cols();
-                imgSize = new Size(imgWidth, imgHeight);
+        } catch (Exception e) {
+            try {
+                // Load default location
+                int imgId = edu.stanford.navi.adf.Utils.findIdByName(context, edu.stanford.navi.adf.Utils.DEFAULT_LOC);
+                img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
             }
-
-            Imgproc.resize(img, img, imgSize, 0, 0, Imgproc.INTER_CUBIC);
-        } catch (IOException e) {
-            System.out.println("bad");
-            e.printStackTrace();
+            catch (Exception e2) {
+                System.out.println("Failed to load default map image!");
+                e2.printStackTrace();
+            }
         }
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);
+
+        // calculate image size
+        screenSize = new Size(screenWidth, screenHeight);
+        if (screenSize.width/screenSize.height >= img.cols()/img.rows()) {
+            double imgHeight = screenSize.height;
+            double imgWidth = (double) imgHeight*img.cols()/img.rows();
+            scale_png2img = (double) imgWidth/img.cols();
+            imgSize = new Size(imgWidth, imgHeight);
+        } else {
+            double imgWidth = screenSize.width;
+            double imgHeight = (double) imgWidth*img.rows()/img.cols();
+            scale_png2img = (double) imgWidth/img.cols();
+            imgSize = new Size(imgWidth, imgHeight);
+        }
+
+        Imgproc.resize(img, img, imgSize, 0, 0, Imgproc.INTER_CUBIC);
 
         System.out.println("img width: " + img.cols() + ", img height: " + img.rows() + ", channel: " + img.channels());
         makePalette();

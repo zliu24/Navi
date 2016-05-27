@@ -16,12 +16,13 @@ import edu.stanford.navi.adf.Utils;
 
 public class Homepage extends BaseActivity implements View.OnClickListener {
 
+    public static final String CONFIG_FILE = "config.txt";
+
     private Tango mTango;
     private ArrayList<String> fullUUIDList;
     private Map<String, String> name2uuidMap;
     private String mSelectedUUID;
     private String mSelectedADFName;
-    private final String CONFIG_FILE = "config.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
