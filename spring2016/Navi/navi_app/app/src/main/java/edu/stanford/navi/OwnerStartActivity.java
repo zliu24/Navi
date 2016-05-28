@@ -17,6 +17,7 @@
 package edu.stanford.navi;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.atap.tangoservice.Tango;
 
@@ -54,12 +56,18 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.owner_start_activity);
+
+        TextView header_text = (TextView) findViewById(R.id.header_text);
+
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        header_text.setTypeface(face);
+        header_text.setTextColor(getResources().getColor(R.color.app_color));
+
         mTango = new Tango(this);
         setUpButtons();
         setUpADF();
         setUpSpinner();
     }
-
 
     @Override
     public void onClick(View v) {
@@ -75,7 +83,15 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
 
     private void setUpButtons() {
         mStartButton = (Button) findViewById(R.id.next);
+        TextView mStartButtonTxt = (TextView) findViewById(R.id.next);
+
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        mStartButtonTxt.setTypeface(face);
+
         mManageButton = (Button) findViewById(R.id.manageADF);
+        TextView  mManageButtonTxt = (TextView) findViewById(R.id.manageADF);
+        mManageButtonTxt.setTypeface(face);
+
         mManageButton.setOnClickListener(this);
         mStartButton.setOnClickListener(this);
     }
