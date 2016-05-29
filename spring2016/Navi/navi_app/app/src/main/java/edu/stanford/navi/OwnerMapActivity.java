@@ -17,6 +17,7 @@
 package edu.stanford.navi;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -63,6 +64,28 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.owner_map_activity);
+
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
+
+        TextView step1Txt = (TextView) findViewById(R.id.step1);
+        TextView step1InstructionsTxt = (TextView) findViewById(R.id.step1Instructions);
+        TextView calibrationProgressHeaderTxt = (TextView) findViewById(R.id.calibrationProgressHeader);
+        TextView calibrationProgressTxt = (TextView) findViewById(R.id.calibrationProgress);
+        TextView headerTxt = (TextView) findViewById(R.id.header_text);
+
+        calibrationProgressHeaderTxt.setTypeface(face);
+        calibrationProgressHeaderTxt.setTextColor(getResources().getColor(R.color.darkGray));
+        calibrationProgressTxt.setTypeface(faceRegular);
+        calibrationProgressTxt.setTextColor(getResources().getColor(R.color.darkGray));
+        step1Txt.setTypeface(face);
+        step1InstructionsTxt.setTypeface(faceRegular);
+        step1InstructionsTxt.setTextColor(getResources().getColor(R.color.darkGray));
+        step1Txt.setTextColor(getResources().getColor(R.color.darkGray));
+
+
+        headerTxt.setTypeface(face);
+        headerTxt.setTextColor(getResources().getColor(R.color.app_color));
 
         setupTango();
         setUpButtons();
@@ -158,8 +181,12 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
     private void setUpButtons() {
         mNextButton = (Button) findViewById(R.id.next);
-        mNextButton.setOnClickListener(this);
+        TextView mNextButtonTxt = (TextView) findViewById(R.id.next);
 
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        mNextButtonTxt.setTypeface(face);
+
+        mNextButton.setOnClickListener(this);
     }
 
     public void setUpMap() {
