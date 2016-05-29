@@ -65,33 +65,11 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.owner_map_activity);
 
-        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-        Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
-
-        TextView step1Txt = (TextView) findViewById(R.id.step1);
-        TextView step1InstructionsTxt = (TextView) findViewById(R.id.step1Instructions);
-        TextView calibrationProgressHeaderTxt = (TextView) findViewById(R.id.calibrationProgressHeader);
-        TextView calibrationProgressTxt = (TextView) findViewById(R.id.calibrationProgress);
-        TextView headerTxt = (TextView) findViewById(R.id.header_text);
-
-        calibrationProgressHeaderTxt.setTypeface(face);
-        calibrationProgressHeaderTxt.setTextColor(getResources().getColor(R.color.darkGray));
-        calibrationProgressTxt.setTypeface(faceRegular);
-        calibrationProgressTxt.setTextColor(getResources().getColor(R.color.darkGray));
-        step1Txt.setTypeface(face);
-        step1InstructionsTxt.setTypeface(faceRegular);
-        step1InstructionsTxt.setTextColor(getResources().getColor(R.color.darkGray));
-        step1Txt.setTextColor(getResources().getColor(R.color.darkGray));
-
-
-        headerTxt.setTypeface(face);
-        headerTxt.setTextColor(getResources().getColor(R.color.app_color));
-
         setupTango();
         setUpButtons();
         setUpMap();
+        setUpFonts();
     }
-
 
     @Override
     protected void onPause() {
@@ -189,6 +167,24 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         mNextButton.setOnClickListener(this);
     }
 
+    private void setUpFonts() {
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
+
+        TextView step1Txt = (TextView) findViewById(R.id.step1);
+        TextView step1InstructionsTxt = (TextView) findViewById(R.id.step1Instructions);
+        TextView calibrationProgressHeaderTxt = (TextView) findViewById(R.id.calibrationProgressHeader);
+        TextView calibrationProgressTxt = (TextView) findViewById(R.id.calibrationProgress);
+        TextView headerTxt = (TextView) findViewById(R.id.header_text);
+
+        calibrationProgressHeaderTxt.setTypeface(face);
+        calibrationProgressTxt.setTypeface(faceRegular);
+        step1Txt.setTypeface(face);
+        step1InstructionsTxt.setTypeface(faceRegular);
+
+        headerTxt.setTypeface(face);
+    }
+
     public void setUpMap() {
         Drawable img = Utils.getImage(this, selectedADFName);
         imageView = (ImageView) findViewById(R.id.ownerMap);
@@ -267,7 +263,9 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void startOwnerLabelActivity() {
-
+        Intent intent = new Intent(this, OwnerLabelActivity.class);
+        intent.putExtra(ADF_NAME, selectedADFName);
+        startActivity(intent);
     }
 
 }

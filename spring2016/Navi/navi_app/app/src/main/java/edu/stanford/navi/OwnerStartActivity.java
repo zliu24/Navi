@@ -57,16 +57,11 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.owner_start_activity);
 
-        TextView header_text = (TextView) findViewById(R.id.header_text);
-
-        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-        header_text.setTypeface(face);
-        header_text.setTextColor(getResources().getColor(R.color.app_color));
-
         mTango = new Tango(this);
         setUpButtons();
         setUpADF();
         setUpSpinner();
+        setUpFonts();
     }
 
     @Override
@@ -79,6 +74,12 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
                 startADFListView();
                 break;
         }
+    }
+
+    private void setUpFonts() {
+        TextView header_text = (TextView) findViewById(R.id.header_text);
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        header_text.setTypeface(face);
     }
 
     private void setUpButtons() {
@@ -129,7 +130,6 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
 
     public void onNothingSelected(AdapterView<?> parentView){
     }
-
 
     private void startOwnerMapActivity() {
         Intent intent = new Intent(this, OwnerMapActivity.class);

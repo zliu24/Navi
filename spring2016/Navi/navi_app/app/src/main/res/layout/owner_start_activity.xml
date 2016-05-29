@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Select your indoor environment"
+            android:textColor="@color/app_color"
             android:textSize="25dp"
             android:id="@+id/header_text"
             android:layout_alignTop="@+id/logo"
