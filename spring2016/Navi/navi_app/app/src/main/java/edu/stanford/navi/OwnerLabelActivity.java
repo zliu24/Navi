@@ -3,9 +3,11 @@ package edu.stanford.navi;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.graphics.Typeface;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 
@@ -14,6 +16,7 @@ import com.google.atap.tangoservice.TangoConfig;
 import com.google.atap.tangoservice.TangoPoseData;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,13 +45,44 @@ public class OwnerLabelActivity extends BaseActivity {
         mTango = new Tango(this);
         setUpADF();
         setUpMap();
-        setUpFonts();
+        setUpUI();
     }
 
     private void setUpFonts() {
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+
+        Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
+
+        TextView addLocCardHeaderTxt = (TextView) findViewById(R.id.addLocCardHeader);
+        addLocCardHeaderTxt.setTypeface(face);
+
+        TextView textFieldLocationItemTxt = (TextView) findViewById(R.id.textFieldLocationItem);
+        textFieldLocationItemTxt.setTypeface(faceRegular);
+
+
+        TextView cancelButtonTxt = (TextView) findViewById(R.id.cancelButton);
+        cancelButtonTxt.setTypeface(faceRegular);
+
+        TextView doneButtonTxt = (TextView) findViewById(R.id.doneButton);
+        doneButtonTxt.setTypeface(face);
+
+
         TextView headerTxt = (TextView) findViewById(R.id.header_text);
         headerTxt.setTypeface(face);
+    }
+
+    private void setUpUI() {
+        setUpFonts();
+
+//        List<String> filterItemsTemp = new ArrayList<String>();
+//        filterItemsTemp.add("Android");
+//        filterItemsTemp.add("iOS");
+//        filterItemsTemp.add("AR / VR");
+//
+//        Spinner spinner = (Spinner) findViewById(R.id.filterSpinner);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, filterItemsTemp);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinner.setPrompt("Filter labels");
     }
 
     public void setUpMap() {

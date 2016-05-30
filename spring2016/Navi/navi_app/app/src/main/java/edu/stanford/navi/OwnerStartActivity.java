@@ -33,6 +33,7 @@ import android.widget.TextView;
 import com.google.atap.tangoservice.Tango;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import edu.stanford.navi.adf.Utils;
@@ -107,6 +108,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
     private void setUpSpinner() {
         spinner = (Spinner) findViewById(R.id.selectAdf);
         spinner.setOnItemSelectedListener(this);
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, fullADFnameList);
         spinner.setAdapter(adapter);
         //set the default location

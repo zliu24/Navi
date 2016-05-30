@@ -70,7 +70,8 @@
         <activity
             android:name=".MenuPage"
             android:screenOrientation="landscape" />
-        <activity android:name=".OwnerLabelActivity"></activity>
+        <activity android:name=".OwnerLabelActivity"
+            android:windowSoftInputMode="stateHidden"></activity>
     </application>
 
 </manifest>

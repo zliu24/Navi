@@ -119,7 +119,6 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         .show();
             }
         }
-
     }
 
     @Override

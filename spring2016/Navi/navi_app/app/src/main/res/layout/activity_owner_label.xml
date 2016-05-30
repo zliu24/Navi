@@ -62,80 +62,80 @@
             android:layout_marginBottom="16dp" />
 
         <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="100dp">
+            android:id="@+id/card"
+            android:layout_width="383dp"
+            android:layout_height="wrap_content"
+            android:background="@color/lightGray"
+            android:layout_marginEnd="148dp"
+            android:layout_alignParentTop="true">
 
-            <RelativeLayout
-                android:id="@+id/card"
-                android:layout_width="190dp"
-                android:layout_height="200dp"
-                android:background="@color/lightGray"
-                android:layout_centerVertical="true">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="STEP 1"
-                    android:id="@+id/step1"
-                    android:layout_alignParentTop="true"
-                    android:textSize="20dp"
-                    android:layout_alignParentEnd="true"
-                    android:gravity="center"
-                    android:layout_alignParentStart="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginTop="25dp" />
-
-                <TextView
-                    android:layout_width="160dp"
-                    android:layout_height="wrap_content"
-                    android:text="Click on a map location that you can navigate to"
-                    android:id="@+id/step1Instructions"
-                    android:textSize="18dp"
-                    android:gravity="center"
-                    android:layout_gravity="center_vertical"
-                    android:layout_below="@+id/step1"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-
-                <!--<RelativeLayout-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="150dp"-->
-                <!--android:id="@+id/instructionContainer"-->
-                <!--android:layout_gravity="center_vertical"-->
-                <!--android:layout_alignParentTop="true">-->
-
-            </RelativeLayout>
-
-            <LinearLayout
-                android:orientation="vertical"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
-                android:layout_above="@+id/card"
-                android:layout_marginBottom="30dp">
+                android:text="Add a location item"
+                android:id="@+id/addLocCardHeader"
+                android:layout_alignParentTop="true"
+                android:textSize="20dp"
+                android:textColor="@color/darkGray"
+                android:layout_alignParentEnd="true"
+                android:gravity="center"
+                android:layout_alignParentStart="true"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="20dp" />
 
-                <TextView
-                    android:layout_width="220dp"
-                    android:layout_height="wrap_content"
-                    android:text="# of locations mapped:"
-                    android:id="@+id/calibrationProgressHeader"
-                    android:textSize="20dp"
-                    android:gravity="center"
-                    android:layout_gravity="center_vertical"
-                    android:layout_above="@+id/card" />
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textFieldLocationItem"
+                android:hint="Name item ..."
+                android:background="@color/white"
+                android:layout_below="@+id/addLocCardHeader"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:padding="10dp"
+                android:imeOptions="actionDone"
+                android:singleLine="true"/>
 
-                <TextView
-                    android:layout_width="210dp"
-                    android:layout_height="wrap_content"
-                    android:text="0 out of 4"
-                    android:id="@+id/calibrationProgress"
-                    android:textSize="20dp"
-                    android:gravity="center"
-                    android:layout_gravity="center_vertical"
-                    android:layout_alignBottom="@+id/calibrationProgressHeader"
-                    android:layout_alignParentStart="true" />
-            </LinearLayout>
+            <Spinner
+                android:layout_width="150dp"
+                android:layout_height="60dp"
+                android:id="@+id/filterSpinner"
+                android:layout_marginLeft="20dp"
+                android:spinnerMode="dialog"
+                android:layout_below="@+id/textFieldLocationItem" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Cancel"
+                android:textColor="@color/darkGray"
+                android:id="@+id/cancelButton"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Done"
+                android:textColor="@color/darkGray"
+                android:id="@+id/doneButton"
+                android:layout_marginStart="101dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignBottom="@+id/filterSpinner"
+                android:layout_marginBottom="10dp"
+                android:layout_marginRight="20dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="350dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="100dp">
 
             <Button
                 android:id="@+id/next"
@@ -151,15 +151,6 @@
                 android:layout_marginStart="128dp"
                 android:layout_marginBottom="20dp"
                 android:layout_marginRight="20dp" />
-
-            <!--<Button-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textSize="20sp"-->
-            <!--android:layout_gravity="bottom"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_centerHorizontal="true"-->
-            <!--android:layout_marginBottom="15dp"-->
-            <!--android:layout_marginRight="20dp" />-->
 
         </RelativeLayout>
 
