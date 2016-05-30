@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
+import java.lang.Math.*;
+
 /**
  * Very simple example augmented reality renderer which displays a cube fixed in place.
  * Whenever the user clicks on the screen, the cube is placed flush with the surface detected
@@ -119,6 +121,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                     Object3D point = new Cube(CUBE_SIDE_LENGTH); // default in case of parsing failure
 
+                    double angle = 0.0;
+
                     if(i == pathPoints.length - 1) {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.star);
                         try {
@@ -137,17 +141,24 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                             e.printStackTrace();
                         }
 
-                        //Vector3 nextArrow = new Vector3(pathPoints[i+1][0], -1, pathPoints[i+1][1]);
-                        //org.rajawali3d.math.Quaternion rotation = pose.getRotationTo(nextArrow);
+                        //Calculate the angle at which to rotate the arrow
+                        double side1 = pathPoints[i][0] - pathPoints[i+1][0];
+                        double side2 = pathPoints[i][1] - pathPoints[i+1][1];
+                        double hypotenuse = Math.sqrt((side1*side1) + (side2*side2));
 
-                        //point.rotate(rotation);
+                        double theta = Math.asin(side1/hypotenuse);
+
+                        angle = Math.toDegrees((Math.PI / 2) - theta) + 180;
+
 
                     }
 
+
                     point.setMaterial(material);
                     point.setPosition(pose);
+                    point.setRotation(Vector3.Axis.Y, angle);
 
-                    System.out.println("Adding checkpoint at " + pose);
+                            System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
                     pathObjects.add(point);
                     stack.push(pose);
