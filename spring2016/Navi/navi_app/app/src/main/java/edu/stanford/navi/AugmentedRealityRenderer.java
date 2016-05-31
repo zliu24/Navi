@@ -124,7 +124,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     double angle = 0.0;
 
                     if(i == pathPoints.length - 1) {
-                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.star);
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination);
                         try {
                             objParser.parse();
                             point = objParser.getParsedObject();
