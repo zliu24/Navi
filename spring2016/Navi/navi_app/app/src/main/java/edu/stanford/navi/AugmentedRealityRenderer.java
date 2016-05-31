@@ -66,7 +66,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     List<Object3D> pathObjects;
     Line3D line;
     private boolean pathObjectUpdated = false;
-    Material material;
 
     public AugmentedRealityRenderer(Context context) {
         super(context);
@@ -91,12 +90,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         light0.setPower(0.8f);
         light0.setPosition(3, 2, 4);
         getCurrentScene().addLight(light0);
-
-        // Set-up a material
-        material = new Material();
-        material.setColor(Color.GREEN); // Purple 0xcc00ff
-        material.enableLighting(true);
-        material.setDiffuseMethod(new DiffuseMethod.Lambert());
 
     }
 
@@ -124,7 +117,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     double angle = 0.0;
 
                     if(i == pathPoints.length - 1) {
-                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination);
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination_obj);
                         try {
                             objParser.parse();
                             point = objParser.getParsedObject();
@@ -132,7 +125,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                             e.printStackTrace();
                         }
                     } else {
-                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow);
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                         try {
                             objParser.parse();
                             point = objParser.getParsedObject();
@@ -150,11 +143,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                         angle = Math.toDegrees((Math.PI / 2) - theta) + 180;
 
-
                     }
 
-
-                    point.setMaterial(material);
                     point.setPosition(pose);
                     point.setRotation(Vector3.Axis.Y, angle);
 
