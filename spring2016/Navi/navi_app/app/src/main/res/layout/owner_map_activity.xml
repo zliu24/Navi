@@ -77,7 +77,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="STEP 1"
-                    android:id="@+id/step1"
+                    android:id="@+id/stepHeader"
                     android:textColor="@color/darkGray"
                     android:layout_alignParentTop="true"
                     android:textSize="20dp"
@@ -92,16 +92,28 @@
                     android:layout_width="160dp"
                     android:layout_height="wrap_content"
                     android:text="Click on a map location that you can navigate to"
-                    android:id="@+id/step1Instructions"
+                    android:id="@+id/stepInstructions"
                     android:textColor="@color/darkGray"
                     android:textSize="18dp"
                     android:gravity="center"
                     android:layout_gravity="center_vertical"
-                    android:layout_below="@+id/step1"
+                    android:layout_below="@+id/stepHeader"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp" />
 
-                </RelativeLayout>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:text=""
+                    android:textSize="15dp"
+                    android:textColor="@color/app_color"
+                    android:id="@+id/doneStep2"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:orientation="vertical"
@@ -109,7 +121,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="false"
                 android:layout_above="@+id/card"
-                android:layout_marginBottom="30dp">
+                android:layout_marginBottom="30dp"
+                android:id="@+id/linearLayout2">
 
                 <TextView
                     android:layout_width="220dp"
@@ -149,6 +162,15 @@
                 android:layout_marginStart="128dp"
                 android:layout_marginBottom="20dp"
                 android:layout_marginRight="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:id="@+id/textView"
+                android:layout_alignParentBottom="true"
+                android:layout_alignEnd="@+id/linearLayout2" />
 
         </RelativeLayout>
 
