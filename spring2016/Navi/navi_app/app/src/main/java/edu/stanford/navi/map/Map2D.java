@@ -87,7 +87,8 @@ public class Map2D {
         try {
             // Load map image specified by R.drawable.filename
             Resources resources = context.getResources();
-            String mapName = edu.stanford.navi.adf.Utils.loadADFfromFile(CONFIG_FILE, context);
+            String mapName = edu.stanford.navi.adf.Utils.loadFromFile(
+                    CONFIG_FILE, context, edu.stanford.navi.adf.Utils.DEFAULT_LOC);
             imgId = resources.getIdentifier(mapName, "drawable", context.getPackageName());
             img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
             Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);

@@ -102,7 +102,7 @@ public class OwnerLabelActivity extends BaseActivity {
         fullUUIDList = mTango.listAreaDescriptions();
         fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-        selectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
+        selectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
     }
 
 }
