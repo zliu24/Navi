@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.graphics.Typeface;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 
 import com.google.atap.tangoservice.Tango;
@@ -37,6 +38,8 @@ public class OwnerLabelActivity extends BaseActivity {
     private ArrayList<String> fullADFnameList;
     private Map<String, String> name2uuidMap;
 
+    private ViewFlipper vf;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,18 +56,18 @@ public class OwnerLabelActivity extends BaseActivity {
 
         Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
 
-        TextView addLocCardHeaderTxt = (TextView) findViewById(R.id.addLocCardHeader);
-        addLocCardHeaderTxt.setTypeface(face);
-
-        TextView textFieldLocationItemTxt = (TextView) findViewById(R.id.textFieldLocationItem);
-        textFieldLocationItemTxt.setTypeface(faceRegular);
-
-
-        TextView cancelButtonTxt = (TextView) findViewById(R.id.cancelButton);
-        cancelButtonTxt.setTypeface(faceRegular);
-
-        TextView doneButtonTxt = (TextView) findViewById(R.id.doneButton);
-        doneButtonTxt.setTypeface(face);
+//        TextView addLocCardHeaderTxt = (TextView) findViewById(R.id.addLocCardHeader);
+//        addLocCardHeaderTxt.setTypeface(face);
+//
+//        TextView textFieldLocationItemTxt = (TextView) findViewById(R.id.textFieldLocationItem);
+//        textFieldLocationItemTxt.setTypeface(faceRegular);
+//
+//
+//        TextView cancelButtonTxt = (TextView) findViewById(R.id.cancelButton);
+//        cancelButtonTxt.setTypeface(faceRegular);
+//
+//        TextView doneButtonTxt = (TextView) findViewById(R.id.doneButton);
+//        doneButtonTxt.setTypeface(face);
 
 
         TextView headerTxt = (TextView) findViewById(R.id.header_text);
@@ -73,6 +76,10 @@ public class OwnerLabelActivity extends BaseActivity {
 
     private void setUpUI() {
         setUpFonts();
+
+        vf = (ViewFlipper) findViewById(R.id.vf);
+
+        vf.setDisplayedChild(0);
 
 //        List<String> filterItemsTemp = new ArrayList<String>();
 //        filterItemsTemp.add("Android");

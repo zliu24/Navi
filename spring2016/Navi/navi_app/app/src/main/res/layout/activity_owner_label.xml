@@ -44,7 +44,7 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -61,98 +61,17 @@
             android:layout_marginLeft="16dp"
             android:layout_marginBottom="16dp" />
 
-        <RelativeLayout
-            android:id="@+id/card"
-            android:layout_width="383dp"
-            android:layout_height="wrap_content"
-            android:background="@color/lightGray"
-            android:layout_marginEnd="148dp"
-            android:layout_alignParentTop="true">
+        <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/vf"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add a location item"
-                android:id="@+id/addLocCardHeader"
-                android:layout_alignParentTop="true"
-                android:textSize="20dp"
-                android:textColor="@color/darkGray"
-                android:layout_alignParentEnd="true"
-                android:gravity="center"
-                android:layout_alignParentStart="true"
-                android:layout_gravity="center_vertical"
-                android:layout_marginTop="20dp" />
+            <include android:id="@+id/instructionCard" layout="@layout/instruction_card" />
+            <include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />
 
-            <EditText
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/textFieldLocationItem"
-                android:hint="Name item ..."
-                android:background="@color/white"
-                android:layout_below="@+id/addLocCardHeader"
-                android:layout_alignParentStart="true"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="10dp"
-                android:padding="10dp"
-                android:imeOptions="actionDone"
-                android:singleLine="true"/>
+        </ViewFlipper>
 
-            <Spinner
-                android:layout_width="150dp"
-                android:layout_height="60dp"
-                android:id="@+id/filterSpinner"
-                android:layout_marginLeft="20dp"
-                android:spinnerMode="dialog"
-                android:layout_below="@+id/textFieldLocationItem" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Cancel"
-                android:textColor="@color/darkGray"
-                android:id="@+id/cancelButton"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="20dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Done"
-                android:textColor="@color/darkGray"
-                android:id="@+id/doneButton"
-                android:layout_marginStart="101dp"
-                android:layout_alignParentEnd="true"
-                android:layout_alignBottom="@+id/filterSpinner"
-                android:layout_marginBottom="10dp"
-                android:layout_marginRight="20dp" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="350dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="100dp">
-
-            <Button
-                android:id="@+id/next"
-                android:background="@drawable/custom_button"
-                android:layout_width="180dp"
-                android:layout_height="wrap_content"
-                android:text="Next"
-                android:textSize="20sp"
-                android:textColor="@color/white"
-                android:layout_gravity="bottom"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="128dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginRight="20dp" />
-
-        </RelativeLayout>
+        <!-- Insert instruction card here -->
 
     </LinearLayout>
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="100dp"
+    android:paddingTop="0dp">
+
+    <RelativeLayout
+        android:id="@+id/card"
+        android:layout_width="190dp"
+        android:layout_height="200dp"
+        android:background="@color/lightGray"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STEP 1"
+            android:id="@+id/stepHeader"
+            android:textColor="@color/darkGray"
+            android:layout_alignParentTop="true"
+            android:textSize="20dp"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="25dp"
+            />
+
+        <TextView
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:text="Click on a map location that you can navigate to"
+            android:id="@+id/stepInstructions"
+            android:textColor="@color/darkGray"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:layout_gravity="center_vertical"
+            android:layout_below="@+id/stepHeader"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            style="?android:attr/borderlessButtonStyle"
+            android:text=""
+            android:textSize="15dp"
+            android:textColor="@color/app_color"
+            android:id="@+id/doneStep2"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
+</RelativeLayout>
