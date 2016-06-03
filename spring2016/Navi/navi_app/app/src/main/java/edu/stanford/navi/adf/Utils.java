@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Emma on 5/18/16.
@@ -32,8 +33,8 @@ public class Utils {
         return nameList;
     }
 
-    public static HashMap<String, String> getName2uuidMap(ArrayList<String> uuidList, Tango tango) {
-        HashMap<String, String> map = new HashMap<String, String>();
+    public static Map<String, String> getName2uuidMap(ArrayList<String> uuidList, Tango tango) {
+        Map<String, String> map = new HashMap<String, String>();
         for (String uuid: uuidList) {
             TangoAreaDescriptionMetaData metadata = tango.loadAreaDescriptionMetaData(uuid);
             byte[] nameBytes = metadata.get(TangoAreaDescriptionMetaData.KEY_NAME);
