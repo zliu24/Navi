@@ -3,6 +3,8 @@ package edu.stanford.navi;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -38,6 +40,8 @@ public class OwnerLabelActivity extends BaseActivity {
     private ArrayList<String> fullADFnameList;
     private Map<String, String> name2uuidMap;
 
+    private boolean mIsFirstStep = true;
+
     private ViewFlipper vf;
 
     @Override
@@ -51,10 +55,16 @@ public class OwnerLabelActivity extends BaseActivity {
         setUpUI();
     }
 
-    private void setUpFonts() {
+    private void setUpFontHeaderAndCardInstruction() {
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
 
         Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
+
+        TextView stepHeader = (TextView) findViewById(R.id.stepHeader);
+        TextView stepInstructions = (TextView) findViewById(R.id.stepInstructions);
+
+        stepHeader.setTypeface(face);
+        stepInstructions.setTypeface(faceRegular);
 
 //        TextView addLocCardHeaderTxt = (TextView) findViewById(R.id.addLocCardHeader);
 //        addLocCardHeaderTxt.setTypeface(face);
@@ -75,11 +85,12 @@ public class OwnerLabelActivity extends BaseActivity {
     }
 
     private void setUpUI() {
-        setUpFonts();
 
         vf = (ViewFlipper) findViewById(R.id.vf);
 
         vf.setDisplayedChild(0);
+
+        setUpFontHeaderAndCardInstruction();
 
 //        List<String> filterItemsTemp = new ArrayList<String>();
 //        filterItemsTemp.add("Android");
@@ -96,6 +107,21 @@ public class OwnerLabelActivity extends BaseActivity {
         Drawable img = Utils.getImage(this, selectedADFName);
         imageView = (ImageView) findViewById(R.id.ownerMap);
         imageView.setImageDrawable(img);
+
+        final TextView textView = (TextView)findViewById(R.id.textView);
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(mIsFirstStep) {
+                    vf.setDisplayedChild(1);
+                    mIsFirstStep = false;
+                }
+                // TODO: Fix this to draw a balloon
+                textView.setText("Map coordinates : " +
+                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
+                return true;
+            }
+        });
     }
 
     private void setUpADF() {
