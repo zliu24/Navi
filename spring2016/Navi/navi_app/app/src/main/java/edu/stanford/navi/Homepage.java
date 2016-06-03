@@ -80,7 +80,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         fullUUIDList = mTango.listAreaDescriptions();
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
 
-        mSelectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
+        mSelectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
         mSelectedUUID = name2uuidMap.get(mSelectedADFName);
         System.out.println("Selected ADF: " + mSelectedADFName);
         System.out.println("Selected ADF UUID: " + mSelectedUUID);

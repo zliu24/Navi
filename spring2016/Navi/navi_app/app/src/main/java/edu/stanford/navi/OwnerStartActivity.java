@@ -32,11 +32,16 @@ import android.widget.TextView;
 
 import com.google.atap.tangoservice.Tango;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import edu.stanford.navi.adf.Utils;
+
+import static java.util.Arrays.asList;
 
 public class OwnerStartActivity extends BaseActivity implements View.OnClickListener, OnItemSelectedListener {
 
@@ -63,6 +68,9 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         setUpADF();
         setUpSpinner();
         setUpFonts();
+        Utils.testReadJson(this);
+        Utils.testWriteJson(this);
+        Utils.testReadJson(this);
     }
 
     @Override
@@ -102,7 +110,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         fullUUIDList = mTango.listAreaDescriptions();
         fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-        selectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
+        selectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
     }
 
     private void setUpSpinner() {
@@ -119,7 +127,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         selectedADFName = parent.getItemAtPosition(position).toString();
-        Utils.writeADFtoFile(CONFIG_FILE, selectedADFName, this);
+        Utils.writeToFile(CONFIG_FILE, selectedADFName, this);
         setUpMap();
     }
 
