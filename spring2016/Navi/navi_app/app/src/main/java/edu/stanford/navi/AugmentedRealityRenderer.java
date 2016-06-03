@@ -25,8 +25,11 @@ import com.projecttango.rajawali.Pose;
 import com.projecttango.rajawali.ScenePoseCalculator;
 import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
+import org.apache.commons.math3.complex.Quaternion;
 import org.rajawali3d.Object3D;
 import org.rajawali3d.lights.DirectionalLight;
+import org.rajawali3d.loader.LoaderOBJ;
+import org.rajawali3d.loader.ParsingException;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.math.vector.Vector3;
@@ -36,6 +39,9 @@ import org.rajawali3d.primitives.Line3D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.Vector;
+
+import java.lang.Math.*;
 
 /**
  * Very simple example augmented reality renderer which displays a cube fixed in place.
@@ -60,7 +66,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     List<Object3D> pathObjects;
     Line3D line;
     private boolean pathObjectUpdated = false;
-    Material material;
 
     public AugmentedRealityRenderer(Context context) {
         super(context);
@@ -86,12 +91,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         light0.setPosition(3, 2, 4);
         getCurrentScene().addLight(light0);
 
-        // Set-up a material
-        material = new Material();
-        material.setColor(Color.GREEN); // Purple 0xcc00ff
-        material.enableLighting(true);
-        material.setDiffuseMethod(new DiffuseMethod.Lambert());
-
     }
 
     @Override
@@ -113,11 +112,43 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     // Transform to virtual reference system, where y is the altitude
                     Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
 
-                    Object3D point = new Cube(CUBE_SIDE_LENGTH);
-                    point.setMaterial(material);
-                    point.setPosition(pose);
+                    Object3D point = new Cube(CUBE_SIDE_LENGTH); // default in case of parsing failure
 
-                    System.out.println("Adding checkpoint at " + pose);
+                    double angle = 0.0;
+
+                    if(i == pathPoints.length - 1) {
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination_obj);
+                        try {
+                            objParser.parse();
+                            point = objParser.getParsedObject();
+                        } catch (ParsingException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
+                        try {
+                            objParser.parse();
+                            point = objParser.getParsedObject();
+                            point.setScale(new Vector3(0.75, 0.75, 0.75));
+                        } catch (ParsingException e) {
+                            e.printStackTrace();
+                        }
+
+                        //Calculate the angle at which to rotate the arrow
+                        double side1 = pathPoints[i][0] - pathPoints[i+1][0];
+                        double side2 = pathPoints[i][1] - pathPoints[i+1][1];
+                        double hypotenuse = Math.sqrt((side1*side1) + (side2*side2));
+
+                        double theta = Math.asin(side1/hypotenuse);
+
+                        angle = Math.toDegrees((Math.PI / 2) - theta) + 180;
+
+                    }
+
+                    point.setPosition(pose);
+                    point.setRotation(Vector3.Axis.Y, angle);
+
+                            System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
                     pathObjects.add(point);
                     stack.push(pose);

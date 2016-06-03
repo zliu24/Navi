@@ -26,7 +26,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/navi_logo_slogan"
-            android:src="@drawable/navi_name2"
+            android:src="@drawable/navi_team_logo"
             android:layout_marginTop="150dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
@@ -44,9 +44,9 @@
 
             <Button
                 android:background="@drawable/custom_button"
-                android:id="@+id/select_shopper_button"
+                android:id="@+id/select_visitor_button"
                 android:layout_height="wrap_content"
-                android:text="Shopper"
+                android:text="Visitor"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"

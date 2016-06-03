@@ -6,6 +6,7 @@ package edu.stanford.navi.map;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -64,7 +65,8 @@ public class Map2D {
     // load resource
     private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
     private String mapping_txt = "mapping.txt";
-    private int imgId = R.drawable.ikea;
+    private final String CONFIG_FILE = "config.txt";
+    private int imgId;
 
     // drawings
     Canvas canvas;
@@ -84,6 +86,9 @@ public class Map2D {
 
         try {
             // Load map image specified by R.drawable.filename
+            Resources resources = context.getResources();
+            String mapName = edu.stanford.navi.adf.Utils.loadADFfromFile(CONFIG_FILE, context);
+            imgId = resources.getIdentifier(mapName, "drawable", context.getPackageName());
             img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
             Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2RGB);
 
