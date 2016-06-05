@@ -28,9 +28,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import edu.stanford.navi.adf.Utils;
+import edu.stanford.navi.domain.Coordinate;
+import edu.stanford.navi.domain.Item;
+
+import static java.util.Arrays.asList;
 
 public class OwnerLabelActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
@@ -43,7 +49,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private float mClickedMapCoordX;
     private float mClickedMapCoordY;
 
-    private ArrayList<String> mFilterCategories;
+    private Set<String> mFilterCategories;
 
     private Button mCancelAddItemButton;
     private Button mAddItemButton;
@@ -82,7 +88,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         if(mStoreItemsForInternalStorage.length() == 0) {
             mStoreItemsForInternalStorage = new JSONArray();
         }
-        mFilterCategories = new ArrayList<String>();
+        mFilterCategories = new HashSet<String>();
     }
 
     private void setUpFontHeaderAndCardInstruction() {
@@ -148,17 +154,12 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         String label = mTextFieldLocationItem.getText().toString();
         if(label.length() > 0) {
             mStoreItemsList.add(label);
-            // Save item
-            ArrayList<Float> coord2D = new ArrayList<Float>();
-            coord2D.add(mClickedMapCoordX);
-            coord2D.add(mClickedMapCoordY);
-            ArrayList<Float> coord3D = new ArrayList<Float>();
 
             // TODO: localize to get onPoseAvailable!
-            coord3D.add(0.0f);
-            coord3D.add(0.0f);
-            JSONObject item = Utils.createJsonItem(label, mFilterCategories, coord2D, coord3D);
-            mStoreItemsForInternalStorage.put(item);
+            Item item = new Item(label, new Coordinate(mClickedMapCoordX, mClickedMapCoordY),
+                    new Coordinate(0f, 0f), mFilterCategories);
+            JSONObject itemObj = Utils.createJsonObj(item);
+            mStoreItemsForInternalStorage.put(itemObj);
         }
     }
 
