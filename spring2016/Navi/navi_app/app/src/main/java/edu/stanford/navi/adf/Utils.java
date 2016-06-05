@@ -98,6 +98,14 @@ public class Utils {
         return img;
     }
 
+    public static int getResourceId(Context context, String name) {
+        int id = context.getResources().getIdentifier(name, "drawable", context.getPackageName());
+        if (id == 0) {
+            id = context.getResources().getIdentifier(DEFAULT_LOC, "drawable", context.getPackageName());
+        }
+        return id;
+    }
+
     public static void writeJson(JSONArray items, String filePath, Context context) {
         JSONObject itemsObj = new JSONObject();
         try {

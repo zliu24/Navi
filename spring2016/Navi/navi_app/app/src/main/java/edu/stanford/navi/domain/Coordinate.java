@@ -1,4 +1,4 @@
-package edu.stanford.navi.utils;
+package edu.stanford.navi.domain;
 
 /**
  * Created by lucasliu on 5/26/16.

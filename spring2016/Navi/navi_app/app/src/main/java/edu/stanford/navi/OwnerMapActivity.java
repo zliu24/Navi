@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.adf.Utils;
-import edu.stanford.navi.utils.Coordinate;
+import edu.stanford.navi.domain.Coordinate;
 
 public class OwnerMapActivity extends BaseActivity implements View.OnClickListener {
 
@@ -109,8 +109,6 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
         setupTango();
         setUpButtons();
-
-        setUpMap();
         setUpFonts();
 
         numPointsCalibrated = 0;
@@ -298,8 +296,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         screenCoords = new ArrayList<Coordinate>();
 
         try {
-            // TODO context, adf -> map id, if id=0 return default
-            int imgId = this.getResources().getIdentifier(selectedADFName, "drawable", this.getPackageName());
+            int imgId = Utils.getResourceId(this, selectedADFName);
             Mat map = org.opencv.android.Utils.loadResource(this, imgId, CvType.CV_8UC3);
             mapSize = map.size();
 
