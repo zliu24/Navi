@@ -21,8 +21,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -53,12 +56,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import edu.stanford.navi.utils.AdfUtils;
+import edu.stanford.navi.adf.Utils;
 import edu.stanford.navi.utils.Coordinate;
 
 public class OwnerMapActivity extends BaseActivity implements View.OnClickListener {
 
     private final String CONFIG_FILE = "config.txt";
+
+    private final int STEP1 = 1;
+    private final int STEP2 = 2;
+    private final int STEP3 = 3;
+
+    private final int NUM_CALIBRATION_POINTS = 4;
 
     private Tango mTango;
     private TangoConfig mConfig;
@@ -72,11 +81,24 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     private String selectedADFName;
     private String selectedUUID;
 
+
     private Size mapSize;
     private List<Coordinate> screenCoords;
     private Canvas canvas;
     private Paint paint;
     private int count=0;
+
+    // UI
+    private boolean mAllowMapClicks;
+    private TextView mStepHeader;
+    private TextView mStepInstructions;
+    private TextView mCalibrationProgress;
+    private Button mDoneButtonStep2;
+
+    private int numPointsCalibrated;
+
+    private int mStep = STEP1;
+
 
     private static final String TAG = OwnerMapActivity.class.getSimpleName();
 
@@ -87,8 +109,13 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
         setupTango();
         setUpButtons();
-    }
 
+        setUpMap();
+        setUpFonts();
+
+        numPointsCalibrated = 0;
+        mAllowMapClicks = true;
+    }
 
     @Override
     protected void onPause() {
@@ -138,7 +165,6 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         .show();
             }
         }
-
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
     }
 
@@ -148,6 +174,8 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
             case R.id.next:
                 startOwnerLabelActivity();
                 break;
+            case R.id.doneStep2:
+                setUpStep3();
         }
     }
 
@@ -189,19 +217,89 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void setUpButtons() {
-        mNextButton = (Button) findViewById(R.id.next);
-        mNextButton.setOnClickListener(this);
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
 
+        mNextButton = (Button) findViewById(R.id.next);
+        mNextButton.setTypeface(face);
+        mNextButton.setOnClickListener(this);
+        mNextButton.setVisibility(View.INVISIBLE);
+
+        mDoneButtonStep2 = (Button)findViewById(R.id.doneStep2);
+        mDoneButtonStep2.setOnClickListener(this);
+        mDoneButtonStep2.setTypeface(face);
+    }
+
+    private void setUpFonts() {
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
+
+        mStepHeader = (TextView) findViewById(R.id.stepHeader);
+        mStepInstructions = (TextView) findViewById(R.id.stepInstructions);
+
+        TextView calibrationProgressHeader = (TextView) findViewById(R.id.calibrationProgressHeader);
+        mCalibrationProgress = (TextView) findViewById(R.id.calibrationProgress);
+        TextView headerTxt = (TextView) findViewById(R.id.header_text);
+
+        calibrationProgressHeader.setTypeface(face);
+        mCalibrationProgress.setTypeface(faceRegular);
+
+        mStepHeader.setTypeface(face);
+        mStepInstructions.setTypeface(faceRegular);
+
+        headerTxt.setTypeface(face);
+    }
+
+    private void setUpStep1() {
+        mDoneButtonStep2.setText("");
+        mStepHeader.setText("STEP 1");
+        mStepInstructions.setText("Click on a map location that you can navigate to");
+        mAllowMapClicks = true;
+    }
+
+    private void setUpStep3() {
+        Log.d("BOO","Step: " + mStep);
+        if (mStep == STEP3) {
+            numPointsCalibrated++;
+
+            if(numPointsCalibrated == NUM_CALIBRATION_POINTS) {
+                mDoneButtonStep2.setText("");
+                mNextButton.setVisibility(View.VISIBLE);
+            } else {
+                mDoneButtonStep2.setText("Continue");
+                mStep = STEP1;
+            }
+
+            String progressStr = "<font color=#FF6155>" + numPointsCalibrated + "</font> " +
+                    "out of " + NUM_CALIBRATION_POINTS;
+            mCalibrationProgress.setText(Html.fromHtml(progressStr));
+            mStepHeader.setText("Well done!");
+            String instruction = "<font color=#9B9B9B>You have set</font> <br> <font color=#FF6155>" + numPointsCalibrated + "</font> " +
+                    "<font color=#9B9B9B> out of " + NUM_CALIBRATION_POINTS + " location mappings.</font>";
+            mStepInstructions.setText(Html.fromHtml(instruction));
+
+            mAllowMapClicks = false;
+        } else if(mStep == STEP1){
+            setUpStep1();
+        }
+    }
+
+    private void setUpStep2() {
+        mStepHeader.setText("STEP 2");
+        mStepInstructions.setText("Go to the real world location that you marked on the map");
+        mDoneButtonStep2.setText("Done");
+        mStep = STEP3;
+        Log.d("BOO","Step should be 3 but: " + mStep);
     }
 
     public void setUpMap() {
-        final Drawable img = AdfUtils.getImage(this, selectedADFName);
+        final Drawable img = Utils.getImage(this, selectedADFName);
         imageView = (ImageView) findViewById(R.id.ownerMap);
         imageView.setImageDrawable(img);
         screenCoords = new ArrayList<Coordinate>();
 
         try {
-            int imgId = AdfUtils.findResourceIdByName(this, selectedADFName);
+            // TODO context, adf -> map id, if id=0 return default
+            int imgId = this.getResources().getIdentifier(selectedADFName, "drawable", this.getPackageName());
             Mat map = org.opencv.android.Utils.loadResource(this, imgId, CvType.CV_8UC3);
             mapSize = map.size();
 
@@ -210,11 +308,19 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         }
         System.out.println("Map Size: " + mapSize);
 
+        final TextView textView = (TextView)findViewById(R.id.textView);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Coordinate coord = new Coordinate(event.getX(), event.getY());
                 screenCoords.add(coord);
+
+                if(mAllowMapClicks) {
+                    setUpStep2();
+                }
+                // TODO: Fix this to draw a balloon
+                textView.setText("Map coordinates : " +
+                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
                 return true;
             }
         });
@@ -317,7 +423,9 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void startOwnerLabelActivity() {
-
+        Intent intent = new Intent(this, OwnerLabelActivity.class);
+        intent.putExtra(ADF_NAME, selectedADFName);
+        startActivity(intent);
     }
 
     private Coordinate screen2map(Coordinate screen, int screenWidth, int screenHight) {
@@ -326,3 +434,4 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         return new Coordinate(x,y);
     }
 }
+

@@ -17,6 +17,7 @@
 package edu.stanford.navi;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.atap.tangoservice.Tango;
 
@@ -53,12 +55,16 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.owner_start_activity);
+
         mTango = new Tango(this);
         setUpButtons();
         setUpADF();
         setUpSpinner();
+        setUpFonts();
+        Utils.testReadJson(this);
+        Utils.testWriteJson(this);
+        Utils.testReadJson(this);
     }
-
 
     @Override
     public void onClick(View v) {
@@ -72,9 +78,23 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         }
     }
 
+    private void setUpFonts() {
+        TextView header_text = (TextView) findViewById(R.id.header_text);
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        header_text.setTypeface(face);
+    }
+
     private void setUpButtons() {
         mStartButton = (Button) findViewById(R.id.next);
+        TextView mStartButtonTxt = (TextView) findViewById(R.id.next);
+
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        mStartButtonTxt.setTypeface(face);
+
         mManageButton = (Button) findViewById(R.id.manageADF);
+        TextView  mManageButtonTxt = (TextView) findViewById(R.id.manageADF);
+        mManageButtonTxt.setTypeface(face);
+
         mManageButton.setOnClickListener(this);
         mStartButton.setOnClickListener(this);
     }
@@ -83,12 +103,13 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         fullUUIDList = mTango.listAreaDescriptions();
         fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-        selectedADFName = Utils.loadADFfromFile(Homepage.CONFIG_FILE, this);
+        selectedADFName = Utils.loadFromFile(Homepage.CONFIG_FILE, this, Utils.DEFAULT_LOC);
     }
 
     private void setUpSpinner() {
         spinner = (Spinner) findViewById(R.id.selectAdf);
         spinner.setOnItemSelectedListener(this);
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, fullADFnameList);
         spinner.setAdapter(adapter);
         //set the default location
@@ -99,7 +120,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         selectedADFName = parent.getItemAtPosition(position).toString();
-        Utils.writeADFtoFile(Homepage.CONFIG_FILE, selectedADFName, this);
+        Utils.writeToFile(Homepage.CONFIG_FILE, selectedADFName, this);
         setUpMap();
     }
 
@@ -112,7 +133,6 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
 
     public void onNothingSelected(AdapterView<?> parentView){
     }
-
 
     private void startOwnerMapActivity() {
         Intent intent = new Intent(this, OwnerMapActivity.class);

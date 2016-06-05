@@ -6,6 +6,7 @@ package edu.stanford.navi.map;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -26,7 +27,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.stanford.navi.Homepage;
 import edu.stanford.navi.pathfinding.LazyThetaStar;
 import edu.stanford.navi.pathfinding.datatypes.GridGraph;
 
@@ -63,6 +63,8 @@ public class Map2D {
     // load resource
     private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
     private String mapping_txt = "mapping.txt";
+    private final String CONFIG_FILE = "config.txt";
+    private int imgId;
 
     // drawings
     Canvas canvas;
@@ -81,15 +83,18 @@ public class Map2D {
         mContext = context;
 
         try {
-            // Load map image specified in the config file
-            String location = edu.stanford.navi.adf.Utils.loadADFfromFile(Homepage.CONFIG_FILE, context);
-            int imgId = edu.stanford.navi.adf.Utils.findIdByName(context, location);
+            // Load map image specified by R.drawable.filename
+            Resources resources = context.getResources();
+            String mapName = edu.stanford.navi.adf.Utils.loadFromFile(
+                    CONFIG_FILE, context, edu.stanford.navi.adf.Utils.DEFAULT_LOC);
+            imgId = resources.getIdentifier(mapName, "drawable", context.getPackageName());
+
             img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
 
         } catch (Exception e) {
             try {
                 // Load default location
-                int imgId = edu.stanford.navi.adf.Utils.findIdByName(context, edu.stanford.navi.adf.Utils.DEFAULT_LOC);
+                imgId = context.getResources().getIdentifier(edu.stanford.navi.adf.Utils.DEFAULT_LOC, "drawable", context.getPackageName());
                 img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
             }
             catch (Exception e2) {

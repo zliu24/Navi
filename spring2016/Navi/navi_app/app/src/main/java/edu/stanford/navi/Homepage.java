@@ -31,7 +31,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         setTitle(R.string.app_name);
 
         // Set homepage buttons font to Avenir
-        TextView select_shpr_btn = (TextView) findViewById(R.id.select_shopper_button);
+        TextView select_shpr_btn = (TextView) findViewById(R.id.select_visitor_button);
         TextView select_str_ownr_btn = (TextView) findViewById(R.id.select_store_owner_button);
 
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
@@ -68,8 +68,8 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.select_shopper_button:
-                startShopperActivity();
+            case R.id.select_visitor_button:
+                startVisitorActivity();
                 break;
             case R.id.select_store_owner_button:
                 startOwnerActivity();
@@ -81,18 +81,18 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         fullUUIDList = mTango.listAreaDescriptions();
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
 
-        mSelectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
+        mSelectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
         mSelectedUUID = name2uuidMap.get(mSelectedADFName);
         System.out.println("Selected ADF: " + mSelectedADFName);
         System.out.println("Selected ADF UUID: " + mSelectedUUID);
     }
 
-    private void startShopperActivity() {
-        Intent passIntent2Shopper = new Intent(this, MapActivity.class);
-        passIntent2Shopper.putExtra(LOAD_ADF, true);
-        passIntent2Shopper.putExtra(ADF_UUID, mSelectedUUID);
-        passIntent2Shopper.putExtra(ADF_NAME, mSelectedADFName);
-        startActivity(passIntent2Shopper);
+    private void startVisitorActivity() {
+        Intent passIntent2Visitor = new Intent(this, MapActivity.class);
+        passIntent2Visitor.putExtra(LOAD_ADF, true);
+        passIntent2Visitor.putExtra(ADF_UUID, mSelectedUUID);
+        passIntent2Visitor.putExtra(ADF_NAME, mSelectedADFName);
+        startActivity(passIntent2Visitor);
     }
 
     private void startOwnerActivity() {
