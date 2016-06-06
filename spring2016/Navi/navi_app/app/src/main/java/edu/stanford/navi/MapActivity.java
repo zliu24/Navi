@@ -26,18 +26,15 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout.LayoutParams;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.google.atap.tango.ux.TangoUx;
 import com.google.atap.tango.ux.TangoUx.StartParams;
@@ -55,14 +52,13 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
-
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.ar.TangoRajawaliView;
-import org.rajawali3d.scene.ASceneFrameCallback;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.rajawali3d.scene.ASceneFrameCallback;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
