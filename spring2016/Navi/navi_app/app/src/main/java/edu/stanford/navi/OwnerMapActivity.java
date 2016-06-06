@@ -99,6 +99,10 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
     private static final String TAG = OwnerMapActivity.class.getSimpleName();
 
+    // Instructions
+    private TextView localize;
+    private int localizeState = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -390,6 +394,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                localize = (TextView) findViewById(R.id.localize_owner);
                                 Bitmap curBitmap = mapBitmap.copy(Bitmap.Config.ARGB_8888, true);
                                 if(selectedCoord != null)
                                     Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), selectedPaint);
@@ -397,7 +402,17 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                                     Log.d(TAG, "Localized ");
                                     float[] imgCoords = map.world2img((float) mPose.translation[0], (float) mPose.translation[1]);
                                     Utils.drawLocation(curBitmap, (int) imgCoords[0], (int) imgCoords[1], locationPaint);
-
+                                    localize.setVisibility(View.INVISIBLE);
+                                } else {
+                                    if (localizeState % 3 == 0) {
+                                        localize.setText(R.string.localize_state1);
+                                    } else if (localizeState % 3 == 1) {
+                                        localize.setText(R.string.localize_state2);
+                                    } else {
+                                        localize.setText(R.string.localize_state3);
+                                    }
+                                    localize.setVisibility(View.VISIBLE);
+                                    localizeState++;
                                 }
                                 for (Coordinate coords : imageCoords) {
                                     Utils.drawLocation(curBitmap, coords.getXInt(), coords.getYInt(), disabledPaint);
