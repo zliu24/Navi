@@ -3,6 +3,7 @@ package edu.stanford.navi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,21 +12,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.graphics.Typeface;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoConfig;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,12 +31,10 @@ import edu.stanford.navi.adf.Utils;
 import edu.stanford.navi.domain.Coordinate;
 import edu.stanford.navi.domain.Item;
 
-import static java.util.Arrays.asList;
-
 public class OwnerLabelActivity extends BaseActivity implements View.OnClickListener/*, AdapterView.OnItemClickListener*/ {
 
     private final String CONFIG_FILE = "config.txt";
-    private final String ITEM_MANAGEMENT_FILE = "config.txt";
+    private final String ITEM_MANAGEMENT_FILE = "items.txt";
 
     private Tango mTango;
     private TangoConfig mConfig;
@@ -49,7 +42,6 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private float mClickedMapCoordX;
     private float mClickedMapCoordY;
 
-    private ArrayList<String> mStoreItemsList;
     private Set<String> mFilterCategories;
 
     private Button mCancelAddItemButton;
@@ -66,7 +58,8 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
     private boolean mIsFirstStep = true;
 
-    private JSONArray mStoreItemsForInternalStorage;
+    private ArrayList<String> mStoreItemsList;
+    private ArrayList<Item> mItemsObjList;
 
     private ViewFlipper vf;
 
@@ -84,9 +77,9 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         setUpMap();
         setUpUI();
 
-        mStoreItemsForInternalStorage = Utils.readJson(ITEM_MANAGEMENT_FILE, this);
-        if(mStoreItemsForInternalStorage.length() == 0) {
-            mStoreItemsForInternalStorage = new JSONArray();
+        mItemsObjList = (ArrayList<Item>) Utils.readJson(ITEM_MANAGEMENT_FILE, this);
+        if(mItemsObjList.size() == 0) {
+            mItemsObjList = new ArrayList<Item>();
         }
 
         mStoreItemsList = new ArrayList<String>();
@@ -129,16 +122,6 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     }
 
     private void showFilterCardAndItemListView() {
-        // Clear text field
-        mTextFieldLocationItem.setText("");
-
-        // Close keyboard
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-
         vf.setDisplayedChild(2);
 
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
@@ -157,28 +140,11 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 //        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.Itemname, mStoreItemsList);
 //        mItemListAsListView.setAdapter(adapter);
 //        mItemListAsListView.setOnItemClickListener(this);
-
-        StoreItemListAdapter adapter = new StoreItemListAdapter(this, mStoreItemsForInternalStorage, mStoreItemsList);
-        mItemListAsListView = (ListView)findViewById(R.id.listOfItemsInEnviroment);
-        mItemListAsListView.setAdapter(adapter);
-
-        mItemListAsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                // TODO Auto-generated method stub
-                Log.i("Bob", "hihihi");
-                //String Slecteditem= itemname[+position];
-                // Toast.makeText(getApplicationContext(), Slecteditem, Toast.LENGTH_SHORT).show();
-
-            }
-        });
     }
 
-//    public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
-//        // TODO: EDIT the item
-//    }
+    public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
+        // TODO: EDIT the item
+    }
 
     private void addItemToStorage() {
         String label = mTextFieldLocationItem.getText().toString();
@@ -187,9 +153,8 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
             // TODO: localize to get onPoseAvailable!
             Item item = new Item(label, new Coordinate(mClickedMapCoordX, mClickedMapCoordY),
-                    new Coordinate(0f, 0f), mFilterCategories);
-            JSONObject itemObj = Utils.createJsonObj(item);
-            mStoreItemsForInternalStorage.put(itemObj);
+                    mFilterCategories);
+            mItemsObjList.add(item);
         }
     }
 
