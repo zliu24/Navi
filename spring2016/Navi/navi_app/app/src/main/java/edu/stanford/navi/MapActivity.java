@@ -16,7 +16,9 @@
 
 package edu.stanford.navi;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -117,6 +119,26 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private int position;
     TextView navigateBtn;
 
+    // Instruction
+    private boolean hasShownInstruction = false;
+    AlertDialog.Builder builder;
+    AlertDialog alert;
+
+    public void setUpDialog() {
+        System.out.println("SetupDialog!");
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.dialog_title)
+                .setMessage(R.string.instruction)
+                .setCancelable(false)
+                .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // fire an intent go to your next activity
+                        dialog.cancel();
+                    }
+                });
+        alert = builder.create();
+    }
+
     public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
         Log.d(TAG, "Item selected with position: " + position);
         position = pos;
@@ -154,6 +176,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         setContentView(R.layout.map);
         setupTangoUX();
         setupTango();
+        setUpDialog();
 
         // Set instruction font to Avenir
         TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
@@ -188,6 +211,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                     params2.width = (int)(80*scale + 0.5f);
                     params2.topMargin = (int)(470*scale + 0.5f);
                     params2.leftMargin = (int)(10*scale + 0.5f);
+
+                    alert.show();
                 } else {
                     isNavigation = false;
                     params1.height = (int)(80*scale + 0.5f);
