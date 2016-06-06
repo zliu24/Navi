@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,9 +17,12 @@ import org.json.JSONObject;
 import org.opencv.core.Size;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,69 +120,32 @@ public class Utils {
         return id;
     }
 
-    public static void writeJson(JSONArray items, String filePath, Context context) {
-        JSONObject itemsObj = new JSONObject();
-        try {
-            itemsObj.put("Items", items);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        String itemsStr = itemsObj.toString();
-        writeToFile(filePath, itemsStr, context);
+    public static void writeJson(List<Item> items, String filePath, Context context) {
+        Gson gson = new Gson();
+        String jsonInString = gson.toJson(items);
+        writeToFile(filePath, jsonInString, context);
     }
 
-    public static JSONArray readJson(String filePath, Context context) {
-        String itemsStr = loadFromFile(filePath, context, ""); // default content is the empty string
-        JSONArray items = new JSONArray();
-        try {
-            JSONObject itemsObj = new JSONObject(itemsStr);
-            items = (JSONArray) itemsObj.get("Items");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public static List<Item> readJson(String filePath, Context context) {
+        Gson gson = new Gson();
+        String itemsStr = loadFromFile(filePath, context, "");
+        Type listOfTestObject = new TypeToken<List<Item>>(){}.getType();
+        List<Item> items = gson.fromJson(itemsStr, listOfTestObject);
         return items;
     }
 
-    public static JSONObject createJsonObj(Item item) {
-        JSONObject itemObj = new JSONObject();
-        try {
-            itemObj.put("item", item);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return itemObj;
-    }
-
     public static void testWriteJson(Context context) {
-        String jsonLoc = DEFAULT_JSON_LOC;
-
         List<Item> items = new ArrayList<Item>();
-        items.add(new Item("foo", new Coordinate(1f, 2f), new Coordinate(10f, 20f),
-                new HashSet<String>(asList("A", "B", "C"))));
-        items.add(new Item("bar", new Coordinate(3f, 4f), new Coordinate(30f, 40f),
-                new HashSet<String>(asList("A", "C"))));
-        items.add(new Item("baz", new Coordinate(5f, 6f), new Coordinate(50f, 60f),
-                new HashSet<String>(asList("B", "C"))));
+        items.add(new Item("foo", new Coordinate(1f, 2f), new HashSet<String>(asList("A", "B", "C"))));
+        items.add(new Item("bar", new Coordinate(3f, 4f), new HashSet<String>(asList("A", "C"))));
+        items.add(new Item("baz", new Coordinate(5f, 6f), new HashSet<String>(asList("B", "C"))));
 
-        JSONArray itemsJson = new JSONArray();
-        for (int i = 0; i < 3; i++) {
-            JSONObject itemObj = createJsonObj(items.get(i));
-            if (!itemObj.isNull("item")) {
-                itemsJson.put(itemObj);
-            }
-        }
-
-        Utils.writeJson(itemsJson, jsonLoc, context);
+        writeJson(items, DEFAULT_JSON_LOC, context);
     }
 
     public static void testReadJson(Context context) {
-        String jsonLoc = DEFAULT_JSON_LOC;
-        JSONArray items = Utils.readJson(jsonLoc, context);
-        if (items.length() == 0) {
-            System.out.println("JSON file doesn't exist!");
-        } else {
-            System.out.println(items.toString());
-        }
+        List<Item> items = readJson(DEFAULT_JSON_LOC, context);
+        System.out.println(items);
     }
 
     public static void drawLocation(Bitmap bitmap, int imgX, int imgY, Paint paint) {

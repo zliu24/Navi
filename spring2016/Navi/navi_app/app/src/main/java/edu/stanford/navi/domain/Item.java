@@ -8,13 +8,13 @@ import java.util.Set;
 public class Item {
     String name;
     Coordinate coord2D;
-    Coordinate coord3D;
     Set<String> categories;
 
-    public Item(String name, Coordinate coord2D, Coordinate coord3D, Set<String> categories) {
+    public Item() {}
+
+    public Item(String name, Coordinate coord2D, Set<String> categories) {
         this.name = name;
         this.coord2D = coord2D;
-        this.coord3D = coord3D;
         this.categories = categories;
     }
 
@@ -25,10 +25,6 @@ public class Item {
     public Coordinate getCoord2D() { return this.coord2D; }
 
     public void setCoord2D(Coordinate coord) { this.coord2D = coord; }
-
-    public Coordinate getCoord3D() { return this.coord3D; }
-
-    public void setCoord3D(Coordinate coord) {this.coord3D = coord; }
 
     public Set<String> getCategories() { return this.categories; }
 
@@ -48,7 +44,6 @@ public class Item {
     public String toString() {
         String itemStr = "Name: " + getName() +
                 " Coord2D: " + getCoord2D().toString() +
-                " Coord3D: " + getCoord3D().toString() +
                 " Categories: " + getCategories().toString();
         return itemStr;
     }

@@ -65,8 +65,8 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
     private boolean mIsFirstStep = true;
 
-    private JSONArray mStoreItemsForInternalStorage;
     private ArrayList<String> mStoreItemsList;
+    private ArrayList<Item> mItemsObjList;
 
     private ViewFlipper vf;
 
@@ -84,9 +84,9 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         setUpMap();
         setUpUI();
 
-        mStoreItemsForInternalStorage = Utils.readJson(ITEM_MANAGEMENT_FILE, this);
-        if(mStoreItemsForInternalStorage.length() == 0) {
-            mStoreItemsForInternalStorage = new JSONArray();
+        mItemsObjList = (ArrayList<Item>) Utils.readJson(ITEM_MANAGEMENT_FILE, this);
+        if(mItemsObjList.size() == 0) {
+            mItemsObjList = new ArrayList<Item>();
         }
         mFilterCategories = new HashSet<String>();
     }
@@ -157,9 +157,8 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
             // TODO: localize to get onPoseAvailable!
             Item item = new Item(label, new Coordinate(mClickedMapCoordX, mClickedMapCoordY),
-                    new Coordinate(0f, 0f), mFilterCategories);
-            JSONObject itemObj = Utils.createJsonObj(item);
-            mStoreItemsForInternalStorage.put(itemObj);
+                    mFilterCategories);
+            mItemsObjList.add(item);
         }
     }
 

@@ -60,6 +60,10 @@ import com.google.atap.tangoservice.TangoXyzIjData;
 
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.ar.TangoRajawaliView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -67,9 +71,12 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.map.Map2D;
+import edu.stanford.navi.adf.Utils;
+import edu.stanford.navi.domain.*;
 
 public class MapActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
@@ -124,6 +131,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     AlertDialog.Builder builder;
     AlertDialog alert;
 
+    // Sales and deals
+    private List<Item> itemObjList;
+
     public void setUpDialog() {
         System.out.println("SetupDialog!");
         builder = new AlertDialog.Builder(this);
@@ -177,6 +187,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         setupTangoUX();
         setupTango();
         setUpDialog();
+
+        // Get sales and deals
+        itemObjList = Utils.readJson(Utils.DEFAULT_JSON_LOC, this);
 
         // Set instruction font to Avenir
         TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
