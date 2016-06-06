@@ -87,7 +87,7 @@ public class Map2D {
             Resources resources = context.getResources();
             String mapName = edu.stanford.navi.adf.Utils.loadFromFile(
                     CONFIG_FILE, context, edu.stanford.navi.adf.Utils.DEFAULT_LOC);
-            imgId = resources.getIdentifier(mapName, "drawable", context.getPackageName());
+            imgId = edu.stanford.navi.adf.Utils.getResourceId(mContext, mapName);
 
             img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
 
@@ -152,11 +152,6 @@ public class Map2D {
         paintPath.setARGB(255, 255, 155, 155);
         paintPath.setStrokeWidth(3);
 
-        for (int i = 0; i < nKeypoints; i++) {
-            float []keypoint = this.getKeypoint(i);
-            canvas.drawCircle(keypoint[0], keypoint[1], 15, paintKeypoints);
-            canvas.drawText(this.getKeypointName(i), keypoint[0]+10, keypoint[1]-10, paintKeypoints);
-        }
 
         imgBmpNoPath = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
@@ -285,6 +280,14 @@ public class Map2D {
         } catch (IOException e) {
             System.out.println("bad");
             e.printStackTrace();
+        }
+    }
+
+    public void drawKeyPoints() {
+        for (int i = 0; i < nKeypoints; i++) {
+            float []keypoint = this.getKeypoint(i);
+            canvas.drawCircle(keypoint[0], keypoint[1], 15, paintKeypoints);
+            canvas.drawText(this.getKeypointName(i), keypoint[0]+10, keypoint[1]-10, paintKeypoints);
         }
     }
 
@@ -448,5 +451,12 @@ public class Map2D {
         }
     }
 
+    public Size getImgSize() {
+        return imgSize;
+    }
+
+    public Size getScreenSize() {
+        return screenSize;
+    }
 
 }

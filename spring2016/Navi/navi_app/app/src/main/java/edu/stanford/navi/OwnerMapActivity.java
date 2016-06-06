@@ -18,17 +18,14 @@ package edu.stanford.navi;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -47,21 +44,17 @@ import com.google.atap.tangoservice.TangoXyzIjData;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 import org.opencv.core.Size;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.adf.Utils;
 import edu.stanford.navi.domain.Coordinate;
+import edu.stanford.navi.map.Map2D;
 
 public class OwnerMapActivity extends BaseActivity implements View.OnClickListener {
-
-    private final String CONFIG_FILE = "config.txt";
 
     private final int STEP1 = 1;
     private final int STEP2 = 2;
@@ -81,10 +74,11 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     private String selectedADFName;
     private String selectedUUID;
 
-
-    private Size mapSize;
-    private List<Coordinate> screenCoords;
-    private Canvas canvas;
+    private Map2D map;
+    private Bitmap mapBitmap;
+    private List<Coordinate> imageCoords;
+    private List<Coordinate> worldCoords;
+    private Coordinate selectedCoord;
     private Paint paint;
     private int count=0;
 
@@ -111,6 +105,9 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         setUpButtons();
         setUpFonts();
 
+
+        imageCoords = new ArrayList<Coordinate>();
+        worldCoords = new ArrayList<Coordinate>();
         numPointsCalibrated = 0;
         mAllowMapClicks = true;
     }
@@ -170,9 +167,11 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
+                saveMapping();
                 startOwnerLabelActivity();
                 break;
             case R.id.doneStep2:
+                addMapping();
                 setUpStep3();
         }
     }
@@ -290,50 +289,33 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     public void setUpMap() {
-        final Drawable img = Utils.getImage(this, selectedADFName);
+        android.graphics.Point screenSize = new android.graphics.Point();
+        getWindowManager().getDefaultDisplay().getSize(screenSize);
+        map = new Map2D(this, (int) screenSize.x, (int)screenSize.y);
+        mapBitmap = map.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imageView = (ImageView) findViewById(R.id.ownerMap);
-        imageView.setImageDrawable(img);
-        screenCoords = new ArrayList<Coordinate>();
+        imageView.setImageBitmap(mapBitmap);
 
-        try {
-            int imgId = Utils.getResourceId(this, selectedADFName);
-            Mat map = org.opencv.android.Utils.loadResource(this, imgId, CvType.CV_8UC3);
-            mapSize = map.size();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Map Size: " + mapSize);
-
-        final TextView textView = (TextView)findViewById(R.id.textView);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Coordinate coord = new Coordinate(event.getX(), event.getY());
-                screenCoords.add(coord);
+                selectedCoord = Utils.screen2img(event.getX(), event.getY(), new Size(v.getWidth(), v.getHeight()), map.getImgSize());
+                Log.i(TAG, "Screen size: " + map.getScreenSize().width + "," + map.getScreenSize().height + "\n");
+                Log.i(TAG, "Screen Coords: " + event.getX() + "," + event.getY() + "\n");
+                Log.i(TAG, "Image size: " + map.getImgSize().width + "," + map.getImgSize().height + "\n");
+                Log.i(TAG, "Image Coords: " + selectedCoord.getXInt() + "," + selectedCoord.getYInt() + "\n");
 
                 if(mAllowMapClicks) {
                     setUpStep2();
                 }
-                // TODO: Fix this to draw a balloon
-                textView.setText("Map coordinates : " +
-                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
+
                 return true;
             }
         });
-
-        imageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                // Ensure you call it only once
-                imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                canvas = new Canvas( Bitmap.createBitmap( imageView.getWidth(), imageView.getHeight(), Bitmap.Config.ARGB_8888));
-                paint = new Paint();
-                paint.setColor(Color.RED);
-                paint.setStyle(Paint.Style.FILL);
-                paint.setTextSize(30);
-            }
-        });
+        paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTextSize(30);
     }
 
     private void setUpTangoListeners() {
@@ -392,19 +374,19 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                Bitmap curBitmap = mapBitmap.copy(Bitmap.Config.ARGB_8888, true);
+                                if(selectedCoord != null)
+                                    Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), paint);
                                 if (mIsRelocalized) {
-
-                                } else {
-                                    for (Coordinate coords : screenCoords) {
-                                        Coordinate mapCoords = screen2map(coords, imageView.getWidth(), imageView.getHeight());
-                                        canvas.drawCircle(coords.getX(), coords.getY(), 15, paint);
-                                        TextView textView = (TextView)findViewById(R.id.textView);
-                                        textView.setText("Screen coordinates : " +
-                                                String.valueOf(coords.getX()) + "," + String.valueOf(coords.getY()) +
-                                                "\n Map coordinates : " + mapCoords.getX() + "," + mapCoords.getY());
-                                    }
+                                    Log.i(TAG, "Localized ");
+                                    float[] imgCoords = map.world2img((float) mPose.translation[0], (float) mPose.translation[1]);
+                                    Utils.drawLocation(curBitmap, (int) imgCoords[0], (int) imgCoords[1], paint);
 
                                 }
+                                for (Coordinate coords : imageCoords) {
+                                    Utils.drawLocation(curBitmap, coords.getXInt(), coords.getYInt(), paint);
+                                }
+                                imageView.setImageBitmap(curBitmap);
                             }
                         });
                         count = 0;
@@ -425,10 +407,17 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         startActivity(intent);
     }
 
-    private Coordinate screen2map(Coordinate screen, int screenWidth, int screenHight) {
-        float x = (float)(screen.getX() * mapSize.width/screenWidth);
-        float y = (float)(screen.getX() * mapSize.height/screenHight);
-        return new Coordinate(x,y);
+    private void addMapping() {
+        imageCoords.add(selectedCoord);
+        worldCoords.add(new Coordinate((float)mPose.translation[0], (float)mPose.translation[1]));
+    }
+
+    private void saveMapping() {
+        StringBuilder sb = new StringBuilder();
+        for (int i=0; i<imageCoords.size(); i++) {
+            sb.append(imageCoords.get(i).getX() + ',' + imageCoords.get(i).getY() + ',' + worldCoords.get(i).getX() + ',' + worldCoords.get(i).getY() + '\n');
+        }
+        Utils.writeToFile(selectedADFName + "_mapping.txt",sb.toString(),this);
     }
 }
 

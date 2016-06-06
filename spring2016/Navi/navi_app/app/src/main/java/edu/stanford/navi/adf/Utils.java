@@ -1,6 +1,9 @@
 package edu.stanford.navi.adf;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 
 import com.google.atap.tangoservice.Tango;
@@ -9,6 +12,7 @@ import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opencv.core.Size;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,9 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
+import edu.stanford.navi.domain.Coordinate;
+import edu.stanford.navi.domain.Item;
 
-import edu.stanford.navi.domain.*;
+import static java.util.Arrays.asList;
 
 /**
  * Created by Emma on 5/18/16.
@@ -173,5 +178,20 @@ public class Utils {
         } else {
             System.out.println(items.toString());
         }
+    }
+
+    public static void drawLocation(Bitmap bitmap, int imgX, int imgY, Paint paint) {
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawCircle(imgX, imgY, 15, paint);
+
+        return;
+    }
+
+    public static Coordinate screen2img(float x, float y, Size screenSize, Size imgSize) {
+        float imgX = (float)(x*imgSize.width/screenSize.width);
+        imgX = imgX > 0 ? imgX : 0;
+        float imgY = (float)(y*imgSize.height/screenSize.height);
+        imgY = imgY > 0 ? imgY : 0;
+        return new Coordinate(imgX, imgY);
     }
 }

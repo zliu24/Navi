@@ -26,14 +26,18 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.google.atap.tango.ux.TangoUx;
 import com.google.atap.tango.ux.TangoUx.StartParams;
@@ -51,6 +55,10 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
+
+import com.projecttango.rajawali.DeviceExtrinsics;
+import com.projecttango.rajawali.ar.TangoRajawaliView;
+import org.rajawali3d.scene.ASceneFrameCallback;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -82,6 +90,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private TextView textView;
     private ListView listOfRooms;
     private TextView localize_text;
+    private RelativeLayout arView;
+    private boolean isNavigation = false;
 
     // UX
     TangoUx mTangoUx;
@@ -95,18 +105,25 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private float []worldCoor = {0, 0};
     float []imgCoorDestimation;
     float []imgCoorCurrent;
-    LayoutParams params_localizing;
-    LayoutParams params_localized;
+    FrameLayout.LayoutParams params_localizing;
+    FrameLayout.LayoutParams params_localized;
+
+    // AR & camera
+    private TangoRajawaliView mARView;
+    private AugmentedRealityRenderer mARRenderer;
+    private DeviceExtrinsics mExtrinsics;
+    private double mCameraPoseTimestamp = 0;
 
     private int position;
-
     TextView navigateBtn;
 
     public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
         Log.d(TAG, "Item selected with position: " + position);
         position = pos;
-        if (navigateBtn.getVisibility() == View.INVISIBLE)
-            navigateBtn.setVisibility(View.VISIBLE);
+        if (navigateBtn.isEnabled() == false) {
+            navigateBtn.setEnabled(true);
+            navigateBtn.setAlpha(1.0f);
+        }
 
         imgCoorDestimation = map2D.getKeypoint(position);
 
@@ -132,8 +149,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.map);
+        mSelectedUUID = getIntent().getStringExtra(OwnerStartActivity.ADF_UUID);
 
+        setContentView(R.layout.map);
         setupTangoUX();
         setupTango();
 
@@ -143,25 +161,56 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         selectRoomInstruction.setTypeface(face);
 
+        setupARViewAndRenderer(R.id.ar_view);
+
         final Context context = this;
         navigateBtn = (TextView) findViewById(R.id.navigate);
         navigateBtn.setTypeface(face);
-        navigateBtn.setVisibility(View.INVISIBLE);
+        navigateBtn.setEnabled(false);
+        navigateBtn.setAlpha(.5f);
         navigateBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(context, NavigationActivity.class);
-                map2D.creatPathSingleton();
-                intent.putExtra(ADF_UUID, mSelectedUUID);
-                startActivity(intent);
+                arView = (RelativeLayout) findViewById(R.id.ar_view);
+                imageView = (ImageView) findViewById(R.id.imageView);
+                FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
+                FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+                final float scale = getResources().getDisplayMetrics().density;
+
+                if (!isNavigation) {
+                    isNavigation = true;
+
+                    params1.height = (int)(400*scale + 0.5f);
+                    params1.width = (int)(610*scale + 0.5f);
+                    params1.topMargin = (int)(100*scale + 0.5f);
+                    params1.leftMargin = (int)(340*scale + 0.5f);
+
+                    params2.height = (int)(80*scale + 0.5f);
+                    params2.width = (int)(80*scale + 0.5f);
+                    params2.topMargin = (int)(470*scale + 0.5f);
+                    params2.leftMargin = (int)(10*scale + 0.5f);
+                } else {
+                    isNavigation = false;
+                    params1.height = (int)(80*scale + 0.5f);
+                    params1.width = (int)(80*scale + 0.5f);
+                    params1.topMargin = (int)(470*scale + 0.5f);
+                    params1.leftMargin = (int)(10*scale + 0.5f);
+
+                    params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
+                    params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
+                    params2.topMargin = (int)(40*scale + 0.5f);
+                    params2.leftMargin = (int)(360*scale + 0.5f);
+                }
+                arView.setLayoutParams(params1);
+                imageView.setLayoutParams(params2);
             }
         });
 
         count = 0;
         countDots = 0;
 
-        params_localizing = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params_localizing = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params_localizing.gravity = Gravity.CENTER_VERTICAL;
-        params_localized = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params_localized = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params_localized.gravity = Gravity.BOTTOM;
     }
 
@@ -182,6 +231,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         super.onPause();
         try {
             if (mIsConnected.compareAndSet(true, false)) {
+                mARRenderer.getCurrentScene().clearFrameCallbacks();
+                mARView.disconnectCamera();
                 mTango.disconnect();
                 mTangoUx.stop();
             }
@@ -215,7 +266,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             try {
                 mTangoUx.start(new StartParams());
                 mTango.connect(mConfig);
-
+                mExtrinsics = setupExtrinsics(mTango);
+                connectARRenderer();
             } catch (TangoOutOfDateException e) {
                 Toast.makeText(getApplicationContext(), R.string.tango_out_of_date_exception, Toast
                         .LENGTH_SHORT).show();
@@ -256,6 +308,15 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return true;
+    }
+
+    private void setupARViewAndRenderer(int id) {
+        mARView = new TangoRajawaliView(this);
+        mARRenderer = new AugmentedRealityRenderer(this);
+        mARView.setSurfaceRenderer(mARRenderer);
+
+        RelativeLayout layout = (RelativeLayout) findViewById(id);
+        layout.addView(mARView);
     }
 
     private void setupTangoUX () {
@@ -320,7 +381,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
     private void initNaviPanel() {
         map2D = new Map2D(this, screenSize.x, screenSize.y);
-
+        map2D.drawKeyPoints();
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
 
@@ -353,6 +414,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         config.putBoolean(TangoConfig.KEY_BOOLEAN_LOWLATENCYIMUINTEGRATION, true);
         config.putBoolean(TangoConfig.KEY_BOOLEAN_DEPTH, true);
         config.putBoolean(TangoConfig.KEY_BOOLEAN_COLORCAMERA, true);
+        config.putString(TangoConfig.KEY_STRING_AREADESCRIPTION, mSelectedUUID);
 
         // Check for Load ADF/Constant Space relocalization mode
         if (isLoadAdf) {
@@ -507,9 +569,94 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             @Override
             public void onFrameAvailable(int cameraId) {
                 if (cameraId == TangoCameraIntrinsics.TANGO_CAMERA_COLOR) {
+                    mARView.onFrameAvailable();
                 }
-
             }
         });
+    }
+
+    /**
+     * Calculates and stores the fixed transformations between the device and
+     * the various sensors to be used later for transformations between frames.
+     */
+    private static DeviceExtrinsics setupExtrinsics(Tango tango) {
+        // Create camera to IMU transform.
+        TangoCoordinateFramePair framePair = new TangoCoordinateFramePair();
+        framePair.baseFrame = TangoPoseData.COORDINATE_FRAME_IMU;
+        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_CAMERA_COLOR;
+        TangoPoseData imuTrgbPose = tango.getPoseAtTime(0.0, framePair);
+
+        // Create device to IMU transform.
+        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_DEVICE;
+        TangoPoseData imuTdevicePose = tango.getPoseAtTime(0.0, framePair);
+
+        // Create depth camera to IMU transform.
+        framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_CAMERA_DEPTH;
+        TangoPoseData imuTdepthPose = tango.getPoseAtTime(0.0, framePair);
+
+        return new DeviceExtrinsics(imuTdevicePose, imuTrgbPose, imuTdepthPose);
+    }
+
+    /**
+     * Connects the view and renderer to the color camara and callbacks.
+     */
+    private void connectARRenderer() {
+        // Connect to color camera.
+        mARView.connectToTangoCamera(mTango, TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+
+        // Register a Rajawali Scene Frame Callback to update the scene camera pose whenever a new
+        // RGB frame is rendered.
+        // (@see https://github.com/Rajawali/Rajawali/wiki/Scene-Frame-Callbacks)
+        mARRenderer.getCurrentScene().registerFrameCallback(new ASceneFrameCallback() {
+            @Override
+            public void onPreFrame(long sceneTime, double deltaTime) {
+                if (!mIsConnected.get()) {
+                    return;
+                }
+                // NOTE: This is called from the OpenGL render thread, after all the renderer
+                // onRender callbacks had a chance to run and before scene objects are rendered
+                // into the scene.
+
+                // Note that the TangoRajwaliRenderer will update the RGB frame to the background
+                // texture and update the RGB timestamp before this callback is executed.
+
+                // If a new RGB frame has been rendered, update the camera pose to match.
+                // NOTE: This doesn't need to be synchronized since the renderer provided timestamp
+                // is also set in this same OpenGL thread.
+                double rgbTimestamp = mARRenderer.getTimestamp();
+                if (rgbTimestamp > mCameraPoseTimestamp) {
+                    // Calculate the device pose at the camera frame update time.
+                    TangoPoseData lastFramePose = mTango.getPoseAtTime(rgbTimestamp, new TangoCoordinateFramePair(
+                            TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
+                            TangoPoseData.COORDINATE_FRAME_DEVICE));
+                    if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
+                        if (mIsRelocalized == false) {
+                            Log.d(TAG, "Navigation view has localized. ");
+                            // mARRenderer.updatePathObject(path);
+                            mIsRelocalized = true;
+                        }
+                        // Update the camera pose from the renderer
+                        mARRenderer.updateRenderCameraPose(lastFramePose, mExtrinsics);
+                        mCameraPoseTimestamp = lastFramePose.timestamp;
+                    }
+                }
+            }
+
+            @Override
+            public void onPreDraw(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public void onPostFrame(long sceneTime, double deltaTime) {
+
+            }
+
+            @Override
+            public boolean callPreFrame() {
+                return true;
+            }
+        });
+
     }
 }
