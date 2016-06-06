@@ -15,6 +15,14 @@ public class Coordinate {
         return x;
     }
 
+    public int getXInt() {
+        return (int) x;
+    }
+
+    public int getYInt() {
+        return (int) y;
+    }
+
     public void setX(float x) {
         this.x = x;
     }

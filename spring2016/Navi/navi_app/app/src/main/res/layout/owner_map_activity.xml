@@ -59,7 +59,9 @@
             android:layout_alignParentStart="false"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="16dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:background="#000000"
+            android:padding="1dp"/>
 
         <RelativeLayout
             android:layout_width="wrap_content"

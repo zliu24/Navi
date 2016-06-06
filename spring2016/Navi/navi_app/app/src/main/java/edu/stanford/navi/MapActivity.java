@@ -320,7 +320,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
     private void initNaviPanel() {
         map2D = new Map2D(this, screenSize.x, screenSize.y);
-
+        map2D.drawKeyPoints();
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
 
