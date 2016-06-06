@@ -16,12 +16,11 @@
 
 package edu.stanford.navi;
 
-import com.google.atap.tangoservice.Tango;
-
-import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -29,32 +28,33 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.Toast;
+import android.widget.TextView;
+
+import com.google.atap.tangoservice.Tango;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import edu.stanford.navi.adf.Utils;
 
-/**
- * Start Activity for Area Description example. Gives the ability to choose a particular
- * configuration and also Manage Area Description Files (ADF).
- */
-public class OwnerStartActivity extends Activity implements View.OnClickListener, OnItemSelectedListener {
+import static java.util.Arrays.asList;
 
-    public static final String LOAD_ADF = "com.projecttango.areadescriptionjava.loadadf";
-    public static final String ADF_UUID = "com.projecttango.areadescriptionjava.uuid";
-    public static final String ADF_NAME = "com.projecttango.areadescriptionjava.adfName";
+public class OwnerStartActivity extends BaseActivity implements View.OnClickListener, OnItemSelectedListener {
+
     private final String CONFIG_FILE = "config.txt";
     private Button mStartButton;
     private Button mManageButton;
     private ImageView imageView;
-    private String selectedUUID;
     private String selectedADFName;
     private Spinner spinner;
     private Tango mTango;
     private ArrayList<String> fullUUIDList;
     private ArrayList<String> fullADFnameList;
-    private HashMap<String, String> name2uuidMap;
+    private Map<String, String> name2uuidMap;
 
     private static final String TAG = OwnerStartActivity.class.getSimpleName();
 
@@ -62,19 +62,21 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.owner_start_activity);
-        startActivityForResult(
-                Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_ADF_LOAD_SAVE), 0);
 
         mTango = new Tango(this);
         setUpButtons();
         setUpADF();
         setUpSpinner();
+        setUpFonts();
+        Utils.testReadJson(this);
+        Utils.testWriteJson(this);
+        Utils.testReadJson(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.start:
+            case R.id.next:
                 startOwnerMapActivity();
                 break;
             case R.id.manageADF:
@@ -83,21 +85,23 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == 0) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, R.string.arealearning_permission, Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
+    private void setUpFonts() {
+        TextView header_text = (TextView) findViewById(R.id.header_text);
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        header_text.setTypeface(face);
     }
 
     private void setUpButtons() {
-        mStartButton = (Button) findViewById(R.id.start);
+        mStartButton = (Button) findViewById(R.id.next);
+        TextView mStartButtonTxt = (TextView) findViewById(R.id.next);
+
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+        mStartButtonTxt.setTypeface(face);
+
         mManageButton = (Button) findViewById(R.id.manageADF);
+        TextView  mManageButtonTxt = (TextView) findViewById(R.id.manageADF);
+        mManageButtonTxt.setTypeface(face);
+
         mManageButton.setOnClickListener(this);
         mStartButton.setOnClickListener(this);
     }
@@ -106,37 +110,42 @@ public class OwnerStartActivity extends Activity implements View.OnClickListener
         fullUUIDList = mTango.listAreaDescriptions();
         fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
+        selectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
     }
 
     private void setUpSpinner() {
         spinner = (Spinner) findViewById(R.id.selectAdf);
         spinner.setOnItemSelectedListener(this);
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, fullADFnameList);
         spinner.setAdapter(adapter);
+        //set the default location
+        int curLocation = adapter.getPosition(selectedADFName);
+        spinner.setSelection(curLocation);
+
     }
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         selectedADFName = parent.getItemAtPosition(position).toString();
-        selectedUUID = name2uuidMap.get(selectedADFName);
-
-        Utils.writeADFtoFile(CONFIG_FILE, selectedADFName, this);
+        Utils.writeToFile(CONFIG_FILE, selectedADFName, this);
         setUpMap();
     }
 
     public void setUpMap() {
-        System.out.println("Selected Map: " + selectedADFName);
+        Log.i(TAG,"Selected Map: " + selectedADFName);
         Drawable img = Utils.getImage(this, selectedADFName);
         imageView = (ImageView) findViewById(R.id.ownerMap);
         imageView.setImageDrawable(img);
     }
 
     public void onNothingSelected(AdapterView<?> parentView){
-        System.out.println("fuc no!");
     }
 
-
     private void startOwnerMapActivity() {
-
+        Intent intent = new Intent(this, OwnerLabelActivity.class);
+        intent.putExtra(ADF_NAME, selectedADFName);
+        intent.putExtra(ADF_UUID, name2uuidMap.get(selectedADFName));
+        startActivity(intent);
     }
 
     private void startADFListView() {

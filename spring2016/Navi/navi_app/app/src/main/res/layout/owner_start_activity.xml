@@ -4,61 +4,109 @@
     android:layout_height="match_parent"
     android:labelFor="@string/app_name"
     android:gravity="center"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:weightSum="4">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_alignParentLeft="true"
-        android:id="@+id/menu"
-        android:background="@color/white"
-        android:layout_weight="1">
-
-        <TextView
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="@string/spinner_title"
-            android:textSize="15dp"
-            android:id="@+id/selectADFtext" />
-
-        <Spinner
-            android:id="@+id/selectAdf"
-            android:layout_width="150dp"
-            android:layout_height="50dp"
-            android:textSize="15sp"/>
-        <Button
-            android:id="@+id/start"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="@string/start_config"
-            android:textSize="15sp" />
-
-        <Button
-            android:id="@+id/manageADF"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="@string/manage_adfs"
-            android:textSize="15sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/map"
-        android:background="@color/white"
-        android:layout_toEndOf="@+id/menu"
-        android:layout_weight="3">
+    <RelativeLayout
+        android:id="@+id/tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:background="@color/white" >
 
         <ImageView
-            android:layout_width="match_parent"
+            android:layout_width="41dp"
+            android:layout_height="42dp"
+            android:id="@+id/logo"
+            android:src="@drawable/pink_navi_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Select your indoor environment"
+            android:textColor="@color/app_color"
+            android:textSize="25dp"
+            android:id="@+id/header_text"
+            android:layout_alignTop="@+id/logo"
+            android:layout_centerHorizontal="true" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:id="@+id/progress_bar"
+            android:src="@drawable/owner_step1_progress"
+            android:layout_below="@+id/logo"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:layout_gravity="bottom"
+        android:weightSum="1">
+
+        <RelativeLayout
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:id="@+id/menu"
+            android:background="@color/white">
+
+            <Spinner
+                android:id="@+id/selectAdf"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:textSize="15sp"
+                android:layout_gravity="center_vertical"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true" />
+
+            <Button
+                android:id="@+id/manageADF"
+                android:background="@drawable/gray_button"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="Manage ADFs"
+                android:textColor="@color/white"
+                android:layout_gravity="bottom"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="30dp" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="500dp"
             android:layout_height="match_parent"
             android:id="@+id/ownerMap"
-            android:layout_centerVertical="true"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentLeft="true"
+            android:layout_toStartOf="@+id/next"
+            android:layout_above="@+id/next"
+            android:layout_alignParentTop="true"
+            android:layout_weight="0.90" />
+
+        <Button
+            android:id="@+id/next"
+            android:background="@drawable/custom_button"
+            android:layout_height="wrap_content"
+            android:layout_width="180dp"
+            android:text="Next"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            />
+            android:layout_marginBottom="15dp"
+            android:layout_marginRight="20dp" />
 
     </LinearLayout>
 

@@ -18,14 +18,9 @@ package edu.stanford.navi;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -35,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -69,7 +65,6 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.map.Map2D;
@@ -366,7 +361,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private void setupTango () {
         Intent intent = getIntent();
         mIsConstantSpaceRelocalize = intent.getBooleanExtra(Homepage.LOAD_ADF, false);
-        mSelectedUUID = intent.getStringExtra(OwnerStartActivity.ADF_UUID);
+        mSelectedUUID = intent.getStringExtra(ADF_UUID);
 
         mTango = new Tango(this);
         mConfig = setTangoConfig(mTango, mIsConstantSpaceRelocalize);

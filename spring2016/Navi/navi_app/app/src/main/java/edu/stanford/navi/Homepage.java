@@ -5,11 +5,12 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.atap.tangoservice.Tango;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 import edu.stanford.navi.adf.Utils;
 
@@ -17,7 +18,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
 
     private Tango mTango;
     private ArrayList<String> fullUUIDList;
-    private HashMap<String, String> name2uuidMap;
+    private Map<String, String> name2uuidMap;
     private String mSelectedUUID;
     private String mSelectedADFName;
     private final String CONFIG_FILE = "config.txt";
@@ -46,6 +47,18 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 0) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, R.string.arealearning_permission, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         setUpADF();
@@ -67,7 +80,7 @@ public class Homepage extends BaseActivity implements View.OnClickListener {
         fullUUIDList = mTango.listAreaDescriptions();
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
 
-        mSelectedADFName = Utils.loadADFfromFile(CONFIG_FILE, this);
+        mSelectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
         mSelectedUUID = name2uuidMap.get(mSelectedADFName);
         System.out.println("Selected ADF: " + mSelectedADFName);
         System.out.println("Selected ADF UUID: " + mSelectedUUID);

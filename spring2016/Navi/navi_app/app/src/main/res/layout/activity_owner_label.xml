@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:labelFor="@string/app_name"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:weightSum="4">
+
+    <RelativeLayout
+        android:id="@+id/tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:background="@color/white">
+
+        <ImageView
+            android:layout_width="41dp"
+            android:layout_height="42dp"
+            android:id="@+id/logo"
+            android:src="@drawable/pink_navi_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Setup locations in your indoor enviroment"
+            android:textSize="25dp"
+            android:id="@+id/header_text"
+            android:layout_alignTop="@+id/logo"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/app_color" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/textView" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:id="@+id/progress_bar"
+            android:src="@drawable/owner_step3_progress"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/logo" />
+
+    </RelativeLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:layout_gravity="bottom">
+
+        <ImageView
+            android:layout_width="540dp"
+            android:layout_height="515dp"
+            android:id="@+id/ownerMap"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginBottom="16dp" />
+
+
+        <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/vf"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <include android:id="@+id/instructionCard" layout="@layout/instruction_card" />
+            <include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />
+
+        </ViewFlipper>
+
+
+
+
+        <!-- Insert instruction card here -->
+
+    </LinearLayout>
+
+</LinearLayout>
