@@ -67,6 +67,11 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     Line3D line;
     private boolean pathObjectUpdated = false;
 
+    //Genie added
+    private float[] userCoord;
+    private org.rajawali3d.math.Quaternion userOrientation;
+    private Object3D userArrow;
+
     public AugmentedRealityRenderer(Context context) {
         super(context);
     }
@@ -76,6 +81,9 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Remember to call super.initScene() to allow TangoRajawaliArRenderer
         // to be set-up.
         super.initScene();
+
+        userCoord = null;
+        userOrientation = null;
 
         // Add a directional light in an arbitrary direction.
         DirectionalLight light = new DirectionalLight(1, 0.2, -1);
@@ -106,6 +114,42 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     getCurrentScene().removeChild(line);
                 }
 
+                if(userArrow != null) {
+                    getCurrentScene().removeChild(userArrow);
+                }
+
+
+                /*
+                //some test code to add an axtra arrow at my location
+                userArrow = new Cube(CUBE_SIDE_LENGTH);
+                LoaderOBJ userArrowParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
+                try {
+                    userArrowParser.parse();
+                    userArrow = userArrowParser.getParsedObject();
+                } catch (ParsingException e) {
+                    e.printStackTrace();
+                }
+
+                Vector3 userLocation = new Vector3(userCoord[0], -2, -userCoord[1]);
+                userArrow.setPosition(userLocation);
+
+                //rotate towards first point
+
+                double ArrowSide1 = userCoord[0] - pathPoints[0][0];
+                double ArrowSide2 = userCoord[1] - pathPoints[0][1];
+                double ArrowHypotenuse = Math.sqrt((ArrowSide1*ArrowSide1) + (ArrowSide2*ArrowSide2));
+
+                double ArrowTheta = Math.asin(ArrowSide1 / ArrowHypotenuse);
+
+                double ArrowAngle = Math.toDegrees((Math.PI / 2) - ArrowTheta) + 180;
+
+                userArrow.setRotation(Vector3.Axis.Y, ArrowAngle);
+
+                getCurrentScene().addChild(userArrow);
+
+                */
+                //end random tests
+
                 pathObjects = new ArrayList<Object3D>();
                 Stack<Vector3> stack = new Stack<Vector3>();
                 for(int i = 0; i < pathPoints.length; i++) {
@@ -129,7 +173,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         try {
                             objParser.parse();
                             point = objParser.getParsedObject();
-                            point.setScale(new Vector3(0.75, 0.75, 0.75));
+                            point.setScale(0.5);
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
@@ -166,9 +210,19 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
      * Save the updated plane fit pose to update the AR object on the next render pass.
      * This is synchronized against concurrent access in the render loop above.
      */
-    public synchronized void updatePathObject(float[][] pathPoints) {
+    public synchronized void updatePathObject(float[][] pathPoints, float[] userPos, double[] orientation) {
         pathObjectUpdated = true;
         this.pathPoints = pathPoints;
+        this.userCoord = userPos;
+
+        this.userOrientation = new org.rajawali3d.math.Quaternion(orientation[0], orientation[1], orientation[2], orientation[3]);
+
+        System.out.println("User position: x: " + userPos[0] + " z: " + userPos[1]);
+        System.out.println("Pathpoints here!!!!!!!!!!!!");
+        for (int i = 0; i < pathPoints.length; i++) {
+            System.out.println("x: " + pathPoints[i][0] + " y (in 2d) z (in 3d): " + pathPoints[i][1]);
+        }
+
     }
 
     /**

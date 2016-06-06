@@ -540,7 +540,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
                                     //Genie added code begin
                                     //Give ARRenderer information it needs
-                                    mARRenderer.updatePathObject(map2D.getWorldPath());
+                                    if(map2D.getWorldPath() != null) {
+                                        mARRenderer.updatePathObject(map2D.getWorldPath(), worldCoor, pose.rotation);
+                                    }
 
 
                                     //Genie added code end
