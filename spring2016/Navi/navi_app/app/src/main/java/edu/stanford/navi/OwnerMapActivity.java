@@ -17,8 +17,10 @@
 package edu.stanford.navi;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -39,14 +41,20 @@ import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Size;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.adf.Utils;
+import edu.stanford.navi.domain.Coordinate;
+import edu.stanford.navi.map.Map2D;
 
 public class OwnerMapActivity extends BaseActivity implements View.OnClickListener {
-
-    private final String CONFIG_FILE = "config.txt";
 
     private final int STEP1 = 1;
     private final int STEP2 = 2;
@@ -66,8 +74,16 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     private String selectedADFName;
     private String selectedUUID;
 
-    private boolean mAllowMapClicks;
+    private Map2D map;
+    private Bitmap mapBitmap;
+    private List<Coordinate> imageCoords;
+    private List<Coordinate> worldCoords;
+    private Coordinate selectedCoord;
+    private Paint paint;
+    private int count=0;
 
+    // UI
+    private boolean mAllowMapClicks;
     private TextView mStepHeader;
     private TextView mStepInstructions;
     private TextView mCalibrationProgress;
@@ -76,6 +92,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     private int numPointsCalibrated;
 
     private int mStep = STEP1;
+
 
     private static final String TAG = OwnerMapActivity.class.getSimpleName();
 
@@ -86,9 +103,11 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
         setupTango();
         setUpButtons();
-        setUpMap();
         setUpFonts();
 
+
+        imageCoords = new ArrayList<Coordinate>();
+        worldCoords = new ArrayList<Coordinate>();
         numPointsCalibrated = 0;
         mAllowMapClicks = true;
     }
@@ -141,15 +160,18 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         .show();
             }
         }
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
+                saveMapping();
                 startOwnerLabelActivity();
                 break;
             case R.id.doneStep2:
+                addMapping();
                 setUpStep3();
         }
     }
@@ -158,6 +180,17 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     public boolean onTouchEvent(MotionEvent event) {
         return true;
     }
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            if (status == LoaderCallbackInterface.SUCCESS) {
+                setUpMap();
+            } else {
+                super.onManagerConnected(status);
+            }
+        }
+    };
 
 
     private void setupTango () {
@@ -256,23 +289,33 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     public void setUpMap() {
-        Drawable img = Utils.getImage(this, selectedADFName);
+        android.graphics.Point screenSize = new android.graphics.Point();
+        getWindowManager().getDefaultDisplay().getSize(screenSize);
+        map = new Map2D(this, (int) screenSize.x, (int)screenSize.y);
+        mapBitmap = map.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imageView = (ImageView) findViewById(R.id.ownerMap);
-        imageView.setImageDrawable(img);
+        imageView.setImageBitmap(mapBitmap);
 
-        final TextView textView = (TextView)findViewById(R.id.textView);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                selectedCoord = Utils.screen2img(event.getX(), event.getY(), new Size(v.getWidth(), v.getHeight()), map.getImgSize());
+                Log.i(TAG, "Screen size: " + map.getScreenSize().width + "," + map.getScreenSize().height + "\n");
+                Log.i(TAG, "Screen Coords: " + event.getX() + "," + event.getY() + "\n");
+                Log.i(TAG, "Image size: " + map.getImgSize().width + "," + map.getImgSize().height + "\n");
+                Log.i(TAG, "Image Coords: " + selectedCoord.getXInt() + "," + selectedCoord.getYInt() + "\n");
+
                 if(mAllowMapClicks) {
                     setUpStep2();
                 }
-                // TODO: Fix this to draw a balloon
-                textView.setText("Map coordinates : " +
-                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
+
                 return true;
             }
         });
+        paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTextSize(30);
     }
 
     private void setUpTangoListeners() {
@@ -304,9 +347,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
             @Override
             public void onPoseAvailable(final TangoPoseData pose) {
-                // Make sure to have atomic access to Tango Data so that
-                // UI loop doesn't interfere while Pose call back is updating
-                // the data.
+                boolean updateRenderer = true;
                 synchronized (mSharedLock) {
                     // Check for Device wrt ADF pose, Device wrt Start of Service pose,
                     // Start of Service wrt ADF pose (This pose determines if the device
@@ -327,6 +368,30 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         }
                     }
                 }
+                if (updateRenderer) {
+                    count++;
+                    if (count > 50) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Bitmap curBitmap = mapBitmap.copy(Bitmap.Config.ARGB_8888, true);
+                                if(selectedCoord != null)
+                                    Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), paint);
+                                if (mIsRelocalized) {
+                                    Log.i(TAG, "Localized ");
+                                    float[] imgCoords = map.world2img((float) mPose.translation[0], (float) mPose.translation[1]);
+                                    Utils.drawLocation(curBitmap, (int) imgCoords[0], (int) imgCoords[1], paint);
+
+                                }
+                                for (Coordinate coords : imageCoords) {
+                                    Utils.drawLocation(curBitmap, coords.getXInt(), coords.getYInt(), paint);
+                                }
+                                imageView.setImageBitmap(curBitmap);
+                            }
+                        });
+                        count = 0;
+                    }
+                }
 
             }
 
@@ -342,4 +407,17 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         startActivity(intent);
     }
 
+    private void addMapping() {
+        imageCoords.add(selectedCoord);
+        worldCoords.add(new Coordinate((float)mPose.translation[0], (float)mPose.translation[1]));
+    }
+
+    private void saveMapping() {
+        StringBuilder sb = new StringBuilder();
+        for (int i=0; i<imageCoords.size(); i++) {
+            sb.append(imageCoords.get(i).getX() + ',' + imageCoords.get(i).getY() + ',' + worldCoords.get(i).getX() + ',' + worldCoords.get(i).getY() + '\n');
+        }
+        Utils.writeToFile(selectedADFName + "_mapping.txt",sb.toString(),this);
+    }
 }
+

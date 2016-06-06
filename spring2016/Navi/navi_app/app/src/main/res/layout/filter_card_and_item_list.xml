@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/card"
+        android:layout_width="383dp"
+        android:layout_height="wrap_content"
+        android:background="@color/lightGray"
+        android:layout_marginEnd="148dp"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter store items"
+            android:id="@+id/filterStoreItemsHeader"
+            android:layout_alignParentTop="true"
+            android:textSize="20dp"
+            android:textColor="@color/darkGray"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="20dp" />
+
+        <Spinner
+            android:layout_width="150dp"
+            android:layout_height="60dp"
+            android:id="@+id/filterSpinner"
+            android:layout_marginLeft="20dp"
+            android:spinnerMode="dialog"
+            android:layout_below="@+id/textFieldLocationItem" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="+ New Filter"
+            android:textColor="@color/app_color"
+            android:id="@+id/createFilterButton"
+            android:layout_marginRight="20dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listOfItemsInEnviroment" />
+</LinearLayout>

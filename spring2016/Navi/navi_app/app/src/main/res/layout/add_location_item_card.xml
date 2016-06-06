@@ -44,11 +44,12 @@
         android:spinnerMode="dialog"
         android:layout_below="@+id/textFieldLocationItem" />
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Cancel"
+        style="?android:attr/borderlessButtonStyle"
         android:textColor="@color/darkGray"
         android:id="@+id/cancelButton"
         android:layout_alignParentTop="true"
@@ -56,12 +57,13 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp" />
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
+        style="?android:attr/borderlessButtonStyle"
         android:text="Done"
-        android:textColor="@color/darkGray"
+        android:textColor="@color/app_color"
         android:id="@+id/doneButton"
         android:layout_marginStart="101dp"
         android:layout_alignParentEnd="true"
