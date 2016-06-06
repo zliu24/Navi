@@ -49,6 +49,7 @@ public class StoreItemListAdapter extends ArrayAdapter<String> {
         }
 
         String s = "";
+
         try {
             s = (String)((Item)item.get("item")).getName();
         } catch (JSONException e) {

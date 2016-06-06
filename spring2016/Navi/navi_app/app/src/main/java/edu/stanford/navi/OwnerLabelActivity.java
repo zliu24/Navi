@@ -50,11 +50,15 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private float mClickedMapCoordY;
 
     private ArrayList<String> mStoreItemsList;
-    private Set<String> mFilterCategories;
+    private Set<String> mFilterCategoriesSet;
+    private ArrayList<String> mFilterCategoriesList;
+    private Set<String> mSelectedFilterCategories;
+    private ArrayList<Boolean> mSelectedFilterCategoriesBool;
 
     private Button mCancelAddItemButton;
     private Button mAddItemButton;
     private Button mCreateFilterButton;
+    private Button mAddFilterCateogoryButton;
 
     private ImageView imageView;
     private EditText mTextFieldLocationItem;
@@ -71,6 +75,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private ViewFlipper vf;
 
     private AlertDialog mFilterNameCreationDialog;
+    private AlertDialog mAddFilterCateogoryDialog;
 
     private ListView mItemListAsListView;
 
@@ -89,9 +94,27 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
             mStoreItemsForInternalStorage = new JSONArray();
         }
 
+        mSelectedFilterCategories =  new HashSet<String>(); // Where we track the selected items
         mStoreItemsList = new ArrayList<String>();
-        mFilterCategories = new HashSet<String>();
+        mFilterCategoriesSet = new HashSet<String>();
+        mFilterCategoriesList = new ArrayList<String>();
+        mSelectedFilterCategoriesBool = new ArrayList<Boolean>();
+    }
 
+    private void setUpADF() {
+        fullUUIDList = mTango.listAreaDescriptions();
+        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
+        name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
+        selectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
+    }
+
+    private void setUpUI() {
+        vf = (ViewFlipper) findViewById(R.id.vf);
+
+        // Display instruction card xml
+        vf.setDisplayedChild(0);
+
+        setUpFontHeaderAndCardInstruction();
     }
 
     private void setUpFontHeaderAndCardInstruction() {
@@ -107,6 +130,29 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
         TextView headerTxt = (TextView) findViewById(R.id.header_text);
         headerTxt.setTypeface(face);
+    }
+
+    public void setUpMap() {
+        Drawable img = Utils.getImage(this, selectedADFName);
+        imageView = (ImageView) findViewById(R.id.ownerMap);
+        imageView.setImageDrawable(img);
+
+        final TextView textView = (TextView)findViewById(R.id.textView);
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                vf.setDisplayedChild(1);
+                setUpAddLocItemCard();
+
+                mClickedMapCoordX = event.getX();
+                mClickedMapCoordY = event.getY();
+
+                // TODO: Fix this to draw a balloon
+                textView.setText("Map coordinates : " +
+                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
+                return true;
+            }
+        });
     }
 
     @Override
@@ -125,6 +171,9 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
                 Log.i("bob", "creating filter");
                 mFilterNameCreationDialog.show();
                 break;
+            case R.id.addFilterCatergoryButton:
+                mAddFilterCateogoryDialog.show();
+                break;
         }
     }
 
@@ -135,31 +184,39 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         // Close keyboard
         View view = this.getCurrentFocus();
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
+        // Viewfinder displays filter card and store item list xml
         vf.setDisplayedChild(2);
 
+        setupTextAndButtonsInFilterView();
+
+        setupStorelistView();
+
+        setupChooseAFilterDialog();
+
+        setupCreateFilterCategoryDialog();
+    }
+
+    private void setupTextAndButtonsInFilterView() {
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
 
-        TextView filterHeader = (TextView) findViewById(R.id.filterStoreItemsHeader);
+        mAddFilterCateogoryButton = (Button) findViewById(R.id.addFilterCatergoryButton);
+        mAddFilterCateogoryButton.setTypeface(face);
+        mAddFilterCateogoryButton.setOnClickListener(this);
+
         mCreateFilterButton = (Button) findViewById(R.id.createFilterButton);
-
-        filterHeader.setTypeface(face);
-
         mCreateFilterButton.setTypeface(faceRegular);
         mCreateFilterButton.setOnClickListener(this);
+    }
 
-//        mItemListAsListView = (ListView) findViewById(R.id.listOfItemsInEnviroment);
-//        mItemListAsListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.Itemname, mStoreItemsList);
-//        mItemListAsListView.setAdapter(adapter);
-//        mItemListAsListView.setOnItemClickListener(this);
-
+    private void setupStorelistView() {
+        // Setup list view
         StoreItemListAdapter adapter = new StoreItemListAdapter(this, mStoreItemsForInternalStorage, mStoreItemsList);
-        mItemListAsListView = (ListView)findViewById(R.id.listOfItemsInEnviroment);
+        mItemListAsListView = (ListView) findViewById(R.id.listOfItemsInEnviroment);
         mItemListAsListView.setAdapter(adapter);
 
         mItemListAsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -171,14 +228,67 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
                 Log.i("Bob", "hihihi");
                 //String Slecteditem= itemname[+position];
                 // Toast.makeText(getApplicationContext(), Slecteditem, Toast.LENGTH_SHORT).show();
-
             }
         });
     }
 
-//    public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
-//        // TODO: EDIT the item
-//    }
+    private void setupCreateFilterCategoryDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(OwnerLabelActivity.this);
+        // Set the dialog title
+        final HashSet<String> tempSelectedFilterCategories = new HashSet<String>();
+        for (String s:mSelectedFilterCategories) {
+            tempSelectedFilterCategories.add(s);
+        }
+
+        // Can't convert from ArrayList<Boolean> to boolean[]
+        final boolean[] tempIsSelected = new boolean[mSelectedFilterCategoriesBool.size()];
+        for (int i = 0; i < mSelectedFilterCategoriesBool.size(); i++) {
+            tempIsSelected[i] = mSelectedFilterCategoriesBool.get(i);
+        }
+        builder.setTitle("Pick filter categories")
+                .setMultiChoiceItems(mFilterCategoriesList.toArray(new CharSequence[mFilterCategoriesList.size()]), tempIsSelected,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which,
+                                                boolean isChecked) {
+                                String filterCategory = mFilterCategoriesList.get(which);
+                                if (isChecked) {
+                                    // Assuming the item is not in the list (if it is, this is still fine)
+                                    tempIsSelected[which] = true;
+                                    tempSelectedFilterCategories.add(filterCategory);
+                                } else {
+                                    if (tempSelectedFilterCategories.contains(filterCategory)) {
+                                        tempSelectedFilterCategories.remove(filterCategory);
+                                        tempIsSelected[which] = false;
+                                    }
+                                }
+                            }
+                        })
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        mSelectedFilterCategories = tempSelectedFilterCategories;
+                        // Can't convert from ArrayList<Boolean> to boolean[]
+                        for (int i = 0; i < mSelectedFilterCategoriesBool.size(); i++) {
+                            mSelectedFilterCategoriesBool.set(i, tempIsSelected[i]);
+                        }
+                        dialog.cancel();
+                        setupCreateFilterCategoryDialog();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+//                        ArrayList<Boolean> b = mSelectedFilterCategoriesBool;
+//                        boolean[] bc = tempIsSelected;
+                        dialog.cancel();
+                        setupCreateFilterCategoryDialog();
+                    }
+                });
+
+        mAddFilterCateogoryDialog = builder.create();
+    }
 
     private void addItemToStorage() {
         String label = mTextFieldLocationItem.getText().toString();
@@ -187,7 +297,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
             // TODO: localize to get onPoseAvailable!
             Item item = new Item(label, new Coordinate(mClickedMapCoordX, mClickedMapCoordY),
-                    new Coordinate(0f, 0f), mFilterCategories);
+                    new Coordinate(0f, 0f), mFilterCategoriesSet);
             JSONObject itemObj = Utils.createJsonObj(item);
             mStoreItemsForInternalStorage.put(itemObj);
         }
@@ -213,22 +323,22 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         mAddItemButton.setOnClickListener(this);
     }
 
-    private void closeKeyboard() {
-        InputMethodManager inputManager = (InputMethodManager)
-                getSystemService(Context.INPUT_METHOD_SERVICE);
+    String properCase (String inputVal) {
+        // Empty strings should be returned as-is.
 
-        inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
+        if (inputVal.length() == 0) return "";
+
+        // Strings with only one character uppercased.
+
+        if (inputVal.length() == 1) return inputVal.toUpperCase();
+
+        // Otherwise uppercase first letter, lowercase the rest.
+
+        return inputVal.substring(0,1).toUpperCase()
+                + inputVal.substring(1).toLowerCase();
     }
 
-    private void setUpUI() {
-
-        vf = (ViewFlipper) findViewById(R.id.vf);
-
-        vf.setDisplayedChild(0);
-
-        setUpFontHeaderAndCardInstruction();
-
+    private void setupChooseAFilterDialog() {
         // 1. Instantiate an AlertDialog.Builder with its constructor
         AlertDialog.Builder builder = new AlertDialog.Builder(OwnerLabelActivity.this);
 
@@ -244,7 +354,15 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Log.i("bob", "Okay'ed dialog box");
-                mFilterCategories.add(textFieldFilterCategory.getText().toString());
+                String item = textFieldFilterCategory.getText().toString();
+                item = properCase(item);
+                if(!mFilterCategoriesSet.contains(item)) {
+                    mFilterCategoriesList.add(item);
+                    mFilterCategoriesSet.add(item);
+                    mSelectedFilterCategoriesBool.add(false);
+                    setupCreateFilterCategoryDialog();
+                }
+                textFieldFilterCategory.setText("");
                 dialog.cancel();
             }
         });
@@ -257,49 +375,6 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
         // 3. Get the AlertDialog from create()
         mFilterNameCreationDialog = builder.create();
-//        List<String> filterItemsTemp = new ArrayList<String>();
-//        filterItemsTemp.add("Android");
-//        filterItemsTemp.add("iOS");
-//        filterItemsTemp.add("AR / VR");
-//
-//        Spinner spinner = (Spinner) findViewById(R.id.filterSpinner);
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, filterItemsTemp);
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinner.setPrompt("Filter labels");
     }
-
-    public void setUpMap() {
-        Drawable img = Utils.getImage(this, selectedADFName);
-        imageView = (ImageView) findViewById(R.id.ownerMap);
-        imageView.setImageDrawable(img);
-
-        final TextView textView = (TextView)findViewById(R.id.textView);
-        imageView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-//                if(mIsFirstStep) {
-                    vf.setDisplayedChild(1);
-                    setUpAddLocItemCard();
-//                    mIsFirstStep = false;
-//                }
-
-                mClickedMapCoordX = event.getX();
-                mClickedMapCoordY = event.getY();
-
-                // TODO: Fix this to draw a balloon
-                textView.setText("Map coordinates : " +
-                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
-                return true;
-            }
-        });
-    }
-
-    private void setUpADF() {
-        fullUUIDList = mTango.listAreaDescriptions();
-        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
-        name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-        selectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
-    }
-
 }
 
