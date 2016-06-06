@@ -54,10 +54,10 @@ public class Map2D {
 
     private byte []buff;
     private double []beta;
-    private float[][] worldPath;
-    private int[][] path;
+    public float[][] worldPath;
+    public int[][] path;
     private double scale_png2img;
-    private double scale_img2graph = 0.25;
+    public double scale_img2graph = 0.25;
     public float minDistThres = 80;
 
     // load resource
@@ -152,9 +152,10 @@ public class Map2D {
         paintPath.setARGB(255, 255, 155, 155);
         paintPath.setStrokeWidth(3);
 
-
         imgBmpNoPath = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+
+        drawKeyPoints();
     }
 
     public float[] world2img(float worldX, float worldY) {
@@ -180,10 +181,19 @@ public class Map2D {
         return worldPath;
     }
 
+    public float[] img2world(int imgX, int imgY) {
+        float []worldCoor = new float[2];
+        float denom = (float) (beta[1]*beta[3]-beta[0]*beta[4]);
+        worldCoor[0] = (float) (beta[1]*imgY-beta[4]*imgX+beta[2]*beta[4]-beta[1]*beta[5])/denom;
+        worldCoor[1] = (float) (beta[3]*imgX-beta[0]*imgY+beta[0]*beta[5]-beta[2]*beta[3])/denom;
+        return worldCoor;
+    }
+
     public void computeAndDrawPath(int start, int end) {
         System.out.println("computing");
         imgBmp = imgBmpNoPath.copy(Bitmap.Config.ARGB_8888, true);
         canvas = new Canvas(imgBmp);
+        drawKeyPoints();
 
         lazyThetaStar = new LazyThetaStar(gridGraph,
                 (int)(keypoints.get(start).x*scale_img2graph),
@@ -192,16 +202,25 @@ public class Map2D {
                 (int)(keypoints.get(end).y*scale_img2graph));
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
+        fixScale();
         drawPath();
         worldPath = img2world(path);
         imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         System.out.println("computing done");
     }
 
+    private void fixScale() {
+        for (int i = 0; i < path.length; i++) {
+            path[i][0] = (int) (path[i][0]/scale_img2graph);
+            path[i][1] = (int) (path[i][1]/scale_img2graph);
+        }
+    }
+
     public void computeAndDrawPath(int imgX, int imgY, int end) {
         System.out.println("computing");
         imgBmp = imgBmpNoPath.copy(Bitmap.Config.ARGB_8888, true);
         canvas = new Canvas(imgBmp);
+        drawKeyPoints();
 
         lazyThetaStar = new LazyThetaStar(gridGraph,
                 (int)(imgX*scale_img2graph),
@@ -210,8 +229,10 @@ public class Map2D {
                 (int)(keypoints.get(end).y*scale_img2graph));
         lazyThetaStar.computePath();
         path = lazyThetaStar.getPath();
+        fixScale();
         drawPath();
         worldPath = img2world(path);
+
         imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         System.out.println("computing done");
     }
@@ -219,6 +240,7 @@ public class Map2D {
     public float drawCurLoc(int imgX, int imgY, int position) {
         imgBmp = imgBmpNoCurLoc.copy(Bitmap.Config.ARGB_8888, true);
         canvas = new Canvas(imgBmp);
+        drawKeyPoints();
         canvas.drawCircle(imgX, imgY, 15, paintCurLoc);
         canvas.drawText("You are here!", imgX + 10, imgY - 10, paintCurLoc);
         float[] closestPt = getCurLocOnPath(imgX, imgY, position);
@@ -229,20 +251,11 @@ public class Map2D {
         return -1;
     }
 
-    public float[][] getWorldPath() {
-        return worldPath;
-    }
-
     public float[] getKeypoint(int position) {
         float []keypoint = new float[2];
         keypoint[0] = (float) keypoints.get(position).x;
         keypoint[1] = (float) keypoints.get(position).y;
         return keypoint;
-    }
-
-    public void creatPathSingleton() {
-        Path path = Path.getSingletonObject();
-        path.setpath(worldPath);
     }
 
     public String getKeypointName(int i) {
@@ -323,12 +336,11 @@ public class Map2D {
 
     private void drawPath() {
         System.out.println("path length: " + path.length);
-
         for (int i = 0; i < path.length-1; i++) {
-            canvas.drawLine((float)(path[i][0]/scale_img2graph),
-                    (float)(path[i][1]/scale_img2graph),
-                    (float)(path[i + 1][0]/scale_img2graph),
-                    (float)(path[i + 1][1]/scale_img2graph),
+            canvas.drawLine((float) path[i][0],
+                    (float) path[i][1],
+                    (float) path[i + 1][0],
+                    (float) path[i + 1][1],
                     paintPath);
         }
     }
@@ -378,21 +390,17 @@ public class Map2D {
             return null;
         }
         for (int i = 0; i < path.length-1; i++) {
-            float x1 = (float)(path[i][0]/scale_img2graph);
-            float y1 = (float)(path[i][1]/scale_img2graph);
-            float x2 = (float)(path[i + 1][0]/scale_img2graph);
-            float y2 = (float)(path[i + 1][1]/scale_img2graph);
+            float x1 = (float) path[i][0];
+            float y1 = (float) path[i][1];
+            float x2 = (float) path[i + 1][0];
+            float y2 = (float) path[i + 1][1];
             double dist = distPtAndLineSegment(x1, y1, x2, y2, imgX, imgY);
             if (dist < minDist) {
                 minDist = dist;
                 closestPt = getClosestPt(x1, y1, x2, y2, imgX, imgY);
             }
         }
-        System.out.println("minDist: " + minDist + "/" + minDistThres);
-        if (minDist > minDistThres) {
-            computeAndDrawPath(imgX, imgY, position);
-            return null;
-        }
+
         return new float[] {closestPt[0], closestPt[1], (float)minDist};
     }
 
