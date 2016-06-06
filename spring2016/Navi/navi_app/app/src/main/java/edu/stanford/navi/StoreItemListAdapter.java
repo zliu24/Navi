@@ -5,6 +5,7 @@ package edu.stanford.navi;
  */
 import android.app.Activity;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import edu.stanford.navi.domain.Item;
 
 import java.util.ArrayList;
 
@@ -48,8 +50,9 @@ public class StoreItemListAdapter extends ArrayAdapter<String> {
 
         String s = "";
         try {
-            s = (String)item.get("name");
+            s = (String)((Item)item.get("item")).getName();
         } catch (JSONException e) {
+            Log.i("bob", "UH OH");
             e.printStackTrace();
         }
 
