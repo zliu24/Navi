@@ -14,12 +14,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+
+import edu.stanford.navi.domain.*;
 
 /**
  * Created by Emma on 5/18/16.
@@ -99,6 +102,14 @@ public class Utils {
         return img;
     }
 
+    public static int getResourceId(Context context, String name) {
+        int id = context.getResources().getIdentifier(name, "drawable", context.getPackageName());
+        if (id == 0) {
+            id = context.getResources().getIdentifier(DEFAULT_LOC, "drawable", context.getPackageName());
+        }
+        return id;
+    }
+
     public static void writeJson(JSONArray items, String filePath, Context context) {
         JSONObject itemsObj = new JSONObject();
         try {
@@ -122,46 +133,36 @@ public class Utils {
         return items;
     }
 
-    public static JSONObject createJsonItem(String itemName, ArrayList<String> categories,
-                                           ArrayList<Float> coord2D, ArrayList<Float> coord3D) {
-        JSONObject item = new JSONObject();
+    public static JSONObject createJsonObj(Item item) {
+        JSONObject itemObj = new JSONObject();
         try {
-            item.put("name", itemName);
-            item.put("categories", categories);
-            item.put("coord2D", coord2D);
-            item.put("coord3D", coord3D);
-
+            itemObj.put("item", item);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return item;
+        return itemObj;
     }
 
     public static void testWriteJson(Context context) {
         String jsonLoc = DEFAULT_JSON_LOC;
 
-        ArrayList<String> itemNames =  new ArrayList<String>(asList("foo", "bar", "baz"));
-        ArrayList<ArrayList<String>> categories = new ArrayList<ArrayList<String>>();
-        categories.add(new ArrayList<String>(asList("A", "B", "C")));
-        categories.add(new ArrayList<String>(asList("A", "C")));
-        categories.add(new ArrayList<String>(asList("B", "C")));
-        ArrayList<ArrayList<Float>> coord2Ds = new ArrayList<ArrayList<Float>>();
-        coord2Ds.add(new ArrayList<Float>(asList(1f, 2f)));
-        coord2Ds.add(new ArrayList<Float>(asList(3f, 4f)));
-        coord2Ds.add(new ArrayList<Float>(asList(5f, 6f)));
-        ArrayList<ArrayList<Float>> coord3Ds = new ArrayList<ArrayList<Float>>();
-        coord3Ds.add(new ArrayList<Float>(asList(10f, 20f)));
-        coord3Ds.add(new ArrayList<Float>(asList(30f, 40f)));
-        coord3Ds.add(new ArrayList<Float>(asList(50f, 60f)));
+        List<Item> items = new ArrayList<Item>();
+        items.add(new Item("foo", new Coordinate(1f, 2f), new Coordinate(10f, 20f),
+                new HashSet<String>(asList("A", "B", "C"))));
+        items.add(new Item("bar", new Coordinate(3f, 4f), new Coordinate(30f, 40f),
+                new HashSet<String>(asList("A", "C"))));
+        items.add(new Item("baz", new Coordinate(5f, 6f), new Coordinate(50f, 60f),
+                new HashSet<String>(asList("B", "C"))));
 
-        JSONArray items = new JSONArray();
+        JSONArray itemsJson = new JSONArray();
         for (int i = 0; i < 3; i++) {
-            JSONObject item = Utils.createJsonItem(
-                    itemNames.get(i), categories.get(i), coord2Ds.get(i), coord3Ds.get(i));
-            items.put(item);
+            JSONObject itemObj = createJsonObj(items.get(i));
+            if (!itemObj.isNull("item")) {
+                itemsJson.put(itemObj);
+            }
         }
 
-        Utils.writeJson(items, jsonLoc, context);
+        Utils.writeJson(itemsJson, jsonLoc, context);
     }
 
     public static void testReadJson(Context context) {

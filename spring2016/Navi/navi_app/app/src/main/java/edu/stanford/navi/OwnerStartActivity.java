@@ -32,20 +32,13 @@ import android.widget.TextView;
 
 import com.google.atap.tangoservice.Tango;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import edu.stanford.navi.adf.Utils;
 
-import static java.util.Arrays.asList;
-
 public class OwnerStartActivity extends BaseActivity implements View.OnClickListener, OnItemSelectedListener {
 
-    private final String CONFIG_FILE = "config.txt";
     private Button mStartButton;
     private Button mManageButton;
     private ImageView imageView;
@@ -110,7 +103,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         fullUUIDList = mTango.listAreaDescriptions();
         fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
         name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-        selectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
+        selectedADFName = Utils.loadFromFile(Homepage.CONFIG_FILE, this, Utils.DEFAULT_LOC);
     }
 
     private void setUpSpinner() {
@@ -127,7 +120,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         selectedADFName = parent.getItemAtPosition(position).toString();
-        Utils.writeToFile(CONFIG_FILE, selectedADFName, this);
+        Utils.writeToFile(Homepage.CONFIG_FILE, selectedADFName, this);
         setUpMap();
     }
 
@@ -142,7 +135,7 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
     }
 
     private void startOwnerMapActivity() {
-        Intent intent = new Intent(this, OwnerLabelActivity.class);
+        Intent intent = new Intent(this, OwnerMapActivity.class);
         intent.putExtra(ADF_NAME, selectedADFName);
         intent.putExtra(ADF_UUID, name2uuidMap.get(selectedADFName));
         startActivity(intent);

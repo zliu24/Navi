@@ -169,8 +169,10 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Small Text"
                 android:id="@+id/textView"
-                android:layout_alignParentBottom="true"
-                android:layout_alignEnd="@+id/linearLayout2" />
+                android:layout_alignParentTop="true"
+                android:layout_toStartOf="@+id/next"
+                android:layout_marginTop="166dp"
+                android:textSize="20dp" />
 
         </RelativeLayout>
 
