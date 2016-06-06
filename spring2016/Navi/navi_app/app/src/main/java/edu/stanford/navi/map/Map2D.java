@@ -458,4 +458,5 @@ public class Map2D {
     public Size getScreenSize() {
         return screenSize;
     }
+
 }
