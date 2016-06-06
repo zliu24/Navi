@@ -74,14 +74,12 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
 
+            <!--<include android:id="@+id/addLocationCard" layout="@layout/filter_card_and_item_list" />-->
+            <!--<include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />-->
             <include android:id="@+id/instructionCard" layout="@layout/instruction_card" />
             <include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />
-
+            <include android:id="@+id/addLocationCard" layout="@layout/filter_card_and_item_list" />
         </ViewFlipper>
-
-
-
-
         <!-- Insert instruction card here -->
 
     </LinearLayout>

@@ -59,7 +59,9 @@
             android:layout_alignParentStart="false"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="16dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:background="#000000"
+            android:padding="1dp"/>
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -169,8 +171,10 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Small Text"
                 android:id="@+id/textView"
-                android:layout_alignParentBottom="true"
-                android:layout_alignEnd="@+id/linearLayout2" />
+                android:layout_alignParentTop="true"
+                android:layout_toStartOf="@+id/next"
+                android:layout_marginTop="166dp"
+                android:textSize="20dp" />
 
         </RelativeLayout>
 
