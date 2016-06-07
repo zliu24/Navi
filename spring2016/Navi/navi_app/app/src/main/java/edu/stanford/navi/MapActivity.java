@@ -603,6 +603,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                     }
 
                                     imageView.setImageBitmap(map2D.imgBmp);
+
                                     localize_text = (TextView) findViewById(R.id.localize_text);
                                     localize_text.setTextSize(20.0f);
                                     localize_text.setPadding(5, 5, 5, 5);
