@@ -63,7 +63,9 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -136,6 +138,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     // Set world coords for each item
     public void preproItems() {
         Set<String> categorySet = new HashSet<String>();
+        categorySet.add("None");
         for (int i = 0; i < itemObjList.size(); i++) {
             Coordinate coords2D = itemObjList.get(i).getCoord2D();
             float[] coords3D = map2D.img2world((int) coords2D.getX(), (int) coords2D.getY());
@@ -151,21 +154,17 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         spinner = (Spinner) findViewById(R.id.shopperSpinner);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                String filter = adapterView.getItemAtPosition(position).toString();
+                updateNaviPanel(filter);
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
+            public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categoryList);
         spinner.setAdapter(adapter);
-        //set the default location
-        spinner.setSelected(false);
-
     }
 
     public void setUpDialog() {
@@ -466,6 +465,21 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getKeypointsNames());
+        listOfRooms.setAdapter(adapter);
+        listOfRooms.setOnItemClickListener(this);
+    }
+
+    private void updateNaviPanel(String filter) {
+        List<String> filteredItemNames = new ArrayList<String>();
+        for (Item item: itemObjList) {
+            if (item.getCategories().contains(filter)) {
+                filteredItemNames.add(item.getName());
+            }
+        }
+        if (filteredItemNames.size() == 0) {
+            filteredItemNames = Arrays.asList(map2D.getKeypointsNames());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, filteredItemNames);
         listOfRooms.setAdapter(adapter);
         listOfRooms.setOnItemClickListener(this);
     }

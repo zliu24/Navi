@@ -15,6 +15,7 @@
    limitations under the License.
 -->
 <resources>
+    <string name="filter_text">Apply a filter:</string>
     <string name="localize_state1">Localizing.</string>
     <string name="localize_state2">Localizing..</string>
     <string name="localize_state3">Localizing...</string>
