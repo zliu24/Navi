@@ -247,7 +247,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
      * Save the updated plane fit pose to update the AR object on the next render pass.
      * This is synchronized against concurrent access in the render loop above.
      */
-    public synchronized void updatePathObject(float[][] pathPoints, float[] userPos, double[] orientation) {
+    public synchronized void updatePathObject(float[][] pathPoints) {
         pathObjectUpdated = true;
         this.pathPoints = pathPoints;
 
