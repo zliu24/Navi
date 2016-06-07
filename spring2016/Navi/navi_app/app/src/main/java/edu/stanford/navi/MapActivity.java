@@ -157,6 +157,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
         long startTime = System.currentTimeMillis();
         map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds");
         map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
@@ -566,6 +567,12 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             public void run() {
                                 if (mIsRelocalized) {
                                     float minDist = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+
+                                    float [][]worldPath = map2D.worldPath;
+                                    if (worldPath != null) {
+                                        mARRenderer.updatePathObject(worldPath);
+                                    }
+
                                     imageView.setImageBitmap(map2D.imgBmp);
                                     localize_text = (TextView) findViewById(R.id.localize_text);
                                     localize_text.setTextSize(20.0f);

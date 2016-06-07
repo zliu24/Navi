@@ -99,6 +99,10 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
     private static final String TAG = OwnerMapActivity.class.getSimpleName();
 
+    // Instructions
+    private TextView localize;
+    private int localizeState = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -295,7 +299,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     public void setUpMap() {
         android.graphics.Point screenSize = new android.graphics.Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
-        map = new Map2D(this, (int) screenSize.x, (int)screenSize.y);
+        map = new Map2D(this, screenSize.x, screenSize.y);
         mapBitmap = map.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imageView = (ImageView) findViewById(R.id.ownerMap);
         imageView.setImageBitmap(mapBitmap);
@@ -390,14 +394,22 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                localize = (TextView) findViewById(R.id.localize_owner);
                                 Bitmap curBitmap = mapBitmap.copy(Bitmap.Config.ARGB_8888, true);
                                 if(selectedCoord != null)
                                     Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), selectedPaint);
                                 if (mIsRelocalized) {
-                                    Log.d(TAG, "Localized ");
-                                    float[] imgCoords = map.world2img((float) mPose.translation[0], (float) mPose.translation[1]);
-                                    Utils.drawLocation(curBitmap, (int) imgCoords[0], (int) imgCoords[1], locationPaint);
-
+                                    localize.setVisibility(View.INVISIBLE);
+                                } else {
+                                    if (localizeState % 3 == 0) {
+                                        localize.setText(R.string.localize_state1);
+                                    } else if (localizeState % 3 == 1) {
+                                        localize.setText(R.string.localize_state2);
+                                    } else {
+                                        localize.setText(R.string.localize_state3);
+                                    }
+                                    localize.setVisibility(View.VISIBLE);
+                                    localizeState++;
                                 }
                                 for (Coordinate coords : imageCoords) {
                                     Utils.drawLocation(curBitmap, coords.getXInt(), coords.getYInt(), disabledPaint);
@@ -432,7 +444,10 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         StringBuilder sb = new StringBuilder();
         Log.i(TAG,"Writing " + imageCoords.size() + " mappings to file.");
         for (int i=0; i<imageCoords.size(); i++) {
-            String line = imageCoords.get(i).getXInt() + "," + imageCoords.get(i).getYInt() + "," + worldCoords.get(i).getX() + "," + worldCoords.get(i).getY() + '\n';
+            double scale = map.getRaw2ImgScale();
+            int rawX = (int) (imageCoords.get(i).getX() / scale);
+            int rawY = (int) (imageCoords.get(i).getY() / scale);
+            String line = rawX + "," + rawY + "," + worldCoords.get(i).getX() + "," + worldCoords.get(i).getY() + '\n';
             sb.append(line);
         }
         Utils.writeToFile(selectedADFName + MAPPING_SUFFIX, sb.toString(),this);

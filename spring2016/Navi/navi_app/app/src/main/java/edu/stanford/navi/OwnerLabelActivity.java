@@ -3,8 +3,10 @@ package edu.stanford.navi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,28 +21,32 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-import com.google.atap.tangoservice.Tango;
-import com.google.atap.tangoservice.TangoConfig;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Size;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import edu.stanford.navi.adf.Utils;
 import edu.stanford.navi.domain.Coordinate;
 import edu.stanford.navi.domain.Item;
+import edu.stanford.navi.map.Map2D;
 
 public class OwnerLabelActivity extends BaseActivity implements View.OnClickListener/*, AdapterView.OnItemClickListener*/ {
 
-    private final String CONFIG_FILE = "config.txt";
     private final String ITEM_MANAGEMENT_FILE = "items.txt";
 
-    private Tango mTango;
-    private TangoConfig mConfig;
+    private Map2D map;
+    private Bitmap mapBitmap;
+    private Paint labelPaint;
+    private Paint disabledPaint;
+    private Coordinate selectedCoord;
+    private List<Coordinate> imageCoords;
 
-    private float mClickedMapCoordX;
-    private float mClickedMapCoordY;
 
     private Set<String> mFilterCategoriesSet;
     private ArrayList<String> mFilterCategoriesList;
@@ -54,32 +60,24 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
     private ImageView imageView;
     private EditText mTextFieldLocationItem;
-    private String selectedADFName;
-    private String selectedUUID;
-    private ArrayList<String> fullUUIDList;
-    private ArrayList<String> fullADFnameList;
-    private Map<String, String> name2uuidMap;
 
     private boolean mIsFirstStep = true;
 
-    private ArrayList<String> mStoreItemsList;
     private ArrayList<Item> mItemsObjList;
 
     private ViewFlipper vf;
-
     private AlertDialog mFilterNameCreationDialog;
     private AlertDialog mAddFilterCateogoryDialog;
-
     private ListView mItemListAsListView;
+    private ArrayList<String> mStoreItemsList;
+
+    private static final String TAG = OwnerLabelActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_label);
 
-        mTango = new Tango(this);
-        setUpADF();
-        setUpMap();
         setUpUI();
 
         mItemsObjList = (ArrayList<Item>) Utils.readJson(ITEM_MANAGEMENT_FILE, this);
@@ -88,17 +86,10 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         }
 
         mSelectedFilterCategories =  new HashSet<String>(); // Where we track the selected items
-        mStoreItemsList = new ArrayList<String>();
         mFilterCategoriesSet = new HashSet<String>();
         mFilterCategoriesList = new ArrayList<String>();
         mSelectedFilterCategoriesBool = new ArrayList<Boolean>();
-    }
-
-    private void setUpADF() {
-        fullUUIDList = mTango.listAreaDescriptions();
-        fullADFnameList = Utils.getADFNameList(fullUUIDList, mTango);
-        name2uuidMap = Utils.getName2uuidMap(fullUUIDList, mTango);
-        selectedADFName = Utils.loadFromFile(CONFIG_FILE, this, Utils.DEFAULT_LOC);
+        mStoreItemsList = new ArrayList<String>();
     }
 
     private void setUpUI() {
@@ -108,6 +99,20 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         vf.setDisplayedChild(0);
 
         setUpFontHeaderAndCardInstruction();
+        mFilterCategoriesSet = new HashSet<String>();
+        imageCoords = new ArrayList<Coordinate>();
+
+        labelPaint = new Paint();
+        labelPaint.setColor(Color.RED);
+        labelPaint.setStyle(Paint.Style.FILL);
+        labelPaint.setTextSize(30);
+
+        disabledPaint = new Paint();
+        disabledPaint.setColor(Color.GRAY);
+        disabledPaint.setStyle(Paint.Style.FILL);
+        disabledPaint.setTextSize(30);
+
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
     }
 
     private void setUpFontHeaderAndCardInstruction() {
@@ -123,29 +128,6 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
         TextView headerTxt = (TextView) findViewById(R.id.header_text);
         headerTxt.setTypeface(face);
-    }
-
-    public void setUpMap() {
-        Drawable img = Utils.getImage(this, selectedADFName);
-        imageView = (ImageView) findViewById(R.id.ownerMap);
-        imageView.setImageDrawable(img);
-
-        final TextView textView = (TextView)findViewById(R.id.textView);
-        imageView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                vf.setDisplayedChild(1);
-                setUpAddLocItemCard();
-
-                mClickedMapCoordX = event.getX();
-                mClickedMapCoordY = event.getY();
-
-                // TODO: Fix this to draw a balloon
-                textView.setText("Map coordinates : " +
-                        String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
-                return true;
-            }
-        });
     }
 
     @Override
@@ -206,10 +188,9 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         mCreateFilterButton.setOnClickListener(this);
     }
 
-<<<<<<< HEAD
     private void setupStorelistView() {
         // Setup list view
-        StoreItemListAdapter adapter = new StoreItemListAdapter(this, mStoreItemsForInternalStorage, mStoreItemsList);
+        StoreItemListAdapter adapter = new StoreItemListAdapter(this, mItemsObjList, mStoreItemsList);
         mItemListAsListView = (ListView) findViewById(R.id.listOfItemsInEnviroment);
         mItemListAsListView.setAdapter(adapter);
 
@@ -287,16 +268,11 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private void addItemToStorage() {
         String label = mTextFieldLocationItem.getText().toString();
         if(label.length() > 0) {
-            mStoreItemsList.add(label);
-
-            // TODO: localize to get onPoseAvailable!
-            Item item = new Item(label, new Coordinate(mClickedMapCoordX, mClickedMapCoordY), mFilterCategoriesSet);
-            JSONObject itemObj = Utils.createJsonObj(item);
-            mStoreItemsForInternalStorage.put(itemObj);
-=======
-                    mFilterCategories);
+            Coordinate rawCoord = img2raw(selectedCoord);
+            Item item = new Item(label, rawCoord, mFilterCategoriesSet);
+            Log.i(TAG, "Adding item: " + item.toString());
             mItemsObjList.add(item);
->>>>>>> 483ec9032c3d568548f8d0509685b0e87b96d4e0
+            imageCoords.add(selectedCoord);
         }
     }
 
@@ -372,6 +348,57 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
         // 3. Get the AlertDialog from create()
         mFilterNameCreationDialog = builder.create();
+    }
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            if (status == LoaderCallbackInterface.SUCCESS) {
+                setUpMap();
+            } else {
+                super.onManagerConnected(status);
+            }
+        }
+    };
+
+    private void setUpMap() {
+        android.graphics.Point screenSize = new android.graphics.Point();
+        getWindowManager().getDefaultDisplay().getSize(screenSize);
+        map = new Map2D(this, screenSize.x, screenSize.y);
+        mapBitmap = map.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
+        imageView = (ImageView) findViewById(R.id.ownerMap);
+        imageView.setImageBitmap(mapBitmap);
+
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                vf.setDisplayedChild(1);
+                setUpAddLocItemCard();
+
+                selectedCoord = Utils.screen2img(event.getX(), event.getY(), new Size(v.getWidth(), v.getHeight()), map.getImgSize());
+
+                Log.i(TAG, "Image size: " + map.getImgSize().width + "," + map.getImgSize().height + "\n");
+                Log.i(TAG, "Image Coords: " + selectedCoord.getXInt() + "," + selectedCoord.getYInt() + "\n");
+
+                Bitmap curBitmap = mapBitmap.copy(Bitmap.Config.ARGB_8888, true);
+                Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), labelPaint);
+                for (Coordinate coord: imageCoords) {
+                    Utils.drawLocation(curBitmap, coord.getXInt(), coord.getYInt(), disabledPaint);
+                }
+                imageView.setImageBitmap(curBitmap);
+
+                return true;
+            }
+
+        });
+    }
+
+    private Coordinate img2raw(Coordinate imgCoord) {
+        double scale = map.getRaw2ImgScale();
+        float rawX = (float) (imgCoord.getX() / scale);
+        float rawY = (float) (imgCoord.getY() / scale);
+
+        return new Coordinate(rawX, rawY);
     }
 }
 

@@ -19,14 +19,15 @@ import org.json.JSONObject;
 import edu.stanford.navi.domain.Item;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class StoreItemListAdapter extends ArrayAdapter<String> {
     private final Activity context;
     // private final String[] itemname;
-    private final JSONArray mStoreItemsForInternalStorage;
+    private final List<Item> mStoreItemsForInternalStorage;
 
-    public StoreItemListAdapter(Activity context, JSONArray storeItemsForInternalStorage, ArrayList<String> storeItemsList) {
-        super(context, R.layout.list_item, storeItemsList);
+    public StoreItemListAdapter(Activity context, List<Item> storeItemsForInternalStorage, ArrayList<String> mStoreItemsList) {
+        super(context, R.layout.list_item, (ArrayList)storeItemsForInternalStorage);
         // TODO Auto-generated constructor stub
 
         this.context=context;
@@ -41,26 +42,14 @@ public class StoreItemListAdapter extends ArrayAdapter<String> {
         //ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
         //TextView extratxt = (TextView) rowView.findViewById(R.id.textView1);
 
-        JSONObject item = new JSONObject();
-        try {
-            item = (JSONObject)mStoreItemsForInternalStorage.get(position);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        String s = "";
-
-        try {
-            s = (String)((Item)item.get("item")).getName();
-        } catch (JSONException e) {
-            Log.i("bob", "UH OH");
-            e.printStackTrace();
-        }
+        Item item = mStoreItemsForInternalStorage.get(position);
+        String name = item.getName();
+        Log.i("Bob", name);
 
         Typeface faceRegular = Typeface.createFromAsset(context.getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
         txtTitle.setTypeface(faceRegular);
 
-        txtTitle.setText(s);
+        txtTitle.setText(name);
         return rowView;
 
     };
