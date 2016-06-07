@@ -154,6 +154,13 @@ public class Utils {
         return;
     }
 
+    public static void drawText(Bitmap bitmap, String text, int imgX, int imgY, Paint paint) {
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawText(text, imgX, imgY, paint);
+
+        return;
+    }
+
     public static Coordinate screen2img(float x, float y, Size screenSize, Size imgSize) {
         float imgX = (float)(x*imgSize.width/screenSize.width);
         imgX = imgX > 0 ? imgX : 0;
@@ -161,4 +168,6 @@ public class Utils {
         imgY = imgY > 0 ? imgY : 0;
         return new Coordinate(imgX, imgY);
     }
+
+
 }

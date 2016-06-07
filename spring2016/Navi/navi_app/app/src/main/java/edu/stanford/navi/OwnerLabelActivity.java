@@ -50,21 +50,19 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private List<Coordinate> imageCoords;
     private String itemFile;
 
-
-    private Set<String> mFilterCategories;
     private Spinner mFilterSpinner;
+    private ArrayList<String> mFilterCategoriesList;
+    private Set<String> mSelectedFilterCategories;
+
     private Button mCancelAddItemButton;
     private Button mAddItemButton;
-    private Button mCreateFilterButton;
+    private Button mAddFilterCateogoryButton;
+    private Button mSaveButton;
 
     private ImageView imageView;
     private EditText mTextFieldLocationItem;
 
-    private boolean mIsFirstStep = true;
-
-    private ArrayList<String> mStoreItemsList;
     private ArrayList<Item> mItemsObjList;
-    private List<String> mFilterList;
 
     private ViewFlipper vf;
     private AlertDialog mFilterNameCreationDialog;
@@ -87,9 +85,16 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
             mItemsObjList = new ArrayList<Item>();
         }
 
-        mStoreItemsList = new ArrayList<String>();
         imageCoords = new ArrayList<Coordinate>();
-        mFilterCategories = new HashSet<String>();
+    }
+
+    private void setUpUI() {
+        vf = (ViewFlipper) findViewById(R.id.vf);
+
+        // Display instruction card xml
+        vf.setDisplayedChild(0);
+
+        setUpFontHeaderAndCardInstruction();
 
         labelPaint = new Paint();
         labelPaint.setColor(Color.RED);
@@ -102,6 +107,8 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         disabledPaint.setTextSize(30);
 
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
+
+
     }
 
     private void setUpFontHeaderAndCardInstruction() {
@@ -117,6 +124,10 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
         TextView headerTxt = (TextView) findViewById(R.id.header_text);
         headerTxt.setTypeface(face);
+
+        mSaveButton = (Button) findViewById(R.id.saveButton);
+        mSaveButton.setTypeface(face);
+        mSaveButton.setOnClickListener(this);
     }
 
     @Override
@@ -131,46 +142,70 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
                 Log.i("bob", "cancel");
                 showFilterCardAndItemListView();
                 break;
-            case R.id.createFilterButton:
+            case R.id.addFilterCatergoryButton:
                 Log.i("bob", "creating filter");
                 mFilterNameCreationDialog.show();
+                break;
+            case R.id.saveButton:
+                saveItems();
                 break;
         }
     }
 
     private void showFilterCardAndItemListView() {
+        // Clear text field
+        mTextFieldLocationItem.setText("");
+
+        // Close keyboard
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+        // Viewfinder displays filter card and store item list xml
         vf.setDisplayedChild(2);
 
+        setupTextAndButtonsInFilterView();
+
+        setupStorelistView();
+
+        setupCreateFilterDialog();
+    }
+
+    private void setupTextAndButtonsInFilterView() {
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
 
-        TextView filterHeader = (TextView) findViewById(R.id.filterStoreItemsHeader);
-        mCreateFilterButton = (Button) findViewById(R.id.createFilterButton);
-
-        filterHeader.setTypeface(face);
-
-        mCreateFilterButton.setTypeface(faceRegular);
-        mCreateFilterButton.setOnClickListener(this);
-
-//        mItemListAsListView = (ListView) findViewById(R.id.listOfItemsInEnviroment);
-//        mItemListAsListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.Itemname, mStoreItemsList);
-//        mItemListAsListView.setAdapter(adapter);
-//        mItemListAsListView.setOnItemClickListener(this);
+        mAddFilterCateogoryButton = (Button) findViewById(R.id.addFilterCatergoryButton);
+        mAddFilterCateogoryButton.setTypeface(face);
+        mAddFilterCateogoryButton.setOnClickListener(this);
     }
 
-    public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
-        // TODO: EDIT the item
+    private void setupStorelistView() {
+        // Setup list view
+        StoreItemListAdapter adapter = new StoreItemListAdapter(this, mItemsObjList);
+        mItemListAsListView = (ListView) findViewById(R.id.listOfItemsInEnviroment);
+        mItemListAsListView.setAdapter(adapter);
+
+        mItemListAsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                // TODO Auto-generated method stub
+                Log.i("Bob", "hihihi");
+                //String Slecteditem= itemname[+position];
+                // Toast.makeText(getApplicationContext(), Slecteditem, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void addItemToStorage() {
         String label = mTextFieldLocationItem.getText().toString();
         if(label.length() > 0) {
-            mStoreItemsList.add(label);
-
             Coordinate rawCoord = img2raw(selectedCoord);
-            Item item = new Item(label, rawCoord,
-                    mFilterCategories);
+            Item item = new Item(label, rawCoord, mSelectedFilterCategories);
             Log.i(TAG, "Adding item: " + item.toString());
             mItemsObjList.add(item);
             imageCoords.add(selectedCoord);
@@ -179,7 +214,6 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
     private void setUpAddLocItemCard() {
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-
         Typeface faceRegular = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Regular.otf");
 
         TextView addlocationHeader = (TextView) findViewById(R.id.addLocCardHeader);
@@ -196,49 +230,52 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         mAddItemButton.setTypeface(face);
         mAddItemButton.setOnClickListener(this);
 
+        mSelectedFilterCategories =  new HashSet<String>(); // Where we track the selected items
         mFilterSpinner = (Spinner) findViewById(R.id.filterSpinner);
         mFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mFilterCategories.add(parent.getItemAtPosition(position).toString());
+                String name = parent.getItemAtPosition(position).toString();
+                if (!name.isEmpty()) {
+                    mSelectedFilterCategories.add(name);
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                mFilterCategories.clear();
+                mSelectedFilterCategories.clear();
             }
         });
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, (ArrayList) mFilterList);
+        ArrayList<String> tempList = new ArrayList<String>(mFilterCategoriesList);
+        tempList.add(0, "");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, tempList);
         mFilterSpinner.setAdapter(adapter);
-        //set the default location
-        //int curLocation = adapter.getPosition(selectedADFName);
-        //spinner.setSelection(curLocation);
+        mFilterSpinner.setSelection(0);
     }
 
-    private void closeKeyboard() {
-        InputMethodManager inputManager = (InputMethodManager)
-                getSystemService(Context.INPUT_METHOD_SERVICE);
+    String properCase (String inputVal) {
+        // Empty strings should be returned as-is.
 
-        inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
+        if (inputVal.length() == 0) return "";
+
+        // Strings with only one character uppercased.
+
+        if (inputVal.length() == 1) return inputVal.toUpperCase();
+
+        // Otherwise uppercase first letter, lowercase the rest.
+
+        return inputVal.substring(0,1).toUpperCase()
+                + inputVal.substring(1).toLowerCase();
     }
 
-    private void setUpUI() {
-
-        vf = (ViewFlipper) findViewById(R.id.vf);
-
-        vf.setDisplayedChild(0);
-
-        setUpFontHeaderAndCardInstruction();
-
+    private void setupCreateFilterDialog() {
         // 1. Instantiate an AlertDialog.Builder with its constructor
         AlertDialog.Builder builder = new AlertDialog.Builder(OwnerLabelActivity.this);
 
         // 2. Chain together various setter methods to set the dialog characteristics
         builder.setTitle("Create a filter category");
 
-        //  LayoutInflater inflater = getActivity().getLayoutInflater();
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.add_filter_label_dialog, null);
         builder.setView(dialogView);
@@ -247,7 +284,12 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Log.i("bob", "Okay'ed dialog box");
-                mFilterCategories.add(textFieldFilterCategory.getText().toString());
+                String item = textFieldFilterCategory.getText().toString();
+                item = properCase(item);
+                if(!mFilterCategoriesList.contains(item)) {
+                    mFilterCategoriesList.add(item);
+                }
+                textFieldFilterCategory.setText("");
                 dialog.cancel();
             }
         });
@@ -260,34 +302,25 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
         // 3. Get the AlertDialog from create()
         mFilterNameCreationDialog = builder.create();
-//        List<String> filterItemsTemp = new ArrayList<String>();
-//        filterItemsTemp.add("Android");
-//        filterItemsTemp.add("iOS");
-//        filterItemsTemp.add("AR / VR");
-//
-//        Spinner spinner = (Spinner) findViewById(R.id.filterSpinner);
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, filterItemsTemp);
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinner.setPrompt("Filter labels");
     }
 
     private void setUpDefaultFilters() {
         boolean isSF = false;
-        mFilterList = new ArrayList<String>();
+        mFilterCategoriesList = new ArrayList<String>();
         if (isSF) {
-            mFilterList.add("Enterprise and public policy");
-            mFilterList.add("Research");
-            mFilterList.add("Consumer");
-            mFilterList.add("Hardware");
-            mFilterList.add("Mixed Reality");
-            mFilterList.add("Welcome Area");
-            mFilterList.add("Arcade");
-            mFilterList.add("Education");
-            mFilterList.add("Judge's Area");
-            mFilterList.add("Health and biotech");
-            mFilterList.add("Consumer");
+            mFilterCategoriesList.add("Enterprise and public policy");
+            mFilterCategoriesList.add("Research");
+            mFilterCategoriesList.add("Consumer");
+            mFilterCategoriesList.add("Hardware");
+            mFilterCategoriesList.add("Mixed Reality");
+            mFilterCategoriesList.add("Welcome Area");
+            mFilterCategoriesList.add("Arcade");
+            mFilterCategoriesList.add("Education");
+            mFilterCategoriesList.add("Judge's Area");
+            mFilterCategoriesList.add("Health and biotech");
+            mFilterCategoriesList.add("Consumer");
         } else {
-            mFilterList.add("On Sale");
+            mFilterCategoriesList.add("On Sale");
         }
     }
 
@@ -323,8 +356,11 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
                 Bitmap curBitmap = mapBitmap.copy(Bitmap.Config.ARGB_8888, true);
                 Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), labelPaint);
-                for (Coordinate coord: imageCoords) {
+                for (int i=0; i<imageCoords.size(); i++) {
+                    Item item = mItemsObjList.get(i);
+                    Coordinate coord = imageCoords.get(i);
                     Utils.drawLocation(curBitmap, coord.getXInt(), coord.getYInt(), disabledPaint);
+                    Utils.drawText(curBitmap, item.getName(), coord.getXInt()+10, coord.getYInt()-10, disabledPaint);
                 }
                 imageView.setImageBitmap(curBitmap);
 
@@ -340,6 +376,10 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         float rawY = (float) (imgCoord.getY() / scale);
 
         return new Coordinate(rawX, rawY);
+    }
+
+    private void saveItems() {
+
     }
 }
 
