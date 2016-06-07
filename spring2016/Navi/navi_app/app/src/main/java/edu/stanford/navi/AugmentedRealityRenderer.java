@@ -25,13 +25,11 @@ import com.projecttango.rajawali.Pose;
 import com.projecttango.rajawali.ScenePoseCalculator;
 import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
-import org.apache.commons.math3.complex.Quaternion;
 import org.rajawali3d.Object3D;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.loader.LoaderOBJ;
 import org.rajawali3d.loader.ParsingException;
 import org.rajawali3d.materials.Material;
-import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.Line3D;
@@ -39,9 +37,6 @@ import org.rajawali3d.primitives.Line3D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.Vector;
-
-import java.lang.Math.*;
 
 /**
  * Very simple example augmented reality renderer which displays a cube fixed in place.
@@ -67,6 +62,15 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     Line3D line;
     private boolean pathObjectUpdated = false;
 
+    //Genie added
+    /*
+    private float[] userCoord;
+    private org.rajawali3d.math.Quaternion userOrientation;
+    private Object3D userArrow;
+    */
+
+    private boolean destination;
+
     public AugmentedRealityRenderer(Context context) {
         super(context);
     }
@@ -76,6 +80,11 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Remember to call super.initScene() to allow TangoRajawaliArRenderer
         // to be set-up.
         super.initScene();
+
+        /*
+        userCoord = null;
+        userOrientation = null;
+        */
 
         // Add a directional light in an arbitrary direction.
         DirectionalLight light = new DirectionalLight(1, 0.2, -1);
@@ -108,7 +117,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                 pathObjects = new ArrayList<Object3D>();
                 Stack<Vector3> stack = new Stack<Vector3>();
-                assert(pathPoints.length == 2);
+
                 for(int i = 0; i < pathPoints.length; i++) {
                     // Transform to virtual reference system, where y is the altitude
                     Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
@@ -117,7 +126,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                     double angle = 0.0;
 
-                    if(i == pathPoints.length - 1) {
+                    if(destination) {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination_obj);
                         try {
                             objParser.parse();
@@ -125,12 +134,21 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
+                    } else if (i == pathPoints.length - 1) {
+                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.star);
+                        try {
+                            objParser.parse();
+                            point = objParser.getParsedObject();
+                        } catch (ParsingException e) {
+                            e.printStackTrace();
+                        }
                     } else {
+
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                         try {
                             objParser.parse();
                             point = objParser.getParsedObject();
-                            point.setScale(new Vector3(0.75, 0.75, 0.75));
+                            point.setScale(0.5);
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
@@ -140,8 +158,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         double side2 = (double)(pathPoints[i+1][1] - pathPoints[i][1]);
                         double hypotenuse = Math.sqrt((side1*side1) + (side2*side2));
 
-                        double theta = Math.asin(side2/hypotenuse); // -pi/2 to pi/2
-                        angle = (Math.toDegrees(theta) + 180) % 360;
+                        double theta = Math.asin(side1/hypotenuse);
+                        angle = Math.toDegrees((Math.PI / 2) - theta) + 180;
                     }
 
                     point.setPosition(pose);
@@ -152,6 +170,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     pathObjects.add(point);
                     stack.push(pose);
                 }
+
                 addLine(stack);
                 pathObjectUpdated = false;
 
@@ -168,6 +187,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     public synchronized void updatePathObject(float[][] pathPoints, boolean isDestination) {
         pathObjectUpdated = true;
         this.pathPoints = pathPoints;
+        this.destination = isDestination;
+        
     }
 
     /**
