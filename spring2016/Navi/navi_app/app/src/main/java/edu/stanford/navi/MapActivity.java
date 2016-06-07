@@ -17,7 +17,6 @@
 package edu.stanford.navi;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
@@ -63,7 +62,6 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -98,7 +96,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private ListView listOfRooms;
     private TextView localize_text;
     private RelativeLayout arView;
-    private boolean isNavigation = false;
+    private boolean isNavigation = true;
 
     // UX
     TangoUx mTangoUx;
@@ -236,47 +234,14 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
         setupARViewAndRenderer(R.id.ar_view);
 
-        final Context context = this;
+        updateViewLayout();
         navigateBtn = (TextView) findViewById(R.id.navigate);
         navigateBtn.setTypeface(face);
         navigateBtn.setEnabled(false);
         navigateBtn.setAlpha(.5f);
         navigateBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                arView = (RelativeLayout) findViewById(R.id.ar_view);
-                imageView = (ImageView) findViewById(R.id.imageView);
-                FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
-                FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
-                final float scale = getResources().getDisplayMetrics().density;
-
-                if (!isNavigation) {
-                    isNavigation = true;
-
-                    params1.height = (int)(400*scale + 0.5f);
-                    params1.width = (int)(610*scale + 0.5f);
-                    params1.topMargin = (int)(100*scale + 0.5f);
-                    params1.leftMargin = (int)(340*scale + 0.5f);
-
-                    params2.height = (int)(80*scale + 0.5f);
-                    params2.width = (int)(80*scale + 0.5f);
-                    params2.topMargin = (int)(470*scale + 0.5f);
-                    params2.leftMargin = (int)(10*scale + 0.5f);
-
-                    alert.show();
-                } else {
-                    isNavigation = false;
-                    params1.height = (int)(80*scale + 0.5f);
-                    params1.width = (int)(80*scale + 0.5f);
-                    params1.topMargin = (int)(470*scale + 0.5f);
-                    params1.leftMargin = (int)(10*scale + 0.5f);
-
-                    params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
-                    params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
-                    params2.topMargin = (int)(40*scale + 0.5f);
-                    params2.leftMargin = (int)(360*scale + 0.5f);
-                }
-                arView.setLayoutParams(params1);
-                imageView.setLayoutParams(params2);
+                updateViewLayout();
             }
         });
 
@@ -774,6 +739,42 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                 return true;
             }
         });
+    }
 
+    private void updateViewLayout() {
+        arView = (RelativeLayout) findViewById(R.id.ar_view);
+        imageView = (ImageView) findViewById(R.id.imageView);
+        FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
+        FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+        final float scale = getResources().getDisplayMetrics().density;
+
+        if (!isNavigation) {
+            isNavigation = true;
+
+            params1.height = (int)(400*scale + 0.5f);
+            params1.width = (int)(610*scale + 0.5f);
+            params1.topMargin = (int)(100*scale + 0.5f);
+            params1.leftMargin = (int)(340*scale + 0.5f);
+
+            params2.height = (int)(80*scale + 0.5f);
+            params2.width = (int)(80*scale + 0.5f);
+            params2.topMargin = (int)(470*scale + 0.5f);
+            params2.leftMargin = (int)(10*scale + 0.5f);
+
+            alert.show();
+        } else {
+            isNavigation = false;
+            params1.height = (int)(80*scale + 0.5f);
+            params1.width = (int)(80*scale + 0.5f);
+            params1.topMargin = (int)(470*scale + 0.5f);
+            params1.leftMargin = (int)(10*scale + 0.5f);
+
+            params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
+            params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
+            params2.topMargin = (int)(40*scale + 0.5f);
+            params2.leftMargin = (int)(360*scale + 0.5f);
+        }
+        arView.setLayoutParams(params1);
+        imageView.setLayoutParams(params2);
     }
 }

@@ -50,7 +50,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private Paint disabledPaint;
     private Coordinate selectedCoord;
     private List<Coordinate> imageCoords;
-    private String itemFile;
+    private String ADFName;
 
     private Spinner mFilterSpinner;
     private ArrayList<String> mFilterCategoriesList;
@@ -77,12 +77,12 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_label);
 
-        itemFile = getIntent().getStringExtra(ADF_NAME) + ITEM_SUFFIX;
+        ADFName = getIntent().getStringExtra(ADF_NAME);
 
         setUpUI();
         setUpDefaultFilters();
 
-        mItemsObjList = (ArrayList<Item>) Utils.readJson(itemFile, this);
+        mItemsObjList = (ArrayList<Item>) Utils.readJson(ADFName + ITEM_SUFFIX, this);
         if(mItemsObjList.size() == 0) {
             mItemsObjList = new ArrayList<Item>();
         }
@@ -384,6 +384,11 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
     private void saveItems() {
         Utils.writeJson(mItemsObjList, Utils.getJsonLoc(), this);
+        StringBuilder sb = new StringBuilder();
+        for (Item item : mItemsObjList) {
+            sb.append(item.getCoord2D().getXInt() + "," + item.getCoord2D().getYInt() + "," + item.getName() + "\n");
+        }
+        Utils.writeToFile(ADFName + KEYPOINT_SUFFIX, sb.toString(), this);
     }
 }
 

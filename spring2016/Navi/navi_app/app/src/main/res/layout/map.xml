@@ -81,14 +81,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignStart="@+id/navigate" />
 
-            <RelativeLayout
-                android:id="@+id/ar_view"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginLeft="10dp"
-                android:layout_alignBottom="@+id/navigate"
-                android:layout_alignStart="@+id/filterText" />
-
         </RelativeLayout>
 
     </RelativeLayout>
@@ -98,6 +90,13 @@
         android:layout_width="5dp"
         android:layout_height="5dp" />
 
+    <RelativeLayout
+        android:id="@+id/ar_view"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginLeft="10dp"
+        android:layout_alignBottom="@+id/navigate"
+        android:layout_alignStart="@+id/filterText" />
     <TextView
         android:layout_width="500dp"
         android:layout_height="30dp"
