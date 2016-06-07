@@ -130,11 +130,10 @@ public class OwnerStartActivity extends BaseActivity implements View.OnClickList
         imageView.setImageDrawable(img);
     }
 
-    public void onNothingSelected(AdapterView<?> parentView){
-    }
+    public void onNothingSelected(AdapterView<?> parentView){}
 
     private void startOwnerMapActivity() {
-        Intent intent = new Intent(this, OwnerLabelActivity.class);
+        Intent intent = new Intent(this, OwnerMapActivity.class);
         intent.putExtra(ADF_NAME, selectedADFName);
         intent.putExtra(ADF_UUID, name2uuidMap.get(selectedADFName));
         startActivity(intent);
