@@ -97,7 +97,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private ListView listOfRooms;
     private TextView localize_text;
     private RelativeLayout arView;
-    private boolean isNavigation = true;
+    private boolean isNavigation;
 
     // UX
     TangoUx mTangoUx;
@@ -232,9 +232,14 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         setupARViewAndRenderer(R.id.ar_view);
 
         imageView = (ImageView) findViewById(R.id.imageView);
+        arView = (RelativeLayout) findViewById(R.id.ar_view);
+
+        isNavigation = false;
+
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("click!" + isNavigation);
                 if (!isNavigation) {
                     return;
                 }
@@ -259,10 +264,10 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             }
         });
 
-        arView = (RelativeLayout) findViewById(R.id.ar_view);
         arView.setOnClickListener(new RelativeLayout.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("click!" + isNavigation);
                 if (isNavigation) {
                     return;
                 }
