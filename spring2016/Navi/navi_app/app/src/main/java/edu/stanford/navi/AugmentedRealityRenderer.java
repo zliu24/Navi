@@ -108,6 +108,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                 pathObjects = new ArrayList<Object3D>();
                 Stack<Vector3> stack = new Stack<Vector3>();
+                assert(pathPoints.length == 2);
                 for(int i = 0; i < pathPoints.length; i++) {
                     // Transform to virtual reference system, where y is the altitude
                     Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
@@ -135,14 +136,12 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         }
 
                         //Calculate the angle at which to rotate the arrow
-                        double side1 = pathPoints[i][0] - pathPoints[i+1][0];
-                        double side2 = pathPoints[i][1] - pathPoints[i+1][1];
+                        double side1 = (double)(pathPoints[i+1][0] - pathPoints[i][0]);
+                        double side2 = (double)(pathPoints[i+1][1] - pathPoints[i][1]);
                         double hypotenuse = Math.sqrt((side1*side1) + (side2*side2));
 
-                        double theta = Math.asin(side1/hypotenuse);
-
-                        angle = Math.toDegrees((Math.PI / 2) - theta) + 180;
-
+                        double theta = Math.asin(side2/hypotenuse); // -pi/2 to pi/2
+                        angle = (Math.toDegrees(theta) + 180) % 360;
                     }
 
                     point.setPosition(pose);
