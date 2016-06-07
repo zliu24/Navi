@@ -34,13 +34,6 @@
             android:layout_centerHorizontal="true"
             android:textColor="@color/app_color" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:id="@+id/textView" />
-
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="25dp"
@@ -60,7 +53,7 @@
 
         <ImageView
             android:layout_width="540dp"
-            android:layout_height="515dp"
+            android:layout_height="match_parent"
             android:id="@+id/ownerMap"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="false"
@@ -69,17 +62,35 @@
             android:layout_marginBottom="16dp" />
 
 
-        <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/vf"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="1">
 
-            <!--<include android:id="@+id/addLocationCard" layout="@layout/filter_card_and_item_list" />-->
-            <!--<include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />-->
-            <include android:id="@+id/instructionCard" layout="@layout/instruction_card" />
-            <include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />
-            <include android:id="@+id/addLocationCard" layout="@layout/filter_card_and_item_list" />
-        </ViewFlipper>
+            <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/vf"
+                android:layout_width="fill_parent"
+                android:layout_height="405dp">
+
+                <!--<include android:id="@+id/addLocationCard" layout="@layout/filter_card_and_item_list" />-->
+                <!--<include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />-->
+                <include android:id="@+id/instructionCard" layout="@layout/instruction_card" />
+                <include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />
+                <include android:id="@+id/addLocationCard" layout="@layout/filter_card_and_item_list" />
+
+            </ViewFlipper>
+
+            <Button
+                android:id="@+id/saveButton"
+                android:background="@drawable/custom_button"
+                android:layout_width="166dp"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                android:textColor="@color/white"
+                android:layout_gravity="right" />
+
+        </LinearLayout>
         <!-- Insert instruction card here -->
 
     </LinearLayout>
