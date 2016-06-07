@@ -14,10 +14,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -38,7 +40,7 @@ import edu.stanford.navi.map.Map2D;
 
 public class OwnerLabelActivity extends BaseActivity implements View.OnClickListener/*, AdapterView.OnItemClickListener*/ {
 
-    private final String ITEM_MANAGEMENT_FILE = "items.txt";
+    public static final String ITEM_SUFFIX = "_items.txt";
 
     private Map2D map;
     private Bitmap mapBitmap;
@@ -46,10 +48,11 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private Paint disabledPaint;
     private Coordinate selectedCoord;
     private List<Coordinate> imageCoords;
+    private String itemFile;
 
 
     private Set<String> mFilterCategories;
-
+    private Spinner mFilterSpinner;
     private Button mCancelAddItemButton;
     private Button mAddItemButton;
     private Button mCreateFilterButton;
@@ -61,6 +64,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
     private ArrayList<String> mStoreItemsList;
     private ArrayList<Item> mItemsObjList;
+    private List<String> mFilterList;
 
     private ViewFlipper vf;
     private AlertDialog mFilterNameCreationDialog;
@@ -73,16 +77,19 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_label);
 
-        setUpUI();
+        itemFile = getIntent().getStringExtra(ADF_NAME) + ITEM_SUFFIX;
 
-        mItemsObjList = (ArrayList<Item>) Utils.readJson(ITEM_MANAGEMENT_FILE, this);
+        setUpUI();
+        setUpDefaultFilters();
+
+        mItemsObjList = (ArrayList<Item>) Utils.readJson(itemFile, this);
         if(mItemsObjList.size() == 0) {
             mItemsObjList = new ArrayList<Item>();
         }
 
         mStoreItemsList = new ArrayList<String>();
-        mFilterCategories = new HashSet<String>();
         imageCoords = new ArrayList<Coordinate>();
+        mFilterCategories = new HashSet<String>();
 
         labelPaint = new Paint();
         labelPaint.setColor(Color.RED);
@@ -188,6 +195,25 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         mAddItemButton = (Button) findViewById(R.id.doneButton);
         mAddItemButton.setTypeface(face);
         mAddItemButton.setOnClickListener(this);
+
+        mFilterSpinner = (Spinner) findViewById(R.id.filterSpinner);
+        mFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mFilterCategories.add(parent.getItemAtPosition(position).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                mFilterCategories.clear();
+            }
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, (ArrayList) mFilterList);
+        mFilterSpinner.setAdapter(adapter);
+        //set the default location
+        //int curLocation = adapter.getPosition(selectedADFName);
+        //spinner.setSelection(curLocation);
     }
 
     private void closeKeyboard() {
@@ -244,6 +270,27 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 //        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 //        spinner.setPrompt("Filter labels");
     }
+
+    private void setUpDefaultFilters() {
+        boolean isSF = false;
+        mFilterList = new ArrayList<String>();
+        if (isSF) {
+            mFilterList.add("Enterprise and public policy");
+            mFilterList.add("Research");
+            mFilterList.add("Consumer");
+            mFilterList.add("Hardware");
+            mFilterList.add("Mixed Reality");
+            mFilterList.add("Welcome Area");
+            mFilterList.add("Arcade");
+            mFilterList.add("Education");
+            mFilterList.add("Judge's Area");
+            mFilterList.add("Health and biotech");
+            mFilterList.add("Consumer");
+        } else {
+            mFilterList.add("On Sale");
+        }
+    }
+
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {

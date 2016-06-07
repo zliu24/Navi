@@ -60,7 +60,7 @@
 
         <ImageView
             android:layout_width="540dp"
-            android:layout_height="515dp"
+            android:layout_height="match_parent"
             android:id="@+id/ownerMap"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="false"
