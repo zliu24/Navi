@@ -125,7 +125,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private double mCameraPoseTimestamp = 0;
 
     private int position;
-    TextView navigateBtn;
+
 
     // Instruction
     private boolean hasShownInstruction = false;
@@ -153,11 +153,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
         Log.d(TAG, "Item selected with position: " + position);
         position = pos;
-        if (navigateBtn.isEnabled() == false) {
-            navigateBtn.setEnabled(true);
-            navigateBtn.setAlpha(1.0f);
-        }
-
         imgCoorDestimation = map2D.getKeypoint(position);
 
         if (!mIsRelocalized) {
@@ -204,45 +199,58 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
         setupARViewAndRenderer(R.id.ar_view);
 
-        final Context context = this;
-        navigateBtn = (TextView) findViewById(R.id.navigate);
-        navigateBtn.setTypeface(face);
-        navigateBtn.setEnabled(false);
-        navigateBtn.setAlpha(.5f);
-        navigateBtn.setOnClickListener(new View.OnClickListener() {
+        imageView = (ImageView) findViewById(R.id.imageView);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                arView = (RelativeLayout) findViewById(R.id.ar_view);
-                imageView = (ImageView) findViewById(R.id.imageView);
+                if (!isNavigation) {
+                    return;
+                }
+                isNavigation = false;
+
                 FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
                 FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
                 final float scale = getResources().getDisplayMetrics().density;
 
-                if (!isNavigation) {
-                    isNavigation = true;
+                params1.height = (int) (80 * scale + 0.5f);
+                params1.width = (int) (80 * scale + 0.5f);
+                params1.topMargin = (int) (470 * scale + 0.5f);
+                params1.leftMargin = (int) (75 * scale + 0.5f);
 
-                    params1.height = (int)(400*scale + 0.5f);
-                    params1.width = (int)(610*scale + 0.5f);
-                    params1.topMargin = (int)(100*scale + 0.5f);
-                    params1.leftMargin = (int)(340*scale + 0.5f);
+                params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
+                params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
+                params2.topMargin = (int) (40 * scale + 0.5f);
+                params2.leftMargin = (int) (280 * scale + 0.5f);
 
-                    params2.height = (int)(80*scale + 0.5f);
-                    params2.width = (int)(80*scale + 0.5f);
-                    params2.topMargin = (int)(470*scale + 0.5f);
-                    params2.leftMargin = (int)(10*scale + 0.5f);
+                arView.setLayoutParams(params1);
+                imageView.setLayoutParams(params2);
+            }
+        });
 
-                    alert.show();
-                } else {
-                    isNavigation = false;
-                    params1.height = (int)(80*scale + 0.5f);
-                    params1.width = (int)(80*scale + 0.5f);
-                    params1.topMargin = (int)(470*scale + 0.5f);
-                    params1.leftMargin = (int)(10*scale + 0.5f);
-
-                    params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
-                    params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
-                    params2.topMargin = (int)(40*scale + 0.5f);
-                    params2.leftMargin = (int)(360*scale + 0.5f);
+        arView = (RelativeLayout) findViewById(R.id.ar_view);
+        arView.setOnClickListener(new RelativeLayout.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isNavigation) {
+                    return;
                 }
+                isNavigation = true;
+
+                FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
+                FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+                final float scale = getResources().getDisplayMetrics().density;
+
+                params1.height = (int)(450*scale + 0.5f);
+                params1.width = (int)(690*scale + 0.5f);
+                params1.topMargin = (int)(50*scale + 0.5f);
+                params1.leftMargin = (int)(260*scale + 0.5f);
+                params1.rightMargin = (int)(10*scale + 0.5f);
+
+                params2.height = (int)(80*scale + 0.5f);
+                params2.width = (int)(80*scale + 0.5f);
+                params2.topMargin = (int)(470*scale + 0.5f);
+                params2.leftMargin = (int)(75*scale + 0.5f);
+
                 arView.setLayoutParams(params1);
                 imageView.setLayoutParams(params2);
             }
