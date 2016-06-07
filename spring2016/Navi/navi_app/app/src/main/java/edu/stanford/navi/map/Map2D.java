@@ -54,11 +54,11 @@ public class Map2D {
 
     private byte []buff;
     private double []beta;
-    public float[][] worldPath;
-    public int[][] path;
+    private float[][] worldPath;
+    private int[][] path;
     private double scale_png2img;
     public double scale_img2graph = 0.25;
-    public float minDistThres = 80;
+    public float minDistThres = 200;
 
     // load resource
     private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
@@ -237,7 +237,7 @@ public class Map2D {
         System.out.println("computing done");
     }
 
-    public float drawCurLoc(int imgX, int imgY, int position) {
+    public float []drawCurLoc(int imgX, int imgY, int position) {
         imgBmp = imgBmpNoCurLoc.copy(Bitmap.Config.ARGB_8888, true);
         canvas = new Canvas(imgBmp);
         drawKeyPoints();
@@ -246,9 +246,9 @@ public class Map2D {
         float[] closestPt = getCurLocOnPath(imgX, imgY, position);
         if (closestPt != null) {
             canvas.drawCircle(closestPt[0], closestPt[1], 15, paintClosestPt);
-            return closestPt[2];
+            return new float[] {closestPt[2], closestPt[3]};
         }
-        return -1;
+        return null;
     }
 
     public float[] getKeypoint(int position) {
@@ -256,6 +256,20 @@ public class Map2D {
         keypoint[0] = (float) keypoints.get(position).x;
         keypoint[1] = (float) keypoints.get(position).y;
         return keypoint;
+    }
+
+    public float [][]getWorldPath(int startIdx) {
+        if (worldPath == null) {
+            System.out.println("getWorldPath returns null");
+            return null;
+        }
+        int len = worldPath.length;
+        float [][]ret = new float[len-startIdx][2];
+        for (int i = 0; i < len-startIdx; i++) {
+            ret[i][0] = worldPath[startIdx+i][0];
+            ret[i][1] = worldPath[startIdx+i][1];
+        }
+        return ret;
     }
 
     public String getKeypointName(int i) {
@@ -386,6 +400,7 @@ public class Map2D {
     private float[] getCurLocOnPath(int imgX, int imgY, int position) {
         double minDist = 999999999;
         float []closestPt = null;
+        int idx = -1;
         if (path == null) {
             return null;
         }
@@ -398,10 +413,15 @@ public class Map2D {
             if (dist < minDist) {
                 minDist = dist;
                 closestPt = getClosestPt(x1, y1, x2, y2, imgX, imgY);
+                idx = i;
             }
         }
 
-        return new float[] {closestPt[0], closestPt[1], (float)minDist};
+        if (minDist > minDistThres) {
+            computeAndDrawPath(imgX, imgY, position);
+            return null;
+        }
+        return new float[] {closestPt[0], closestPt[1], (float)minDist, idx};
     }
 
     private void loadMapping(List<Point> imgCoors, List<Point> worldCoors) {

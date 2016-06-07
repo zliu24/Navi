@@ -116,6 +116,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     float []imgCoorCurrent;
     FrameLayout.LayoutParams params_localizing;
     FrameLayout.LayoutParams params_localized;
+    int curIdx = -1;
 
     // AR & camera
     private TangoRajawaliView mARView;
@@ -169,6 +170,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds");
         map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+        curIdx = 0;
+        float [][]worldPath = map2D.getWorldPath(curIdx);
+        mARRenderer.updatePathObject(worldPath);
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
@@ -573,11 +577,24 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             @Override
                             public void run() {
                                 if (mIsRelocalized) {
-                                    float minDist = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
-
-                                    float [][]worldPath = map2D.worldPath;
-                                    if (worldPath != null) {
+                                    // return null if path is recalculated
+                                    float []ret = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+                                    float minDist;
+                                    if (ret == null) {
+                                        minDist = -1;
+                                        curIdx = 0;
+                                        float [][]worldPath = map2D.getWorldPath(curIdx);
+                                        if (worldPath != null) {
+                                            mARRenderer.updatePathObject(worldPath);
+                                        }
+                                    } else if (((int) ret[1]) != curIdx) {
+                                        minDist = ret[0];
+                                        curIdx = (int) ret[1];
+                                        float [][]worldPath = map2D.getWorldPath(curIdx);
+                                        assert(worldPath != null);
                                         mARRenderer.updatePathObject(worldPath);
+                                    } else {
+                                        minDist = ret[0];
                                     }
 
                                     imageView.setImageBitmap(map2D.imgBmp);
