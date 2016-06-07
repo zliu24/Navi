@@ -35,6 +35,17 @@ import static java.util.Arrays.asList;
 public class Utils {
     public static final String DEFAULT_LOC = "quillen_616b";
     public static final String DEFAULT_JSON_LOC = "items.txt";
+    public static final boolean isSF = false;
+
+    public static String getJsonLoc() {
+        String jsonLoc;
+        if (isSF) {
+            jsonLoc = "sf_" + DEFAULT_JSON_LOC;
+        }  else {
+            jsonLoc = "ikea_" + DEFAULT_JSON_LOC;
+        }
+        return jsonLoc;
+    }
 
     public static ArrayList<String> getADFNameList(ArrayList<String> uuidList, Tango tango) {
         ArrayList<String> nameList = new ArrayList<String>();
@@ -135,11 +146,28 @@ public class Utils {
 
     public static void testWriteJson(Context context) {
         List<Item> items = new ArrayList<Item>();
-        items.add(new Item("foo", new Coordinate(1f, 2f), new HashSet<String>(asList("A", "B", "C"))));
-        items.add(new Item("bar", new Coordinate(3f, 4f), new HashSet<String>(asList("A", "C"))));
-        items.add(new Item("baz", new Coordinate(5f, 6f), new HashSet<String>(asList("B", "C"))));
+        String jsonLoc = getJsonLoc();
+        if (isSF) {
+//            items.add(new Item("Home Organization", new Coordinate(281f,181f), new HashSet<String>(asList("On Sale"))));
+//            items.add(new Item("Shortcut", new Coordinate(183f,145f), new HashSet<String>()));
+//            items.add(new Item("Hangers", new Coordinate(374f, 147f), new HashSet<String>()));
+//            items.add(new Item("Laundry Bags", new Coordinate(420f,184f), new HashSet<String>(asList("On Sale"))));
+//            items.add(new Item("Trash Can", new Coordinate(232f,258f), new HashSet<String>()));
+//            items.add(new Item("Baskets", new Coordinate(273f,269f), new HashSet<String>(asList("On Sale"))));
+//            items.add(new Item("Gift Wraps", new Coordinate(342f,238f), new HashSet<String>()));
+//            items.add(new Item("Organization Boxes", new Coordinate(402f,264f), new HashSet<String>(asList("On Sale"))));
+        } else {
+            items.add(new Item("Home Organization", new Coordinate(281f,181f), new HashSet<String>(asList("On Sale"))));
+            items.add(new Item("Shortcut", new Coordinate(183f,145f), new HashSet<String>()));
+            items.add(new Item("Hangers", new Coordinate(374f, 147f), new HashSet<String>()));
+            items.add(new Item("Laundry Bags", new Coordinate(420f,184f), new HashSet<String>(asList("On Sale"))));
+            items.add(new Item("Trash Can", new Coordinate(232f,258f), new HashSet<String>()));
+            items.add(new Item("Baskets", new Coordinate(273f,269f), new HashSet<String>(asList("On Sale"))));
+            items.add(new Item("Gift Wraps", new Coordinate(342f,238f), new HashSet<String>()));
+            items.add(new Item("Organization Boxes", new Coordinate(402f,264f), new HashSet<String>(asList("On Sale"))));
+        }
 
-        writeJson(items, DEFAULT_JSON_LOC, context);
+        writeJson(items, jsonLoc, context);
     }
 
     public static void testReadJson(Context context) {

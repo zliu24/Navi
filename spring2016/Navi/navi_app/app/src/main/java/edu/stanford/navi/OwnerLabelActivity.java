@@ -3,6 +3,7 @@ package edu.stanford.navi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -41,6 +42,7 @@ import edu.stanford.navi.map.Map2D;
 public class OwnerLabelActivity extends BaseActivity implements View.OnClickListener/*, AdapterView.OnItemClickListener*/ {
 
     public static final String ITEM_SUFFIX = "_items.txt";
+    public static final String KEYPOINT_SUFFIX = "_keypoints.txt";
 
     private Map2D map;
     private Bitmap mapBitmap;
@@ -148,6 +150,8 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
                 break;
             case R.id.saveButton:
                 saveItems();
+                Intent intent = new Intent(this, Homepage.class);
+                startActivity(intent);
                 break;
         }
     }
@@ -379,7 +383,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     }
 
     private void saveItems() {
-
+        Utils.writeJson(mItemsObjList, Utils.getJsonLoc(), this);
     }
 }
 

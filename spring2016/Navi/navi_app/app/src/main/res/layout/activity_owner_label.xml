@@ -65,12 +65,13 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:weightSum="1">
 
             <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/vf"
                 android:layout_width="fill_parent"
-                android:layout_height="518dp" >
+                android:layout_height="405dp">
 
                 <!--<include android:id="@+id/addLocationCard" layout="@layout/filter_card_and_item_list" />-->
                 <!--<include android:id="@+id/addLocationCard" layout="@layout/add_location_item_card" />-->
