@@ -1,183 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:labelFor="@string/app_name"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:weightSum="4">
-
-    <RelativeLayout
-        android:id="@+id/tab"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="16dp"
-        android:background="@color/white">
-
-        <ImageView
-            android:layout_width="41dp"
-            android:layout_height="42dp"
-            android:id="@+id/logo"
-            android:src="@drawable/pink_navi_logo"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Map your indoor environment to floor plan"
-            android:textSize="25dp"
-            android:textColor="@color/app_color"
-            android:id="@+id/header_text"
-            android:layout_alignTop="@+id/logo"
-            android:layout_centerHorizontal="true" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="25dp"
-            android:id="@+id/progress_bar"
-            android:src="@drawable/owner_step2_progress"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/logo" />
-
-    </RelativeLayout>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
-        android:layout_gravity="bottom">
-
-        <ImageView
-            android:layout_width="540dp"
-            android:layout_height="match_parent"
-            android:id="@+id/ownerMap"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="#000000"
-            android:padding="1dp"/>
+        android:gravity="center"
+        android:orientation="vertical"
+        android:weightSum="4">
 
         <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="100dp">
+            android:id="@+id/tab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="16dp"
+            android:background="@color/white">
 
-            <RelativeLayout
-                android:id="@+id/card"
-                android:layout_width="190dp"
-                android:layout_height="200dp"
-                android:background="@color/lightGray"
-                android:layout_centerVertical="true">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="STEP 1"
-                    android:id="@+id/stepHeader"
-                    android:textColor="@color/darkGray"
-                    android:layout_alignParentTop="true"
-                    android:textSize="20dp"
-                    android:layout_alignParentEnd="true"
-                    android:gravity="center"
-                    android:layout_alignParentStart="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginTop="25dp"
-                    />
-
-                <TextView
-                    android:layout_width="160dp"
-                    android:layout_height="wrap_content"
-                    android:text="Click on a map location that you can navigate to"
-                    android:id="@+id/stepInstructions"
-                    android:textColor="@color/darkGray"
-                    android:textSize="18dp"
-                    android:gravity="center"
-                    android:layout_gravity="center_vertical"
-                    android:layout_below="@+id/stepHeader"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    style="?android:attr/borderlessButtonStyle"
-                    android:text=""
-                    android:textSize="15dp"
-                    android:textColor="@color/app_color"
-                    android:id="@+id/doneStep2"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true" />
-
-            </RelativeLayout>
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
-                android:layout_above="@+id/card"
-                android:layout_marginBottom="30dp"
-                android:id="@+id/linearLayout2">
-
-                <TextView
-                    android:layout_width="220dp"
-                    android:layout_height="wrap_content"
-                    android:text="# of locations mapped:"
-                    android:id="@+id/calibrationProgressHeader"
-                    android:textColor="@color/darkGray"
-                    android:textSize="20dp"
-                    android:gravity="center"
-                    android:layout_gravity="center_vertical"
-                    android:layout_above="@+id/card" />
-
-                <TextView
-                    android:layout_width="210dp"
-                    android:layout_height="wrap_content"
-                    android:text="0 out of 4"
-                    android:id="@+id/calibrationProgress"
-                    android:textSize="20dp"
-                    android:gravity="center"
-                    android:layout_gravity="center_vertical"
-                    android:layout_alignBottom="@+id/calibrationProgressHeader"
-                    android:textColor="@color/darkGray"
-                    android:layout_alignParentStart="true" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/next"
-                android:background="@drawable/custom_button"
-                android:layout_width="180dp"
-                android:layout_height="wrap_content"
-                android:text="Next"
-                android:textSize="20sp"
-                android:textColor="@color/white"
-                android:layout_gravity="bottom"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="128dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginRight="20dp" />
+            <ImageView
+                android:layout_width="41dp"
+                android:layout_height="42dp"
+                android:id="@+id/logo"
+                android:src="@drawable/pink_navi_logo"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Small Text"
-                android:id="@+id/textView"
-                android:layout_alignParentTop="true"
-                android:layout_toStartOf="@+id/next"
-                android:layout_marginTop="166dp"
-                android:textSize="20dp" />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Map your indoor environment to floor plan"
+                android:textSize="25dp"
+                android:textColor="@color/app_color"
+                android:id="@+id/header_text"
+                android:layout_alignTop="@+id/logo"
+                android:layout_centerHorizontal="true" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:id="@+id/progress_bar"
+                android:src="@drawable/owner_step2_progress"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/logo" />
 
         </RelativeLayout>
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:layout_gravity="bottom">
+
+            <ImageView
+                android:layout_width="540dp"
+                android:layout_height="515dp"
+                android:id="@+id/ownerMap"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="false"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="16dp"
+                android:layout_marginBottom="16dp" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="100dp">
+
+                <RelativeLayout
+                    android:id="@+id/card"
+                    android:layout_width="190dp"
+                    android:layout_height="200dp"
+                    android:background="@color/lightGray"
+                    android:layout_centerVertical="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="STEP 1"
+                        android:id="@+id/stepHeader"
+                        android:textColor="@color/darkGray"
+                        android:layout_alignParentTop="true"
+                        android:textSize="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:gravity="center"
+                        android:layout_alignParentStart="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="25dp"
+                        />
+
+                    <TextView
+                        android:layout_width="160dp"
+                        android:layout_height="wrap_content"
+                        android:text="Click on a map location that you can navigate to"
+                        android:id="@+id/stepInstructions"
+                        android:textColor="@color/darkGray"
+                        android:textSize="18dp"
+                        android:gravity="center"
+                        android:layout_gravity="center_vertical"
+                        android:layout_below="@+id/stepHeader"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:text=""
+                        android:textSize="15dp"
+                        android:textColor="@color/app_color"
+                        android:id="@+id/doneStep2"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="false"
+                    android:layout_above="@+id/card"
+                    android:layout_marginBottom="30dp"
+                    android:id="@+id/linearLayout2">
+
+                    <TextView
+                        android:layout_width="220dp"
+                        android:layout_height="wrap_content"
+                        android:text="# of locations mapped:"
+                        android:id="@+id/calibrationProgressHeader"
+                        android:textColor="@color/darkGray"
+                        android:textSize="20dp"
+                        android:gravity="center"
+                        android:layout_gravity="center_vertical"
+                        android:layout_above="@+id/card" />
+
+                    <TextView
+                        android:layout_width="210dp"
+                        android:layout_height="wrap_content"
+                        android:text="0 out of 4"
+                        android:id="@+id/calibrationProgress"
+                        android:textSize="20dp"
+                        android:gravity="center"
+                        android:layout_gravity="center_vertical"
+                        android:layout_alignBottom="@+id/calibrationProgressHeader"
+                        android:textColor="@color/darkGray"
+                        android:layout_alignParentStart="true" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/next"
+                    android:background="@drawable/custom_button"
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:text="Next"
+                    android:textSize="20sp"
+                    android:textColor="@color/white"
+                    android:layout_gravity="bottom"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="128dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginRight="20dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/textView"
+                    android:layout_alignParentTop="true"
+                    android:layout_toStartOf="@+id/next"
+                    android:layout_marginTop="166dp"
+                    android:textSize="20dp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
     </LinearLayout>
 
-</LinearLayout>
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/localize_owner"
+        android:background="#AA000000"
+        android:layout_gravity="left|center_vertical"
+        android:gravity="center"
+        android:textColor="#ffffffff"
+        android:textSize="60sp"
+        android:paddingBottom="20dp"
+        android:paddingTop="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="" />
+
+</FrameLayout>
