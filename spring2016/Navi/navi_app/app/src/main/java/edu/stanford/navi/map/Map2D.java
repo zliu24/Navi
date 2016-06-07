@@ -272,6 +272,10 @@ public class Map2D {
         return ret;
     }
 
+    public int getTotalPathLength() {
+        return worldPath.length;
+    }
+
     public String getKeypointName(int i) {
         return keypointsNames.get(i);
     }
