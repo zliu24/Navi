@@ -16,7 +16,9 @@
 
 package edu.stanford.navi;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -26,18 +28,15 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout.LayoutParams;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.google.atap.tango.ux.TangoUx;
 import com.google.atap.tango.ux.TangoUx.StartParams;
@@ -55,18 +54,20 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
-
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.ar.TangoRajawaliView;
-import org.rajawali3d.scene.ASceneFrameCallback;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.rajawali3d.scene.ASceneFrameCallback;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import edu.stanford.navi.adf.Utils;
+import edu.stanford.navi.domain.Item;
 import edu.stanford.navi.map.Map2D;
 
 public class MapActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
@@ -117,6 +118,29 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private int position;
     TextView navigateBtn;
 
+    // Instruction
+    private boolean hasShownInstruction = false;
+    AlertDialog.Builder builder;
+    AlertDialog alert;
+
+    // Sales and deals
+    private List<Item> itemObjList;
+
+    public void setUpDialog() {
+        System.out.println("SetupDialog!");
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.dialog_title)
+                .setMessage(R.string.instruction)
+                .setCancelable(false)
+                .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // fire an intent go to your next activity
+                        dialog.cancel();
+                    }
+                });
+        alert = builder.create();
+    }
+
     public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
         Log.d(TAG, "Item selected with position: " + position);
         position = pos;
@@ -154,6 +178,10 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         setContentView(R.layout.map);
         setupTangoUX();
         setupTango();
+        setUpDialog();
+
+        // Get sales and deals
+        itemObjList = Utils.readJson(Utils.DEFAULT_JSON_LOC, this);
 
         // Set instruction font to Avenir
         TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
@@ -188,6 +216,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                     params2.width = (int)(80*scale + 0.5f);
                     params2.topMargin = (int)(470*scale + 0.5f);
                     params2.leftMargin = (int)(10*scale + 0.5f);
+
+                    alert.show();
                 } else {
                     isNavigation = false;
                     params1.height = (int)(80*scale + 0.5f);

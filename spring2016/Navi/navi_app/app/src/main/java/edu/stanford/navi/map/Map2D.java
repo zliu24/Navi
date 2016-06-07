@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.navi.OwnerMapActivity;
 import edu.stanford.navi.pathfinding.LazyThetaStar;
 import edu.stanford.navi.pathfinding.datatypes.GridGraph;
 
@@ -39,6 +40,7 @@ public class Map2D {
     public int nKeypoints;
 
     private Context mContext;
+    private String mapName;
 
     private GridGraph gridGraph;
     private OLSMultipleLinearRegression linearRegression;
@@ -85,7 +87,7 @@ public class Map2D {
         try {
             // Load map image specified by R.drawable.filename
             Resources resources = context.getResources();
-            String mapName = edu.stanford.navi.adf.Utils.loadFromFile(
+            mapName = edu.stanford.navi.adf.Utils.loadFromFile(
                     CONFIG_FILE, context, edu.stanford.navi.adf.Utils.DEFAULT_LOC);
             imgId = edu.stanford.navi.adf.Utils.getResourceId(mContext, mapName);
 
@@ -94,7 +96,8 @@ public class Map2D {
         } catch (Exception e) {
             try {
                 // Load default location
-                imgId = context.getResources().getIdentifier(edu.stanford.navi.adf.Utils.DEFAULT_LOC, "drawable", context.getPackageName());
+                mapName = edu.stanford.navi.adf.Utils.DEFAULT_LOC;
+                imgId = context.getResources().getIdentifier(mapName, "drawable", context.getPackageName());
                 img = Utils.loadResource(mContext, imgId, CvType.CV_8UC3);
             }
             catch (Exception e2) {
@@ -397,23 +400,33 @@ public class Map2D {
     }
 
     private void loadMapping(List<Point> imgCoors, List<Point> worldCoors) {
-        AssetManager am = mContext.getAssets();
-
+        String mapping = mapName + OwnerMapActivity.MAPPING_SUFFIX;
+        BufferedReader reader = null;
         try {
-            InputStream is = am.open(mapping_txt);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                String []tokens = line.split("[,]");
-                Point pt1 = new Point(Double.parseDouble(tokens[0])*scale_png2img, Double.parseDouble(tokens[1])*scale_png2img);
-                Point pt2 = new Point(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[3]));
-                imgCoors.add(pt1);
-                worldCoors.add(pt2);
+            reader = new BufferedReader(new InputStreamReader(mContext.openFileInput(mapping)));
+        } catch (IOException e){
+            System.out.println(mapping + " not found! Loading default mapping.");
+            // Load from asset
+            try {
+                AssetManager am = mContext.getAssets();
+                InputStream is = am.open(mapping_txt);
+                reader = new BufferedReader(new InputStreamReader(is));
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
-        } catch (IOException e) {
-            System.out.println("bad");
-            e.printStackTrace();
+        } finally {
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] tokens = line.split("[,]");
+                    Point pt1 = new Point(Double.parseDouble(tokens[0]) * scale_png2img, Double.parseDouble(tokens[1]) * scale_png2img);
+                    Point pt2 = new Point(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[3]));
+                    imgCoors.add(pt1);
+                    worldCoors.add(pt2);
+                }
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
         }
     }
 

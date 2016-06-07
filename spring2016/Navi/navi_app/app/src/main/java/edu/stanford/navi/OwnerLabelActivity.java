@@ -3,6 +3,7 @@ package edu.stanford.navi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,21 +12,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.graphics.Typeface;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoConfig;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,12 +31,10 @@ import edu.stanford.navi.adf.Utils;
 import edu.stanford.navi.domain.Coordinate;
 import edu.stanford.navi.domain.Item;
 
-import static java.util.Arrays.asList;
-
 public class OwnerLabelActivity extends BaseActivity implements View.OnClickListener/*, AdapterView.OnItemClickListener*/ {
 
     private final String CONFIG_FILE = "config.txt";
-    private final String ITEM_MANAGEMENT_FILE = "config.txt";
+    private final String ITEM_MANAGEMENT_FILE = "items.txt";
 
     private Tango mTango;
     private TangoConfig mConfig;
@@ -49,7 +42,6 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
     private float mClickedMapCoordX;
     private float mClickedMapCoordY;
 
-    private ArrayList<String> mStoreItemsList;
     private Set<String> mFilterCategoriesSet;
     private ArrayList<String> mFilterCategoriesList;
     private Set<String> mSelectedFilterCategories;
@@ -70,7 +62,8 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
 
     private boolean mIsFirstStep = true;
 
-    private JSONArray mStoreItemsForInternalStorage;
+    private ArrayList<String> mStoreItemsList;
+    private ArrayList<Item> mItemsObjList;
 
     private ViewFlipper vf;
 
@@ -89,9 +82,9 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         setUpMap();
         setUpUI();
 
-        mStoreItemsForInternalStorage = Utils.readJson(ITEM_MANAGEMENT_FILE, this);
-        if(mStoreItemsForInternalStorage.length() == 0) {
-            mStoreItemsForInternalStorage = new JSONArray();
+        mItemsObjList = (ArrayList<Item>) Utils.readJson(ITEM_MANAGEMENT_FILE, this);
+        if(mItemsObjList.size() == 0) {
+            mItemsObjList = new ArrayList<Item>();
         }
 
         mSelectedFilterCategories =  new HashSet<String>(); // Where we track the selected items
@@ -213,6 +206,7 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         mCreateFilterButton.setOnClickListener(this);
     }
 
+<<<<<<< HEAD
     private void setupStorelistView() {
         // Setup list view
         StoreItemListAdapter adapter = new StoreItemListAdapter(this, mStoreItemsForInternalStorage, mStoreItemsList);
@@ -296,10 +290,13 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
             mStoreItemsList.add(label);
 
             // TODO: localize to get onPoseAvailable!
-            Item item = new Item(label, new Coordinate(mClickedMapCoordX, mClickedMapCoordY),
-                    new Coordinate(0f, 0f), mFilterCategoriesSet);
+            Item item = new Item(label, new Coordinate(mClickedMapCoordX, mClickedMapCoordY), mFilterCategoriesSet);
             JSONObject itemObj = Utils.createJsonObj(item);
             mStoreItemsForInternalStorage.put(itemObj);
+=======
+                    mFilterCategories);
+            mItemsObjList.add(item);
+>>>>>>> 483ec9032c3d568548f8d0509685b0e87b96d4e0
         }
     }
 
