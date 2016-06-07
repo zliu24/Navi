@@ -11,14 +11,9 @@ import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.opencv.core.Size;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -129,8 +124,12 @@ public class Utils {
     public static List<Item> readJson(String filePath, Context context) {
         Gson gson = new Gson();
         String itemsStr = loadFromFile(filePath, context, "");
-        Type listOfTestObject = new TypeToken<List<Item>>(){}.getType();
-        List<Item> items = gson.fromJson(itemsStr, listOfTestObject);
+        List<Item> items = new ArrayList<Item>();
+        if (itemsStr != "") {
+            Type listOfTestObject = new TypeToken<List<Item>>() {
+            }.getType();
+            items = gson.fromJson(itemsStr, listOfTestObject);
+        }
         return items;
     }
 

@@ -28,18 +28,15 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout.LayoutParams;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.google.atap.tango.ux.TangoUx;
 import com.google.atap.tango.ux.TangoUx.StartParams;
@@ -57,26 +54,22 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
-
 import com.projecttango.rajawali.DeviceExtrinsics;
 import com.projecttango.rajawali.ar.TangoRajawaliView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.rajawali3d.scene.ASceneFrameCallback;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.rajawali3d.scene.ASceneFrameCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import edu.stanford.navi.map.Map2D;
 import edu.stanford.navi.adf.Utils;
-import edu.stanford.navi.domain.*;
+import edu.stanford.navi.domain.Coordinate;
+import edu.stanford.navi.domain.Item;
+import edu.stanford.navi.map.Map2D;
 
 public class MapActivity extends BaseActivity implements View.OnClickListener, OnItemClickListener {
 
@@ -134,6 +127,16 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
     // Sales and deals
     private List<Item> itemObjList;
+
+    // Set world coords for each item
+    public void preproItems() {
+        for (int i = 0; i < itemObjList.size(); i++) {
+            Coordinate coords2D = itemObjList.get(i).getCoord2D();
+            float[] coords3D = map2D.img2world((int) coords2D.getX(), (int) coords2D.getY());
+            itemObjList.get(i).setCoord3D(new Coordinate(coords3D[0], coords3D[1]));
+        }
+        System.out.println(itemObjList);
+    }
 
     public void setUpDialog() {
         System.out.println("SetupDialog!");
@@ -424,8 +427,10 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
     private void initNaviPanel() {
         map2D = new Map2D(this, screenSize.x, screenSize.y);
+        map2D.drawKeyPoints();
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
+        preproItems();
 
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);

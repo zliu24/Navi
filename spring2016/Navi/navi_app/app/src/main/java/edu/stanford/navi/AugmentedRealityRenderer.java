@@ -25,13 +25,11 @@ import com.projecttango.rajawali.Pose;
 import com.projecttango.rajawali.ScenePoseCalculator;
 import com.projecttango.rajawali.ar.TangoRajawaliRenderer;
 
-import org.apache.commons.math3.complex.Quaternion;
 import org.rajawali3d.Object3D;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.loader.LoaderOBJ;
 import org.rajawali3d.loader.ParsingException;
 import org.rajawali3d.materials.Material;
-import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.Line3D;
@@ -39,9 +37,6 @@ import org.rajawali3d.primitives.Line3D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.Vector;
-
-import java.lang.Math.*;
 
 /**
  * Very simple example augmented reality renderer which displays a cube fixed in place.

@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -56,6 +57,7 @@ import edu.stanford.navi.map.Map2D;
 
 public class OwnerMapActivity extends BaseActivity implements View.OnClickListener {
 
+    public static final String MAPPING_SUFFIX = "_mapping.txt";
     private final int STEP1 = 1;
     private final int STEP2 = 2;
     private final int STEP3 = 3;
@@ -79,7 +81,9 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     private List<Coordinate> imageCoords;
     private List<Coordinate> worldCoords;
     private Coordinate selectedCoord;
-    private Paint paint;
+    private Paint selectedPaint;
+    private Paint disabledPaint;
+    private Paint locationPaint;
     private int count=0;
 
     // UI
@@ -96,6 +100,10 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
     private static final String TAG = OwnerMapActivity.class.getSimpleName();
 
+    // Instructions
+    private TextView localize;
+    private int localizeState = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +112,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         setupTango();
         setUpButtons();
         setUpFonts();
-
+        setupPaint();
 
         imageCoords = new ArrayList<Coordinate>();
         worldCoords = new ArrayList<Coordinate>();
@@ -167,12 +175,19 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
-                saveMapping();
+                if (numPointsCalibrated == NUM_CALIBRATION_POINTS) {
+                    saveMapping();
+                }
                 startOwnerLabelActivity();
+
                 break;
             case R.id.doneStep2:
-                addMapping();
-                setUpStep3();
+                if (mStep == STEP2 && mIsRelocalized) {
+                    addMapping();
+                    setUpStep3();
+                } else if(mStep == STEP3) {
+                    setUpStep1();
+                }
         }
     }
 
@@ -219,7 +234,6 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         mNextButton = (Button) findViewById(R.id.next);
         mNextButton.setTypeface(face);
         mNextButton.setOnClickListener(this);
-        mNextButton.setVisibility(View.INVISIBLE);
 
         mDoneButtonStep2 = (Button)findViewById(R.id.doneStep2);
         mDoneButtonStep2.setOnClickListener(this);
@@ -247,6 +261,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void setUpStep1() {
+        mStep = STEP1;
         mDoneButtonStep2.setText("");
         mStepHeader.setText("STEP 1");
         mStepInstructions.setText("Click on a map location that you can navigate to");
@@ -254,44 +269,44 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void setUpStep3() {
+        mStep = STEP3;
         Log.d("BOO","Step: " + mStep);
-        if (mStep == STEP3) {
-            numPointsCalibrated++;
+        numPointsCalibrated++;
 
-            if(numPointsCalibrated == NUM_CALIBRATION_POINTS) {
-                mDoneButtonStep2.setText("");
-                mNextButton.setVisibility(View.VISIBLE);
-            } else {
-                mDoneButtonStep2.setText("Continue");
-                mStep = STEP1;
-            }
+        if(numPointsCalibrated == NUM_CALIBRATION_POINTS) {
+            mDoneButtonStep2.setText("");
+            Drawable custom_button = getResources().getDrawable(
+                    getResources().getIdentifier("custom_button", "drawable", getPackageName()));
+            mNextButton.setText("Next");
+            mNextButton.setBackground(custom_button);
 
-            String progressStr = "<font color=#FF6155>" + numPointsCalibrated + "</font> " +
-                    "out of " + NUM_CALIBRATION_POINTS;
-            mCalibrationProgress.setText(Html.fromHtml(progressStr));
-            mStepHeader.setText("Well done!");
-            String instruction = "<font color=#9B9B9B>You have set</font> <br> <font color=#FF6155>" + numPointsCalibrated + "</font> " +
-                    "<font color=#9B9B9B> out of " + NUM_CALIBRATION_POINTS + " location mappings.</font>";
-            mStepInstructions.setText(Html.fromHtml(instruction));
-
-            mAllowMapClicks = false;
-        } else if(mStep == STEP1){
-            setUpStep1();
+        } else {
+            mDoneButtonStep2.setText("Continue");
         }
+
+        String progressStr = "<font color=#FF6155>" + numPointsCalibrated + "</font> " +
+                "out of " + NUM_CALIBRATION_POINTS;
+        mCalibrationProgress.setText(Html.fromHtml(progressStr));
+        mStepHeader.setText("Well done!");
+        String instruction = "<font color=#9B9B9B>You have set</font> <br> <font color=#FF6155>" + numPointsCalibrated + "</font> " +
+                "<font color=#9B9B9B> out of " + NUM_CALIBRATION_POINTS + " location mappings.</font>";
+        mStepInstructions.setText(Html.fromHtml(instruction));
+
+        mAllowMapClicks = false;
     }
 
     private void setUpStep2() {
+        mStep = STEP2;
+        Log.d("BOO","Step should be 2 but: " + mStep);
         mStepHeader.setText("STEP 2");
         mStepInstructions.setText("Go to the real world location that you marked on the map");
         mDoneButtonStep2.setText("Done");
-        mStep = STEP3;
-        Log.d("BOO","Step should be 3 but: " + mStep);
     }
 
     public void setUpMap() {
         android.graphics.Point screenSize = new android.graphics.Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
-        map = new Map2D(this, (int) screenSize.x, (int)screenSize.y);
+        map = new Map2D(this, screenSize.x, screenSize.y);
         mapBitmap = map.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imageView = (ImageView) findViewById(R.id.ownerMap);
         imageView.setImageBitmap(mapBitmap);
@@ -299,25 +314,37 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                selectedCoord = Utils.screen2img(event.getX(), event.getY(), new Size(v.getWidth(), v.getHeight()), map.getImgSize());
-                Log.i(TAG, "Screen size: " + map.getScreenSize().width + "," + map.getScreenSize().height + "\n");
-                Log.i(TAG, "Screen Coords: " + event.getX() + "," + event.getY() + "\n");
-                Log.i(TAG, "Image size: " + map.getImgSize().width + "," + map.getImgSize().height + "\n");
-                Log.i(TAG, "Image Coords: " + selectedCoord.getXInt() + "," + selectedCoord.getYInt() + "\n");
 
                 if(mAllowMapClicks) {
+                    selectedCoord = Utils.screen2img(event.getX(), event.getY(), new Size(v.getWidth(), v.getHeight()), map.getImgSize());
+                    Log.i(TAG, "Screen size: " + map.getScreenSize().width + "," + map.getScreenSize().height + "\n");
+                    Log.i(TAG, "Screen Coords: " + event.getX() + "," + event.getY() + "\n");
+                    Log.i(TAG, "Image size: " + map.getImgSize().width + "," + map.getImgSize().height + "\n");
+                    Log.i(TAG, "Image Coords: " + selectedCoord.getXInt() + "," + selectedCoord.getYInt() + "\n");
                     setUpStep2();
                 }
 
                 return true;
             }
         });
-        paint = new Paint();
-        paint.setColor(Color.RED);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setTextSize(30);
     }
 
+    private void setupPaint() {
+        selectedPaint = new Paint();
+        selectedPaint.setColor(Color.RED);
+        selectedPaint.setStyle(Paint.Style.FILL);
+        selectedPaint.setTextSize(30);
+
+        disabledPaint = new Paint();
+        disabledPaint.setColor(Color.GRAY);
+        disabledPaint.setStyle(Paint.Style.FILL);
+        disabledPaint.setTextSize(30);
+
+        locationPaint = new Paint();
+        locationPaint.setColor(Color.GREEN);
+        locationPaint.setStyle(Paint.Style.FILL);
+        locationPaint.setTextSize(30);
+    }
     private void setUpTangoListeners() {
 
         // Set Tango Listeners for Poses Device wrt Start of Service, Device wrt
@@ -374,17 +401,25 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                localize = (TextView) findViewById(R.id.localize_owner);
                                 Bitmap curBitmap = mapBitmap.copy(Bitmap.Config.ARGB_8888, true);
                                 if(selectedCoord != null)
-                                    Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), paint);
+                                    Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), selectedPaint);
                                 if (mIsRelocalized) {
-                                    Log.i(TAG, "Localized ");
-                                    float[] imgCoords = map.world2img((float) mPose.translation[0], (float) mPose.translation[1]);
-                                    Utils.drawLocation(curBitmap, (int) imgCoords[0], (int) imgCoords[1], paint);
-
+                                    localize.setVisibility(View.INVISIBLE);
+                                } else {
+                                    if (localizeState % 3 == 0) {
+                                        localize.setText(R.string.localize_state1);
+                                    } else if (localizeState % 3 == 1) {
+                                        localize.setText(R.string.localize_state2);
+                                    } else {
+                                        localize.setText(R.string.localize_state3);
+                                    }
+                                    localize.setVisibility(View.VISIBLE);
+                                    localizeState++;
                                 }
                                 for (Coordinate coords : imageCoords) {
-                                    Utils.drawLocation(curBitmap, coords.getXInt(), coords.getYInt(), paint);
+                                    Utils.drawLocation(curBitmap, coords.getXInt(), coords.getYInt(), disabledPaint);
                                 }
                                 imageView.setImageBitmap(curBitmap);
                             }
@@ -414,10 +449,15 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
     private void saveMapping() {
         StringBuilder sb = new StringBuilder();
+        Log.i(TAG,"Writing " + imageCoords.size() + " mappings to file.");
         for (int i=0; i<imageCoords.size(); i++) {
-            sb.append(imageCoords.get(i).getX() + ',' + imageCoords.get(i).getY() + ',' + worldCoords.get(i).getX() + ',' + worldCoords.get(i).getY() + '\n');
+            double scale = map.getRaw2ImgScale();
+            int rawX = (int) (imageCoords.get(i).getX() / scale);
+            int rawY = (int) (imageCoords.get(i).getY() / scale);
+            String line = rawX + "," + rawY + "," + worldCoords.get(i).getX() + "," + worldCoords.get(i).getY() + '\n';
+            sb.append(line);
         }
-        Utils.writeToFile(selectedADFName + "_mapping.txt",sb.toString(),this);
+        Utils.writeToFile(selectedADFName + MAPPING_SUFFIX, sb.toString(),this);
     }
 }
 
