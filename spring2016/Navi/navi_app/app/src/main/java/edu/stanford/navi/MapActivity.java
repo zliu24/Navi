@@ -120,7 +120,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private double mCameraPoseTimestamp = 0;
     private boolean reSelect = false;
     int curIdx = -1;
-
+    int arrived = 0;
 
     // Instruction
     private boolean hasShownInstruction = false;
@@ -601,8 +601,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                         boolean isClose = map2D.isClose(worldCoor[0], worldCoor[1], curIdx+1);
                                         boolean isDest = map2D.isDestination(curIdx);
                                         if (isClose && isDest) {
-                                            textView = (TextView) findViewById(R.id.textView);
-                                            textView.setText("You arrive at your destination!");
+                                            arrived = 5;
                                         } else if (reSelect == true || ((int) ret[1]) != curIdx) {
                                             reSelect = false;
                                             minDist = ret[0];
@@ -618,13 +617,23 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
                                     imageView.setImageBitmap(map2D.imgBmp);
 
-                                    localize_text = (TextView) findViewById(R.id.localize_text);
-                                    localize_text.setTextSize(20.0f);
-                                    localize_text.setPadding(5, 5, 5, 5);
-                                    localize_text.setLayoutParams(params_localized);
-                                    localize_text.setText("[" + String.format("%.2f", worldCoor[0]) +
-                                            ", " + String.format("%.2f", worldCoor[1]) + "], minDist: " +
-                                            String.format("%.2f", minDist) + "/" + String.format("%.2f", map2D.recalThres));
+                                    System.out.println(arrived + "!!!!!!");
+                                    if (arrived > 0) {
+                                        arrived = arrived - 1;
+                                        localize_text = (TextView) findViewById(R.id.localize_text);
+                                        localize_text.setTextSize(60.0f);
+                                        localize_text.setPadding(20, 20, 20, 20);
+                                        localize_text.setLayoutParams(params_localizing);
+                                        localize_text.setText("You arrive at your destination.");
+                                    } else {
+                                        localize_text = (TextView) findViewById(R.id.localize_text);
+                                        localize_text.setTextSize(20.0f);
+                                        localize_text.setPadding(5, 5, 5, 5);
+                                        localize_text.setLayoutParams(params_localized);
+                                        localize_text.setText("[" + String.format("%.2f", worldCoor[0]) +
+                                                ", " + String.format("%.2f", worldCoor[1]) + "], minDist: " +
+                                                String.format("%.2f", minDist) + "/" + String.format("%.2f", map2D.recalThres));
+                                    }
                                 } else {
                                     countDots++;
                                     localize_text = (TextView) findViewById(R.id.localize_text);
