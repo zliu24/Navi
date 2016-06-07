@@ -264,8 +264,8 @@ public class Map2D {
             return null;
         }
         int len = worldPath.length;
-        float [][]ret = new float[len-startIdx][2];
-        for (int i = 0; i < len-startIdx; i++) {
+        float [][]ret = new float[2][2];
+        for (int i = 0; i < 2; i++) {
             ret[i][0] = worldPath[startIdx+i][0];
             ret[i][1] = worldPath[startIdx+i][1];
         }
