@@ -158,7 +158,6 @@ public class Map2D {
         imgBmpNoPath = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imgBmpNoCurLoc = imgBmp.copy(Bitmap.Config.ARGB_8888, true);
 
-        drawKeyPoints();
     }
 
     public float[] world2img(float worldX, float worldY) {

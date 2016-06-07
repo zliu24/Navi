@@ -299,7 +299,7 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     public void setUpMap() {
         android.graphics.Point screenSize = new android.graphics.Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
-        map = new Map2D(this, (int) screenSize.x, (int)screenSize.y);
+        map = new Map2D(this, screenSize.x, screenSize.y);
         mapBitmap = map.imgBmp.copy(Bitmap.Config.ARGB_8888, true);
         imageView = (ImageView) findViewById(R.id.ownerMap);
         imageView.setImageBitmap(mapBitmap);
