@@ -401,6 +401,10 @@ public class Map2D {
             }
         }
 
+        if (minDist > minDistThres) {
+            computeAndDrawPath(imgX, imgY, position);
+            return null;
+        }
         return new float[] {closestPt[0], closestPt[1], (float)minDist};
     }
 

@@ -573,10 +573,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             @Override
                             public void run() {
                                 if (mIsRelocalized) {
+                                    // return -1 if path is recalculated
                                     float minDist = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
 
                                     float [][]worldPath = map2D.worldPath;
-                                    if (worldPath != null) {
+                                    if (worldPath != null && minDist == -1) {
                                         mARRenderer.updatePathObject(worldPath);
                                     }
 
