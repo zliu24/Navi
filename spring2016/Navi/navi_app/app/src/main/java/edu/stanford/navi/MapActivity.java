@@ -95,6 +95,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private RelativeLayout arView;
     private boolean isNavigation = false;
 
+    private boolean hasPassedItems = false;
+
     // UX
     TangoUx mTangoUx;
     TangoUxLayout mTangoUxLayout;
@@ -609,6 +611,12 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
                                     imageView.setImageBitmap(map2D.imgBmp);
 
+                                    //Genie trying to pass the Item List to ARRenderer
+                                    if(!hasPassedItems) {
+                                        mARRenderer.updateFilterIcons(itemObjList);
+                                        hasPassedItems = true;
+                                    }
+
                                     localize_text = (TextView) findViewById(R.id.localize_text);
                                     localize_text.setTextSize(20.0f);
                                     localize_text.setPadding(5, 5, 5, 5);
@@ -705,8 +713,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                         if (mIsRelocalized == false) {
                             Log.d(TAG, "Navigation view has localized. ");
                             // mARRenderer.updatePathObject(path);
-                            //Genie trying to pass the Item List to ARRenderer
-                            mARRenderer.updateFilterIcons(itemObjList);
+
 
                             mIsRelocalized = true;
                         }

@@ -82,9 +82,9 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // to be set-up.
         super.initScene();
 
-        
+
         //icon = null;
-        itemList = null;
+        //itemList = null;
         itemObjects = null;
 
         // Add a directional light in an arbitrary direction.
@@ -111,12 +111,23 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
             //Renderering filter icons
 
+            if(itemList == null) {
+                System.out.println("the ItemList is null for some reason....");
+            } else {
+                System.out.println("The itemList is not null, which is good.");
+            }
+
+
             if(itemObjects == null && itemList != null) {
                 itemObjects = new ArrayList<Object3D>();
                 for(int i = 0; i < itemList.size(); i++) {
                     Item item = itemList.get(i);
                     Object3D icon = new Cube(CUBE_SIDE_LENGTH);
-                    LoaderOBJ iconObjParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.star_obj);
+
+                    String name = "star_obj";
+                    int id = mContext.getResources().getIdentifier(name, "raw", getContext().getPackageName());
+                    LoaderOBJ iconObjParser = new LoaderOBJ(mContext.getResources(), mTextureManager, id);
+
                     try {
                         iconObjParser.parse();
                         icon = iconObjParser.getParsedObject();
@@ -131,6 +142,13 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     System.out.println("Added icon at: " + item.getCoord3D().getX() + ", " + item.getCoord3D().getY());
 
                 }
+            }
+
+
+            if(itemObjects == null) {
+                System.out.println("Item Objects is null....  Meaning itemList was like never not null.");
+            } else {
+                System.out.println("Item Object is not null how interesting...");
             }
 
             if(itemObjects != null) {
