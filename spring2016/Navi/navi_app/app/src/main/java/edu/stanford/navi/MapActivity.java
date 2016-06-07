@@ -705,6 +705,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                         if (mIsRelocalized == false) {
                             Log.d(TAG, "Navigation view has localized. ");
                             // mARRenderer.updatePathObject(path);
+                            //Genie trying to pass the Item List to ARRenderer
+                            mARRenderer.updateFilterIcons(itemObjList);
+
                             mIsRelocalized = true;
                         }
                         // Update the camera pose from the renderer
