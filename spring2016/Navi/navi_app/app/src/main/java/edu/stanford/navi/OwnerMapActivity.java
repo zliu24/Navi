@@ -399,9 +399,6 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
                                 if(selectedCoord != null)
                                     Utils.drawLocation(curBitmap, selectedCoord.getXInt(), selectedCoord.getYInt(), selectedPaint);
                                 if (mIsRelocalized) {
-                                    Log.d(TAG, "Localized ");
-                                    float[] imgCoords = map.world2img((float) mPose.translation[0], (float) mPose.translation[1]);
-                                    Utils.drawLocation(curBitmap, (int) imgCoords[0], (int) imgCoords[1], locationPaint);
                                     localize.setVisibility(View.INVISIBLE);
                                 } else {
                                     if (localizeState % 3 == 0) {
@@ -447,7 +444,10 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         StringBuilder sb = new StringBuilder();
         Log.i(TAG,"Writing " + imageCoords.size() + " mappings to file.");
         for (int i=0; i<imageCoords.size(); i++) {
-            String line = imageCoords.get(i).getXInt() + "," + imageCoords.get(i).getYInt() + "," + worldCoords.get(i).getX() + "," + worldCoords.get(i).getY() + '\n';
+            double scale = map.getRaw2ImgScale();
+            int rawX = (int) (imageCoords.get(i).getX() / scale);
+            int rawY = (int) (imageCoords.get(i).getY() / scale);
+            String line = rawX + "," + rawY + "," + worldCoords.get(i).getX() + "," + worldCoords.get(i).getY() + '\n';
             sb.append(line);
         }
         Utils.writeToFile(selectedADFName + MAPPING_SUFFIX, sb.toString(),this);

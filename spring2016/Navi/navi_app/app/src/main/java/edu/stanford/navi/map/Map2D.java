@@ -476,6 +476,9 @@ public class Map2D {
         return imgSize;
     }
 
+    public double getRaw2ImgScale() {
+        return scale_png2img;
+    }
     public Size getScreenSize() {
         return screenSize;
     }
