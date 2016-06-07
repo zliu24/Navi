@@ -108,17 +108,18 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private float []worldCoor = {0, 0};
     float []imgCoorDestimation;
     float []imgCoorCurrent;
+    private int position = -1;
     FrameLayout.LayoutParams params_localizing;
     FrameLayout.LayoutParams params_localized;
-    int curIdx = -1;
+
 
     // AR & camera
     private TangoRajawaliView mARView;
     private AugmentedRealityRenderer mARRenderer;
     private DeviceExtrinsics mExtrinsics;
     private double mCameraPoseTimestamp = 0;
-
-    private int position;
+    private boolean reSelect = false;
+    int curIdx = -1;
 
 
     // Instruction
@@ -164,14 +165,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         }
 
         long startTime = System.currentTimeMillis();
-        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position); // also compute worldPath
 
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds");
         map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
-        curIdx = 0;
-        float [][]worldPath = map2D.getWorldPath(curIdx);
-        mARRenderer.updatePathObject(worldPath, false);
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
@@ -180,6 +178,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         textView.setText("Navigating to " + map2D.getKeypointName(position));
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         textView.setTypeface(face);
+
+        reSelect = true;
+        curIdx = -1;
     }
 
     @Override
@@ -591,29 +592,28 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             @Override
                             public void run() {
                                 if (mIsRelocalized) {
-                                    // return null if path is recalculated
-                                    float []ret = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
-                                    float minDist;
+                                    float []ret = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position); // minDist, curIdx
+                                    float minDist = -1;
+
                                     if (ret == null) {
-                                        minDist = -1;
-                                        curIdx = 0;
-                                        float [][]worldPath = map2D.getWorldPath(curIdx);
-                                        if (worldPath != null) {
-                                            mARRenderer.updatePathObject(worldPath, false);
-                                        }
-                                    } else if (((int) ret[1]) != curIdx) {
-                                        minDist = ret[0];
-                                        curIdx = (int) ret[1];
-                                        float [][]worldPath = map2D.getWorldPath(curIdx);
-                                        assert(worldPath != null);
-                                        boolean isDestination = false;
-                                        int len = map2D.getTotalPathLength();
-                                        if (curIdx >= len - 1) {
-                                            isDestination = true;
-                                        }
-                                        mARRenderer.updatePathObject(worldPath, isDestination);
+                                        curIdx = -1;
                                     } else {
-                                        minDist = ret[0];
+                                        boolean isClose = map2D.isClose(worldCoor[0], worldCoor[1], curIdx+1);
+                                        boolean isDest = map2D.isDestination(curIdx);
+                                        if (isClose && isDest) {
+                                            textView = (TextView) findViewById(R.id.textView);
+                                            textView.setText("You arrive at your destination!");
+                                        } else if (reSelect == true || ((int) ret[1]) != curIdx) {
+                                            reSelect = false;
+                                            minDist = ret[0];
+                                            curIdx = (int) ret[1]; // 0 to n-2
+
+                                            float[][] worldPath = map2D.getWorldPath(curIdx);
+                                            System.out.println("Current Index: " + curIdx + "/" + (worldPath.length-1));
+                                            mARRenderer.updatePathObject(worldPath, map2D.isDestination(curIdx));
+                                        } else {
+                                            minDist = ret[0];
+                                        }
                                     }
 
                                     imageView.setImageBitmap(map2D.imgBmp);
@@ -624,7 +624,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                     localize_text.setLayoutParams(params_localized);
                                     localize_text.setText("[" + String.format("%.2f", worldCoor[0]) +
                                             ", " + String.format("%.2f", worldCoor[1]) + "], minDist: " +
-                                            String.format("%.2f", minDist) + "/" + String.format("%.2f", map2D.minDistThres));
+                                            String.format("%.2f", minDist) + "/" + String.format("%.2f", map2D.recalThres));
                                 } else {
                                     countDots++;
                                     localize_text = (TextView) findViewById(R.id.localize_text);
@@ -713,7 +713,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                     if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
                         if (mIsRelocalized == false) {
                             Log.d(TAG, "Navigation view has localized. ");
-                            // mARRenderer.updatePathObject(path);
                             mIsRelocalized = true;
                         }
                         // Update the camera pose from the renderer
