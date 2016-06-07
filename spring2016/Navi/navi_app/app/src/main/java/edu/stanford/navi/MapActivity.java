@@ -577,19 +577,10 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
                                     float [][]worldPath = map2D.worldPath;
                                     if (worldPath != null) {
-                                        mARRenderer.updatePathObject(worldPath);
+                                        mARRenderer.updatePathObject(worldPath, worldCoor, pose.rotation);
                                     }
 
                                     imageView.setImageBitmap(map2D.imgBmp);
-
-                                    //Genie added code begin
-                                    //Give ARRenderer information it needs
-                                    if(map2D.getWorldPath() != null) {
-                                        mARRenderer.updatePathObject(map2D.getWorldPath(), worldCoor, pose.rotation);
-                                    }
-
-
-                                    //Genie added code end
 
                                     localize_text = (TextView) findViewById(R.id.localize_text);
                                     localize_text.setTextSize(20.0f);

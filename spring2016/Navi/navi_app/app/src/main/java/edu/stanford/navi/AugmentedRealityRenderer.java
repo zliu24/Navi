@@ -68,9 +68,11 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     private boolean pathObjectUpdated = false;
 
     //Genie added
+    /*
     private float[] userCoord;
     private org.rajawali3d.math.Quaternion userOrientation;
     private Object3D userArrow;
+    */
 
     public AugmentedRealityRenderer(Context context) {
         super(context);
@@ -82,8 +84,10 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // to be set-up.
         super.initScene();
 
+        /*
         userCoord = null;
         userOrientation = null;
+        */
 
         // Add a directional light in an arbitrary direction.
         DirectionalLight light = new DirectionalLight(1, 0.2, -1);
@@ -107,52 +111,83 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
             if (pathObjectUpdated) {
-                if(pathObjects != null && line != null) {
+                if(pathObjects != null/* && line != null*/) {
                     for(int i = 0; i < pathObjects.size(); i++) {
                         getCurrentScene().removeChild(pathObjects.get(i));
                     }
-                    getCurrentScene().removeChild(line);
+                    //getCurrentScene().removeChild(line);
                 }
 
-                if(userArrow != null) {
-                    getCurrentScene().removeChild(userArrow);
-                }
+                pathObjects = new ArrayList<Object3D>();
+                //Stack<Vector3> stack = new Stack<Vector3>();
 
+                //add the current point
 
-                /*
-                //some test code to add an axtra arrow at my location
-                userArrow = new Cube(CUBE_SIDE_LENGTH);
-                LoaderOBJ userArrowParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
+                Object3D point1 = new Cube(CUBE_SIDE_LENGTH);
+                Vector3 point1Pos = new Vector3(pathPoints[0][0], -1, -pathPoints[0][1]);
+                LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                 try {
-                    userArrowParser.parse();
-                    userArrow = userArrowParser.getParsedObject();
+                    objParser.parse();
+                    point1 = objParser.getParsedObject();
+                    point1.setScale(0.5);
                 } catch (ParsingException e) {
                     e.printStackTrace();
                 }
 
-                Vector3 userLocation = new Vector3(userCoord[0], -2, -userCoord[1]);
-                userArrow.setPosition(userLocation);
+                //Calculate the angle at which to rotate the arrow
+                double side1 = pathPoints[0][0] - pathPoints[1][0];
+                double side2 = pathPoints[0][1] - pathPoints[1][1];
+                double hypotenuse = Math.sqrt((side1*side1) + (side2*side2));
 
-                //rotate towards first point
+                double theta = Math.asin(side1 / hypotenuse);
 
-                double ArrowSide1 = userCoord[0] - pathPoints[0][0];
-                double ArrowSide2 = userCoord[1] - pathPoints[0][1];
-                double ArrowHypotenuse = Math.sqrt((ArrowSide1*ArrowSide1) + (ArrowSide2*ArrowSide2));
+                double angle = Math.toDegrees((Math.PI / 2) - theta) + 180;
 
-                double ArrowTheta = Math.asin(ArrowSide1 / ArrowHypotenuse);
+                point1.setPosition(point1Pos);
+                point1.setRotation(Vector3.Axis.Y, angle);
 
-                double ArrowAngle = Math.toDegrees((Math.PI / 2) - ArrowTheta) + 180;
+                pathObjects.add(point1);
+                getCurrentScene().addChild(point1);
 
-                userArrow.setRotation(Vector3.Axis.Y, ArrowAngle);
+                //add the next point (possibly the destination
 
-                getCurrentScene().addChild(userArrow);
+                Object3D point2 = new Cube(CUBE_SIDE_LENGTH);
+                Vector3 point2Pos = new Vector3(pathPoints[1][0], -1, -pathPoints[1][1]);
+                if(2 == pathPoints.length) {
+                    LoaderOBJ objParser2 = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination_obj);
+                    try {
+                        objParser2.parse();
+                        point2 = objParser2.getParsedObject();
+                    } catch (ParsingException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    LoaderOBJ objParser2 = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
+                    try {
+                        objParser2.parse();
+                        point2 = objParser2.getParsedObject();
+                        point2.setScale(0.5);
+                    } catch (ParsingException e) {
+                        e.printStackTrace();
+                    }
 
-                */
-                //end random tests
+                    //Calculate the angle at which to rotate the arrow
+                    double side12 = pathPoints[1][0] - pathPoints[2][0];
+                    double side22 = pathPoints[1][1] - pathPoints[2][1];
+                    double hypotenuse2 = Math.sqrt((side12*side12) + (side22*side22));
 
-                pathObjects = new ArrayList<Object3D>();
-                Stack<Vector3> stack = new Stack<Vector3>();
-                for(int i = 0; i < pathPoints.length; i++) {
+                    double theta2 = Math.asin(side12 / hypotenuse2);
+
+                    double angle2 = Math.toDegrees((Math.PI / 2) - theta2) + 180;
+                    point2.setRotation(Vector3.Axis.Y, angle2);
+                }
+
+                point2.setPosition(point2Pos);
+
+                pathObjects.add(point2);
+                getCurrentScene().addChild(point2);
+
+                /*for(int i = 0; i < pathPoints.length; i++) {
                     // Transform to virtual reference system, where y is the altitude
                     Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
 
@@ -192,12 +227,14 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     point.setPosition(pose);
                     point.setRotation(Vector3.Axis.Y, angle);
 
-                            System.out.println("Adding checkpoint at " + pose);
+                    System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
                     pathObjects.add(point);
                     stack.push(pose);
                 }
-                addLine(stack);
+
+                */
+                //addLine(stack);
                 pathObjectUpdated = false;
 
             }
@@ -213,6 +250,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     public synchronized void updatePathObject(float[][] pathPoints, float[] userPos, double[] orientation) {
         pathObjectUpdated = true;
         this.pathPoints = pathPoints;
+
+        /*
         this.userCoord = userPos;
 
         this.userOrientation = new org.rajawali3d.math.Quaternion(orientation[0], orientation[1], orientation[2], orientation[3]);
@@ -222,7 +261,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         for (int i = 0; i < pathPoints.length; i++) {
             System.out.println("x: " + pathPoints[i][0] + " y (in 2d) z (in 3d): " + pathPoints[i][1]);
         }
-
+        */
     }
 
     /**

@@ -174,8 +174,8 @@ public class Map2D {
         for (int i = 0; i < len; i++) {
             float imgX = (float) imgCoor[i][0];
             float imgY = (float) imgCoor[i][1];
-            worldPath[i][0] = (float)(beta[1]*imgY/scale_img2graph-beta[4]*imgX/scale_img2graph+beta[2]*beta[4]-beta[1]*beta[5])/denom;
-            worldPath[i][1] = (float)(beta[3]*imgX/scale_img2graph-beta[0]*imgY/scale_img2graph+beta[0]*beta[5]-beta[2]*beta[3])/denom;
+            worldPath[i][0] = (float)(beta[1]*imgY-beta[4]*imgX+beta[2]*beta[4]-beta[1]*beta[5])/denom;
+            worldPath[i][1] = (float)(beta[3]*imgX-beta[0]*imgY+beta[0]*beta[5]-beta[2]*beta[3])/denom;
         }
 
         return worldPath;
