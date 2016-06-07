@@ -172,7 +172,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
         curIdx = 0;
         float [][]worldPath = map2D.getWorldPath(curIdx);
-        mARRenderer.updatePathObject(worldPath);
+        mARRenderer.updatePathObject(worldPath, false);
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
@@ -585,14 +585,19 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                         curIdx = 0;
                                         float [][]worldPath = map2D.getWorldPath(curIdx);
                                         if (worldPath != null) {
-                                            mARRenderer.updatePathObject(worldPath);
+                                            mARRenderer.updatePathObject(worldPath, false);
                                         }
                                     } else if (((int) ret[1]) != curIdx) {
                                         minDist = ret[0];
                                         curIdx = (int) ret[1];
                                         float [][]worldPath = map2D.getWorldPath(curIdx);
                                         assert(worldPath != null);
-                                        mARRenderer.updatePathObject(worldPath);
+                                        boolean isDestination = false;
+                                        int len = map2D.getTotalPathLength();
+                                        if (curIdx >= len - 1) {
+                                            isDestination = true;
+                                        }
+                                        mARRenderer.updatePathObject(worldPath, isDestination);
                                     } else {
                                         minDist = ret[0];
                                     }
