@@ -38,6 +38,7 @@ import edu.stanford.navi.map.Map2D;
 
 public class OwnerLabelActivity extends BaseActivity implements View.OnClickListener/*, AdapterView.OnItemClickListener*/ {
 
+    public static final String KEYPOINT_SUFFIX = "_keypoints.txt";
     private final String ITEM_MANAGEMENT_FILE = "items.txt";
 
     private Map2D map;
