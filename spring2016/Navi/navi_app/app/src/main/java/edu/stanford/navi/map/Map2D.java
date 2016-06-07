@@ -267,11 +267,7 @@ public class Map2D {
     }
 
     public String [] getKeypointsNames() {
-        ArrayList<String> numberedNames = new ArrayList<String>();
-        for (int i = 0; i < keypointsNames.size(); i++) {
-            numberedNames.add((new Integer(i+1)).toString() + ". " + keypointsNames.get(i));
-        }
-        return numberedNames.toArray(new String[0]);
+        return keypointsNames.toArray(new String[0]);
     }
 
     private void preProcess() {
