@@ -17,7 +17,6 @@
 package edu.stanford.navi;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -36,6 +35,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,7 +64,10 @@ import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.adf.Utils;
@@ -94,7 +97,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private ListView listOfRooms;
     private TextView localize_text;
     private RelativeLayout arView;
-    private boolean isNavigation = false;
+    private boolean isNavigation = true;
 
     // UX
     TangoUx mTangoUx;
@@ -129,15 +132,39 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
     // Sales and deals
     private List<Item> itemObjList;
+    private List<String> categoryList;
+    private Spinner spinner;
 
     // Set world coords for each item
     public void preproItems() {
+        Set<String> categorySet = new HashSet<String>();
+        categorySet.add("None");
         for (int i = 0; i < itemObjList.size(); i++) {
             Coordinate coords2D = itemObjList.get(i).getCoord2D();
             float[] coords3D = map2D.img2world((int) coords2D.getX(), (int) coords2D.getY());
             itemObjList.get(i).setCoord3D(new Coordinate(coords3D[0], coords3D[1]));
+            categorySet.addAll(itemObjList.get(i).getCategories());
         }
-        System.out.println(itemObjList);
+        categoryList = new ArrayList<String>(categorySet);
+        System.out.println("After prepro: "  + itemObjList.toString());
+        setUpSpinner();
+    }
+
+    private void setUpSpinner() {
+        spinner = (Spinner) findViewById(R.id.shopperSpinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                String filter = adapterView.getItemAtPosition(position).toString();
+                updateNaviPanel(filter);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categoryList);
+        spinner.setAdapter(adapter);
     }
 
     public void setUpDialog() {
@@ -194,7 +221,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         setUpDialog();
 
         // Get sales and deals
-        itemObjList = Utils.readJson(Utils.DEFAULT_JSON_LOC, this);
+        itemObjList = Utils.readJson(Utils.getJsonLoc(), this);
 
         // Set instruction font to Avenir
         TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
@@ -441,10 +468,26 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
         preproItems();
+        setUpSpinner();
 
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, map2D.getKeypointsNames());
+        listOfRooms.setAdapter(adapter);
+        listOfRooms.setOnItemClickListener(this);
+    }
+
+    private void updateNaviPanel(String filter) {
+        List<String> filteredItemNames = new ArrayList<String>();
+        for (Item item: itemObjList) {
+            if (item.getCategories().contains(filter)) {
+                filteredItemNames.add(item.getName());
+            }
+        }
+        if (filteredItemNames.size() == 0) {
+            filteredItemNames = Arrays.asList(map2D.getKeypointsNames());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, filteredItemNames);
         listOfRooms.setAdapter(adapter);
         listOfRooms.setOnItemClickListener(this);
     }
@@ -642,11 +685,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                     localize_text.setLayoutParams(params_localizing);
 
                                     if (countDots%3 == 0) {
-                                        localize_text.setText("Localizing.");
+                                        localize_text.setText(R.string.localize_state1);
                                     } else if (countDots%3 == 1) {
-                                        localize_text.setText("Localizing..");
+                                        localize_text.setText(R.string.localize_state2);
                                     } else if (countDots%3 == 2) {
-                                        localize_text.setText("Localizing...");
+                                        localize_text.setText(R.string.localize_state3);
                                     }
                                 }
                             }
@@ -746,6 +789,42 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                 return true;
             }
         });
+    }
 
+    private void updateViewLayout() {
+        arView = (RelativeLayout) findViewById(R.id.ar_view);
+        imageView = (ImageView) findViewById(R.id.imageView);
+        FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
+        FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+        final float scale = getResources().getDisplayMetrics().density;
+
+        if (!isNavigation) {
+            isNavigation = true;
+
+            params1.height = (int)(400*scale + 0.5f);
+            params1.width = (int)(610*scale + 0.5f);
+            params1.topMargin = (int)(100*scale + 0.5f);
+            params1.leftMargin = (int)(340*scale + 0.5f);
+
+            params2.height = (int)(80*scale + 0.5f);
+            params2.width = (int)(80*scale + 0.5f);
+            params2.topMargin = (int)(470*scale + 0.5f);
+            params2.leftMargin = (int)(10*scale + 0.5f);
+
+            alert.show();
+        } else {
+            isNavigation = false;
+            params1.height = (int)(80*scale + 0.5f);
+            params1.width = (int)(80*scale + 0.5f);
+            params1.topMargin = (int)(470*scale + 0.5f);
+            params1.leftMargin = (int)(10*scale + 0.5f);
+
+            params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
+            params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
+            params2.topMargin = (int)(40*scale + 0.5f);
+            params2.leftMargin = (int)(360*scale + 0.5f);
+        }
+        arView.setLayoutParams(params1);
+        imageView.setLayoutParams(params2);
     }
 }

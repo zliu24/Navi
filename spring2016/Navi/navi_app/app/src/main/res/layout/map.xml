@@ -26,7 +26,7 @@
 
             <ListView
                 android:layout_width="match_parent"
-                android:layout_height="410dp"
+                android:layout_height="300dp"
                 android:id="@+id/listOfRoomNames"
                 android:layout_below="@+id/pink_navi_logo"
                 android:choiceMode="singleChoice"
@@ -48,6 +48,38 @@
                 android:layout_toEndOf="@+id/pink_navi_logo"
                 android:layout_alignStart="@+id/pink_navi_logo" />
 
+            <Button
+                android:background="@drawable/custom_button"
+                style="@style/button_text"
+                android:layout_height="70dp"
+                android:layout_width="200dp"
+                android:text="Navigate"
+                android:id="@+id/navigate"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:paddingTop="20dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:text="@string/filter_text"
+                android:textSize="20dp"
+                android:id="@+id/filterText"
+                android:gravity="center"
+                android:layout_below="@+id/listOfRoomNames"
+                android:layout_toStartOf="@+id/shopperSpinner"
+                android:textStyle="bold"/>
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:id="@+id/shopperSpinner"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                android:textAlignment="center"
+                android:layout_below="@+id/listOfRoomNames"
+                android:layout_alignParentEnd="true"
+                android:layout_alignStart="@+id/navigate" />
         </RelativeLayout>
 
     </RelativeLayout>

@@ -13,18 +13,6 @@
         android:layout_alignParentTop="true">
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            style="?android:attr/borderlessButtonStyle"
-            android:text="Create filter category"
-            android:textColor="@color/gray_dark"
-            android:id="@+id/createFilterButton"
-            android:layout_marginRight="20dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true" />
-
-        <Button
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
