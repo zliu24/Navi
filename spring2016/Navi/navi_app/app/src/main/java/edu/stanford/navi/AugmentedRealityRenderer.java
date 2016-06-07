@@ -147,7 +147,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     point.setPosition(pose);
                     point.setRotation(Vector3.Axis.Y, angle);
 
-                            System.out.println("Adding checkpoint at " + pose);
+                    System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
                     pathObjects.add(point);
                     stack.push(pose);
