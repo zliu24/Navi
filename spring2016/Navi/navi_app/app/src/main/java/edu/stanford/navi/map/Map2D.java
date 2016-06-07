@@ -24,9 +24,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.navi.OwnerLabelActivity;
 import edu.stanford.navi.OwnerMapActivity;
 import edu.stanford.navi.pathfinding.LazyThetaStar;
 import edu.stanford.navi.pathfinding.datatypes.GridGraph;
@@ -283,7 +285,11 @@ public class Map2D {
     }
 
     public String [] getKeypointsNames() {
-        return keypointsNames.toArray(new String[0]);
+        ArrayList<String> numberedNames = new ArrayList<String>();
+        for (int i = 0; i < keypointsNames.size(); i++) {
+            numberedNames.add((new Integer(i+1)).toString() + ". " + keypointsNames.get(i));
+        }
+        return numberedNames.toArray(new String[0]);
     }
 
     private void preProcess() {
@@ -295,24 +301,35 @@ public class Map2D {
     }
 
     private void loadKeypoints() {
-        AssetManager am = mContext.getAssets();
+        String keypointsFile = mapName + OwnerLabelActivity.KEYPOINT_SUFFIX;
+        BufferedReader reader = null;
 
         try {
-            InputStream is = am.open(keypoints_txt);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                String []tokens = line.split("[,]");
-                Point keypoint = new Point(Integer.parseInt(tokens[0])*scale_png2img, Integer.parseInt(tokens[1])*scale_png2img);
-                String keypointName = tokens[2];
-                keypoints.add(keypoint);
-                keypointsNames.add(keypointName);
-            }
-            nKeypoints = keypoints.size();
+            reader = new BufferedReader(new InputStreamReader(mContext.openFileInput(keypointsFile)));
         } catch (IOException e) {
-            System.out.println("bad");
-            e.printStackTrace();
+            System.out.println(keypointsFile + " not found! Loading default keypoints.");
+            // Load from asset
+            try {
+                AssetManager am = mContext.getAssets();
+                InputStream is = am.open(keypoints_txt);
+                reader = new BufferedReader(new InputStreamReader(is));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String []tokens = line.split("[,]");
+                    Point keypoint = new Point(Integer.parseInt(tokens[0])*scale_png2img, Integer.parseInt(tokens[1])*scale_png2img);
+                    String keypointName = tokens[2];
+                    keypoints.add(keypoint);
+                    keypointsNames.add(keypointName);
+                }
+                nKeypoints = keypoints.size();
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
         }
     }
 

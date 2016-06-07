@@ -35,6 +35,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,7 +64,9 @@ import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.adf.Utils;
@@ -129,15 +132,42 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
     // Sales and deals
     private List<Item> itemObjList;
+    private List<String> categoryList;
+    private Spinner spinner;
 
     // Set world coords for each item
     public void preproItems() {
+        Set<String> categorySet = new HashSet<String>();
         for (int i = 0; i < itemObjList.size(); i++) {
             Coordinate coords2D = itemObjList.get(i).getCoord2D();
             float[] coords3D = map2D.img2world((int) coords2D.getX(), (int) coords2D.getY());
             itemObjList.get(i).setCoord3D(new Coordinate(coords3D[0], coords3D[1]));
+            categorySet.addAll(itemObjList.get(i).getCategories());
         }
-        System.out.println(itemObjList);
+        categoryList = new ArrayList<String>(categorySet);
+        System.out.println("After prepro: "  + itemObjList.toString());
+        setUpSpinner();
+    }
+
+    private void setUpSpinner() {
+        spinner = (Spinner) findViewById(R.id.shopperSpinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categoryList);
+        spinner.setAdapter(adapter);
+        //set the default location
+        spinner.setSelected(false);
+
     }
 
     public void setUpDialog() {
@@ -199,7 +229,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         setUpDialog();
 
         // Get sales and deals
-        itemObjList = Utils.readJson(Utils.DEFAULT_JSON_LOC, this);
+        itemObjList = Utils.readJson(Utils.getJsonLoc(), this);
 
         // Set instruction font to Avenir
         TextView selectRoomInstruction = (TextView) findViewById(R.id.selectRoomInstruction);
@@ -433,6 +463,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
         preproItems();
+        setUpSpinner();
 
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
