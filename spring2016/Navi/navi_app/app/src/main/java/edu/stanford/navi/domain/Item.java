@@ -8,6 +8,7 @@ import java.util.Set;
 public class Item {
     String name;
     Coordinate coord2D;
+    Coordinate coord3D;
     Set<String> categories;
 
     public Item() {}
@@ -26,6 +27,10 @@ public class Item {
 
     public void setCoord2D(Coordinate coord) { this.coord2D = coord; }
 
+    public Coordinate getCoord3D() { return this.coord3D; }
+
+    public void setCoord3D(Coordinate coord) { this.coord3D = coord; }
+
     public Set<String> getCategories() { return this.categories; }
 
     public void setCategories(Set<String> categories) {
@@ -42,9 +47,18 @@ public class Item {
 
     @Override
     public String toString() {
-        String itemStr = "Name: " + getName() +
-                " Coord2D: " + getCoord2D().toString() +
-                " Categories: " + getCategories().toString();
+        String itemStr;
+        if (this.coord3D == null) {
+            itemStr = "Name: " + getName() +
+                    " Coord2D: " + getCoord2D().toString() +
+                    " Coord3D: not set" +
+                    " Categories: " + getCategories().toString();
+        } else {
+            itemStr = "Name: " + getName() +
+                    " Coord2D: " + getCoord2D().toString() +
+                    " Coord3D: " + getCoord3D().toString() +
+                    " Categories: " + getCategories().toString();
+        }
         return itemStr;
     }
 }

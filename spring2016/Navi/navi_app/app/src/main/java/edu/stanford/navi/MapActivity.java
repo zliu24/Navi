@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.stanford.navi.adf.Utils;
+import edu.stanford.navi.domain.Coordinate;
 import edu.stanford.navi.domain.Item;
 import edu.stanford.navi.map.Map2D;
 
@@ -125,6 +126,16 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
     // Sales and deals
     private List<Item> itemObjList;
+
+    // Set world coords for each item
+    public void preproItems() {
+        for (int i = 0; i < itemObjList.size(); i++) {
+            Coordinate coords2D = itemObjList.get(i).getCoord2D();
+            float[] coords3D = map2D.img2world((int) coords2D.getX(), (int) coords2D.getY());
+            itemObjList.get(i).setCoord3D(new Coordinate(coords3D[0], coords3D[1]));
+        }
+        System.out.println(itemObjList);
+    }
 
     public void setUpDialog() {
         System.out.println("SetupDialog!");
@@ -415,6 +426,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         map2D.drawKeyPoints();
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
+        preproItems();
 
         listOfRooms = (ListView) findViewById(R.id.listOfRoomNames);
         listOfRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
