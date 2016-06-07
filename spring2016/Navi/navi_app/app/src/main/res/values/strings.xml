@@ -16,9 +16,9 @@
 -->
 <resources>
     <string name="filter_text">Apply a filter:</string>
-    <string name="localize_state1">Localizing.</string>
-    <string name="localize_state2">Localizing..</string>
-    <string name="localize_state3">Localizing...</string>
+    <string name="localize_state1">Initializing.</string>
+    <string name="localize_state2">Initializing..</string>
+    <string name="localize_state3">Initializing...</string>
     <string name="dialog_title">Instruction</string>
     <string name="instruction">Please turn 360 degrees to see the direction!</string>
     <string name="spinner_title">Select a location:</string>

@@ -646,11 +646,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                     localize_text.setLayoutParams(params_localizing);
 
                                     if (countDots%3 == 0) {
-                                        localize_text.setText("Localizing.");
+                                        localize_text.setText(R.string.localize_state1);
                                     } else if (countDots%3 == 1) {
-                                        localize_text.setText("Localizing..");
+                                        localize_text.setText(R.string.localize_state2);
                                     } else if (countDots%3 == 2) {
-                                        localize_text.setText("Localizing...");
+                                        localize_text.setText(R.string.localize_state3);
                                     }
                                 }
                             }
