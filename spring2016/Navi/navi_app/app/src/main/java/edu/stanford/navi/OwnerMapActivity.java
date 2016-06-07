@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -174,8 +175,11 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
-                saveMapping();
+                if (numPointsCalibrated == NUM_CALIBRATION_POINTS) {
+                    saveMapping();
+                }
                 startOwnerLabelActivity();
+
                 break;
             case R.id.doneStep2:
                 if (mStep == STEP2 && mIsRelocalized) {
@@ -230,7 +234,6 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
         mNextButton = (Button) findViewById(R.id.next);
         mNextButton.setTypeface(face);
         mNextButton.setOnClickListener(this);
-        mNextButton.setVisibility(View.INVISIBLE);
 
         mDoneButtonStep2 = (Button)findViewById(R.id.doneStep2);
         mDoneButtonStep2.setOnClickListener(this);
@@ -272,7 +275,11 @@ public class OwnerMapActivity extends BaseActivity implements View.OnClickListen
 
         if(numPointsCalibrated == NUM_CALIBRATION_POINTS) {
             mDoneButtonStep2.setText("");
-            mNextButton.setVisibility(View.VISIBLE);
+            Drawable custom_button = getResources().getDrawable(
+                    getResources().getIdentifier("custom_button", "drawable", getPackageName()));
+            mNextButton.setText("Next");
+            mNextButton.setBackground(custom_button);
+
         } else {
             mDoneButtonStep2.setText("Continue");
         }

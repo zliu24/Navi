@@ -155,10 +155,10 @@
 
                 <Button
                     android:id="@+id/next"
-                    android:background="@drawable/custom_button"
+                    android:background="@drawable/gray_button"
                     android:layout_width="180dp"
                     android:layout_height="wrap_content"
-                    android:text="Next"
+                    android:text="Skip"
                     android:textSize="20sp"
                     android:textColor="@color/white"
                     android:layout_gravity="bottom"
