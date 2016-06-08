@@ -98,6 +98,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private RelativeLayout arView;
     private boolean isNavigation;
 
+    private boolean hasPassedItems = false;
+
     // UX
     TangoUx mTangoUx;
     TangoUxLayout mTangoUxLayout;
@@ -668,6 +670,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                     }
 
                                     imageView.setImageBitmap(map2D.imgBmp);
+
+                                    if(!hasPassedItems) {
+                                        mARRenderer.updateFilterIcons(itemObjList);
+                                        hasPassedItems = true;
+                                    }
 
                                     System.out.println(arrived + "!!!!!!");
                                     if (arrived > 0) {

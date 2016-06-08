@@ -35,8 +35,14 @@ import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.Line3D;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+
+import edu.stanford.navi.domain.Coordinate;
+import edu.stanford.navi.domain.Item;
 
 /**
  * Very simple example augmented reality renderer which displays a cube fixed in place.
@@ -62,14 +68,13 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
     Line3D line;
     private boolean pathObjectUpdated = false;
 
-    //Genie added
-    /*
-    private float[] userCoord;
-    private org.rajawali3d.math.Quaternion userOrientation;
-    private Object3D userArrow;
-    */
-
     private boolean destination;
+
+    private List<Item> itemList;
+    List<Object3D> itemObjects;
+
+    //hardcoded category name to obj file name (cuz freezing the code soon)
+    private HashMap<String, String> categoryOBJs;
 
     public AugmentedRealityRenderer(Context context) {
         super(context);
@@ -81,10 +86,20 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // to be set-up.
         super.initScene();
 
-        /*
-        userCoord = null;
-        userOrientation = null;
-        */
+        categoryOBJs = new HashMap<String, String>();
+
+        categoryOBJs.put("On Sale", "sale");
+        categoryOBJs.put("Enterprise and public policy", "one");
+        categoryOBJs.put("Research", "two");
+        categoryOBJs.put("Consumer", "three");
+        categoryOBJs.put("Hardware", "four");
+        categoryOBJs.put("Mixed reality", "five");
+        categoryOBJs.put("Welcome area", "six");
+        categoryOBJs.put("Arcade", "seven");
+        categoryOBJs.put("Education", "eight");
+        categoryOBJs.put("Judges' area", "nine");
+        categoryOBJs.put("Health and biotech", "ten");
+        categoryOBJs.put("Consumer", "eleven");
 
         // Add a directional light in an arbitrary direction.
         DirectionalLight light = new DirectionalLight(1, 0.2, -1);
@@ -107,6 +122,51 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         // Update the AR object if necessary
         // Synchronize against concurrent access with the setter below.
         synchronized (this) {
+
+            //Renderering filter icons
+
+            if(itemObjects == null && itemList != null) {
+                itemObjects = new ArrayList<Object3D>();
+                for(int i = 0; i < itemList.size(); i++) {
+                    Item item = itemList.get(i);
+
+                    if(item.getCategories().size() == 0) {
+                        continue;
+                    }
+
+                    Object3D icon = new Cube(CUBE_SIDE_LENGTH);
+
+                    Object[] categories = item.getCategories().toArray();
+                    String name = categoryOBJs.get(categories[0]) + "_obj";
+
+                    int id = mContext.getResources().getIdentifier(name, "raw", getContext().getPackageName());
+                    LoaderOBJ iconObjParser = new LoaderOBJ(mContext.getResources(), mTextureManager, id);
+
+                    try {
+                        iconObjParser.parse();
+                        icon = iconObjParser.getParsedObject();
+                    } catch (ParsingException e) {
+                        e.printStackTrace();
+                    }
+
+                    icon.setPosition(item.getCoord3D().getX(), 1.0, item.getCoord3D().getY());
+                    itemObjects.add(icon);
+                    getCurrentScene().addChild(icon);
+
+                    System.out.println("Added icon at: " + item.getCoord3D().getX() + ", " + item.getCoord3D().getY());
+
+                }
+            }
+
+            if(itemObjects != null) {
+                for (int i = 0; i < itemObjects.size(); i++) {
+                    Object3D icon = itemObjects.get(i);
+                    icon.rotate(Vector3.Axis.Y, 1);
+                }
+            }
+
+            //Renderering path
+
             if (pathObjectUpdated) {
                 if(pathObjects != null && line != null) {
                     for(int i = 0; i < pathObjects.size(); i++) {
@@ -131,7 +191,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         try {
                             objParser.parse();
                             point = objParser.getParsedObject();
-                            point.setScale(0.25);
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
@@ -200,6 +259,10 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         pathObjectUpdated = true;
         this.pathPoints = pathPoints;
         this.destination = isDestination;
+    }
+
+    public synchronized void updateFilterIcons(List<Item> itemList) {
+        this.itemList = itemList;
     }
 
     /**
