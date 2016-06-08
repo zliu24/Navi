@@ -135,14 +135,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
-//                    } else if (i == pathPoints.length - 1) {
-//                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.star);
-//                        try {
-//                            objParser.parse();
-//                            point = objParser.getParsedObject();
-//                        } catch (ParsingException e) {
-//                            e.printStackTrace();
-//                        }
                     } else {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                         try {
