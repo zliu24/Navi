@@ -186,7 +186,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                     double angle = 0.0;
 
-                    if (i == pathPoints.length - 1) {
+                    if (i == pathPoints.length - 1 && this.destination) {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination_obj);
                         try {
                             objParser.parse();
@@ -194,7 +194,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
-                    } else {
+                    } else if (i < pathPoints.length - 1) {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                         try {
                             objParser.parse();
@@ -219,8 +219,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } else { // side1 > 0 && side2 > 0)
                             angle = 360-theta/Math.PI*180;
                         }
-                        
-                        /*
+
+                        /* In case one of them breaks
                         double side1 = (double)(pathPoints[i+1][0] - pathPoints[i][0]);
                         double side2 = -(double)(pathPoints[i+1][1] - pathPoints[i][1]);
                         double hypotenuse = Math.sqrt((side1 * side1) + (side2 * side2));
@@ -231,6 +231,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                             angle = 180 - theta / Math.PI * 180;
                         }
                         */
+                    } else {
+                        continue;
                     }
 
                     point.setPosition(pose);

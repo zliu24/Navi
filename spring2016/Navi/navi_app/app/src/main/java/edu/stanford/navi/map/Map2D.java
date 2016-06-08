@@ -61,7 +61,7 @@ public class Map2D {
     private int[][] path;
     private double scale_png2img;
     public double scale_img2graph = 0.25;
-    public float recalThres = 10000;
+    public float recalThres = 100;
     public float closeThres = 1;
 
     // load resource
@@ -249,7 +249,9 @@ public class Map2D {
         canvas.drawText("You are here!", imgX + 10, imgY - 10, paintCurLoc);
         float[] closestPt = getCurLocOnPath(imgX, imgY, position); // closestPtX, closestPtY, minDist, curIdx
         if (closestPt != null) {
-            canvas.drawCircle(closestPt[0], closestPt[1], 15, paintClosestPt);
+            if (Math.abs(closestPt[3] + 1.0f) >= 0.01) {
+                canvas.drawCircle(closestPt[0], closestPt[1], 15, paintClosestPt);
+            }
             return new float[] {closestPt[2], closestPt[3]};
         }
         return null; // return null if path is recalculated
@@ -264,7 +266,23 @@ public class Map2D {
 
     public float [][]getWorldPath(int curIdx) {
         assert(worldPath != null);
-        return worldPath;
+        float [][]ret;
+        if (isDestination(curIdx)) {
+            ret = new float[2][2];
+            ret[0][0] = worldPath[curIdx][0];
+            ret[0][1] = worldPath[curIdx][1];
+            ret[1][0] = worldPath[curIdx+1][0];
+            ret[1][1] = worldPath[curIdx+1][1];
+        } else {
+            ret = new float[3][2];
+            ret[0][0] = worldPath[curIdx][0];
+            ret[0][1] = worldPath[curIdx][1];
+            ret[1][0] = worldPath[curIdx+1][0];
+            ret[1][1] = worldPath[curIdx+1][1];
+            ret[2][0] = worldPath[curIdx+2][0];
+            ret[2][1] = worldPath[curIdx+2][1];
+        }
+        return ret;
     }
 
     public boolean isDestination(int curIdx) {
@@ -446,7 +464,7 @@ public class Map2D {
 
         if (minDist > recalThres) {
             computeAndDrawPath(imgX, imgY, position);
-            return null;
+            return new float[] {0, 0, 0, -1.0f};
         }
         return new float[] {closestPt[0], closestPt[1], (float)minDist, idx};
     }
