@@ -186,7 +186,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                     double angle = 0.0;
 
-                    if (i == pathPoints.length - 1) {
+                    if (i == pathPoints.length - 1 && this.destination) {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination_obj);
                         try {
                             objParser.parse();
@@ -194,7 +194,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
-                    } else {
+                    } else if (i < pathPoints.length - 1) {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                         try {
                             objParser.parse();
@@ -231,6 +231,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                             angle = 180 - theta / Math.PI * 180;
                         }
                         */
+                    } else {
+                        continue;
                     }
 
                     point.setPosition(pose);

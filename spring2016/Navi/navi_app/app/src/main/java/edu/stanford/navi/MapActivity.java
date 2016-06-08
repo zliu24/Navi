@@ -660,8 +660,16 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                             reSelect = false;
                                             minDist = ret[0];
                                             curIdx = (int) ret[1]; // 0 to n-2
+                                            isClose = map2D.isClose(worldCoor[0], worldCoor[1], curIdx+1);
+                                            isDest = map2D.isDestination(curIdx);
 
-                                            float[][] worldPath = map2D.getWorldPath(curIdx);
+                                            float[][] worldPath;
+                                            if ((!isDest) && isClose) {
+                                                worldPath = map2D.getWorldPath(curIdx + 1);
+                                            } else {
+                                                worldPath = map2D.getWorldPath(curIdx);
+                                            }
+
                                             System.out.println("Current Index: " + curIdx + "/" + (worldPath.length-1));
                                             mARRenderer.updatePathObject(worldPath, map2D.isDestination(curIdx));
                                         } else {
@@ -675,8 +683,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                         mARRenderer.updateFilterIcons(itemObjList);
                                         hasPassedItems = true;
                                     }
-
-                                    System.out.println(arrived + "!!!!!!");
+                                    
                                     if (arrived > 0) {
                                         arrived = arrived - 1;
                                         localize_text = (TextView) findViewById(R.id.localize_text);

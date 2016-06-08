@@ -249,7 +249,7 @@ public class Map2D {
         canvas.drawText("You are here!", imgX + 10, imgY - 10, paintCurLoc);
         float[] closestPt = getCurLocOnPath(imgX, imgY, position); // closestPtX, closestPtY, minDist, curIdx
         if (closestPt != null) {
-            if (Math.abs(closestPt[3] + 1.0f) <= 0.01) {
+            if (Math.abs(closestPt[3] + 1.0f) >= 0.01) {
                 canvas.drawCircle(closestPt[0], closestPt[1], 15, paintClosestPt);
             }
             return new float[] {closestPt[2], closestPt[3]};
@@ -266,7 +266,23 @@ public class Map2D {
 
     public float [][]getWorldPath(int curIdx) {
         assert(worldPath != null);
-        return worldPath;
+        float [][]ret;
+        if (isDestination(curIdx)) {
+            ret = new float[2][2];
+            ret[0][0] = worldPath[curIdx][0];
+            ret[0][1] = worldPath[curIdx][1];
+            ret[1][0] = worldPath[curIdx+1][0];
+            ret[1][1] = worldPath[curIdx+1][1];
+        } else {
+            ret = new float[3][2];
+            ret[0][0] = worldPath[curIdx][0];
+            ret[0][1] = worldPath[curIdx][1];
+            ret[1][0] = worldPath[curIdx+1][0];
+            ret[1][1] = worldPath[curIdx+1][1];
+            ret[2][0] = worldPath[curIdx+2][0];
+            ret[2][1] = worldPath[curIdx+2][1];
+        }
+        return ret;
     }
 
     public boolean isDestination(int curIdx) {
