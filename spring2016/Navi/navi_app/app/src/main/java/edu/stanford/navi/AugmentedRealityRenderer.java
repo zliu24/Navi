@@ -160,8 +160,8 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } else { // side1 > 0 && side2 > 0)
                             angle = 360-theta/Math.PI*180;
                         }
-                        
-                        /*
+
+                        /* In case one of them breaks
                         double side1 = (double)(pathPoints[i+1][0] - pathPoints[i][0]);
                         double side2 = -(double)(pathPoints[i+1][1] - pathPoints[i][1]);
                         double hypotenuse = Math.sqrt((side1 * side1) + (side2 * side2));

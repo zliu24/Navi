@@ -123,6 +123,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private boolean reSelect = false;
     int curIdx = -1;
     int arrived = 0;
+    int reCal = 0;
 
     // Instruction
     private boolean hasShownInstruction = false;
@@ -145,7 +146,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             categorySet.addAll(itemObjList.get(i).getCategories());
         }
         categoryList = new ArrayList<String>(categorySet);
-        System.out.println("After prepro: "  + itemObjList.toString());
+        System.out.println("After prepro: " + itemObjList.toString());
         setUpSpinner();
     }
 
@@ -159,7 +160,8 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {}
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
         });
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categoryList);
@@ -644,6 +646,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
                                     if (ret == null) {
                                         curIdx = -1;
+                                    } else if (Math.abs(ret[1] + 1.0f) <= 0.01) {
+                                        curIdx = -1;
+                                        reCal = 3;
                                     } else {
                                         boolean isClose = map2D.isClose(worldCoor[0], worldCoor[1], curIdx+1);
                                         boolean isDest = map2D.isDestination(curIdx);
@@ -672,6 +677,13 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                         localize_text.setPadding(20, 20, 20, 20);
                                         localize_text.setLayoutParams(params_localizing);
                                         localize_text.setText("You arrive at your destination.");
+                                    } else if (reCal > 0) {
+                                        reCal = reCal - 1;
+                                        localize_text = (TextView) findViewById(R.id.localize_text);
+                                        localize_text.setTextSize(60.0f);
+                                        localize_text.setPadding(20, 20, 20, 20);
+                                        localize_text.setLayoutParams(params_localizing);
+                                        localize_text.setText("Recalculating your path.");
                                     } else {
                                         localize_text = (TextView) findViewById(R.id.localize_text);
                                         localize_text.setTextSize(20.0f);
