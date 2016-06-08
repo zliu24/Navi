@@ -149,7 +149,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         e.printStackTrace();
                     }
 
-                    icon.setPosition(item.getCoord3D().getX(), 1.0, item.getCoord3D().getY());
+                    icon.setPosition(item.getCoord3D().getX(), 1.0, -item.getCoord3D().getY());
                     itemObjects.add(icon);
                     getCurrentScene().addChild(icon);
 
