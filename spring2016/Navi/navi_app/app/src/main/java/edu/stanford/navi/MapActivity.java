@@ -110,7 +110,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private int count;
     private int countDots;
     private float []worldCoor = {0, 0};
-    float []imgCoorDestimation;
     float []imgCoorCurrent;
     private int position = -1;
     FrameLayout.LayoutParams params_localizing;
@@ -188,37 +187,36 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
         Log.d(TAG, "Item selected with position: " + position);
         position = pos;
-        if (navigateBtn.isEnabled() == false) {
+        if (navigateBtn.isEnabled() == false && mIsRelocalized) {
             navigateBtn.setEnabled(true);
             navigateBtn.setAlpha(1.0f);
-        } else {
+        }
+        if(isNavigation){
             updateViewLayout(); // Toggle to map2D view
         }
-        imgCoorDestimation = map2D.getKeypoint(position);
+        if (mIsRelocalized) {
 
-        if (!mIsRelocalized) {
-            imgCoorCurrent = new float[] {100, 100};
+            long startTime = System.currentTimeMillis();
+            String currentName = parentView.getItemAtPosition(position).toString();
+            int currentPos = Arrays.asList(map2D.getKeypointsNames()).indexOf(currentName);
+            map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], currentPos); // also compute worldPath
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("That took " + (endTime - startTime) + " milliseconds");
+            map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+
+            imageView = (ImageView) findViewById(R.id.imageView);
+            imageView.setImageBitmap(map2D.imgBmp);
+
+            textView = (TextView) findViewById(R.id.textView);
+            textView.setText("Navigating to " + map2D.getKeypointName(position));
+            Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
+            textView.setTypeface(face);
+
+            reSelect = true;
+            curIdx = -1;
+
         }
-
-        long startTime = System.currentTimeMillis();
-        String currentName = parentView.getItemAtPosition(position).toString();
-        int currentPos = Arrays.asList(map2D.getKeypointsNames()).indexOf(currentName);
-        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], currentPos); // also compute worldPath
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("That took " + (endTime - startTime) + " milliseconds");
-        map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
-
-        imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageBitmap(map2D.imgBmp);
-
-        textView = (TextView) findViewById(R.id.textView);
-        textView.setText("Navigating to " + map2D.getKeypointName(position));
-        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
-        textView.setTypeface(face);
-
-        reSelect = true;
-        curIdx = -1;
     }
 
     @Override
@@ -256,68 +254,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
             }
 
         });
-
-//        imageView = (ImageView) findViewById(R.id.imageView);
-//        arView = (RelativeLayout) findViewById(R.id.ar_view);
-//
-//        isNavigation = false;
-//
-//        imageView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                System.out.println("click!" + isNavigation);
-//                if (!isNavigation) {
-//                    return;
-//                }
-//                isNavigation = false;
-//
-//                FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
-//                FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
-//                final float scale = getResources().getDisplayMetrics().density;
-//
-//                params1.height = (int) (80 * scale + 0.5f);
-//                params1.width = (int) (80 * scale + 0.5f);
-//                params1.topMargin = (int) (470 * scale + 0.5f);
-//                params1.leftMargin = (int) (75 * scale + 0.5f);
-//
-//                params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
-//                params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
-//                params2.topMargin = (int) (40 * scale + 0.5f);
-//                params2.leftMargin = (int) (280 * scale + 0.5f);
-//
-//                arView.setLayoutParams(params1);
-//                imageView.setLayoutParams(params2);
-//            }
-//        });
-//
-//        arView.setOnClickListener(new RelativeLayout.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                System.out.println("click!" + isNavigation);
-//                if (isNavigation) {
-//                    return;
-//                }
-//                isNavigation = true;
-//
-//                FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
-//                FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
-//                final float scale = getResources().getDisplayMetrics().density;
-//
-//                params1.height = (int)(450*scale + 0.5f);
-//                params1.width = (int)(690*scale + 0.5f);
-//                params1.topMargin = (int)(50*scale + 0.5f);
-//                params1.leftMargin = (int)(260*scale + 0.5f);
-//                params1.rightMargin = (int)(10*scale + 0.5f);
-//
-//                params2.height = (int)(80*scale + 0.5f);
-//                params2.width = (int)(80*scale + 0.5f);
-//                params2.topMargin = (int)(470*scale + 0.5f);
-//                params2.leftMargin = (int)(75*scale + 0.5f);
-//
-//                arView.setLayoutParams(params1);
-//                imageView.setLayoutParams(params2);
-//            }
-//        });
 
         count = 0;
         countDots = 0;
