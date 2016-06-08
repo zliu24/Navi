@@ -168,11 +168,11 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
             //Renderering path
 
             if (pathObjectUpdated) {
-                if(pathObjects != null && line != null) {
+                if(pathObjects != null) {
                     for(int i = 0; i < pathObjects.size(); i++) {
                         getCurrentScene().removeChild(pathObjects.get(i));
                     }
-                    getCurrentScene().removeChild(line);
+                    //getCurrentScene().removeChild(line);
                 }
 
                 pathObjects = new ArrayList<Object3D>();
