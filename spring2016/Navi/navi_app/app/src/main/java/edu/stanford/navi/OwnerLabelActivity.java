@@ -82,10 +82,11 @@ public class OwnerLabelActivity extends BaseActivity implements View.OnClickList
         setUpUI();
         setUpDefaultFilters();
 
-        mItemsObjList = (ArrayList<Item>) Utils.readJson(ADFName + ITEM_SUFFIX, this);
-        if(mItemsObjList.size() == 0) {
-            mItemsObjList = new ArrayList<Item>();
-        }
+        mItemsObjList = new ArrayList<Item>();
+//        mItemsObjList = (ArrayList<Item>) Utils.readJson(ADFName + ITEM_SUFFIX, this);
+//        if(mItemsObjList.size() == 0) {
+//            mItemsObjList = new ArrayList<Item>();
+//        }
 
         imageCoords = new ArrayList<Coordinate>();
     }
