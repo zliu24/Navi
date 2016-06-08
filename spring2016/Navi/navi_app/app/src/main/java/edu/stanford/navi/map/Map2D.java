@@ -29,6 +29,7 @@ import java.util.List;
 
 import edu.stanford.navi.OwnerLabelActivity;
 import edu.stanford.navi.OwnerMapActivity;
+import edu.stanford.navi.domain.Coordinate;
 import edu.stanford.navi.pathfinding.LazyThetaStar;
 import edu.stanford.navi.pathfinding.datatypes.GridGraph;
 
@@ -541,8 +542,15 @@ public class Map2D {
     public double getRaw2ImgScale() {
         return scale_png2img;
     }
+
     public Size getScreenSize() {
         return screenSize;
     }
 
+    public Coordinate raw2world(Coordinate raw) {
+        int x = (int) (raw.getX() * scale_png2img);
+        int y = (int) (raw.getY() * scale_png2img);
+        float[] coords3D = img2world(x,y);
+        return new Coordinate(coords3D[0], coords3D[1]);
+    }
 }

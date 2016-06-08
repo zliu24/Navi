@@ -143,8 +143,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         categorySet.add("None");
         for (int i = 0; i < itemObjList.size(); i++) {
             Coordinate coords2D = itemObjList.get(i).getCoord2D();
-            float[] coords3D = map2D.img2world((int) coords2D.getX(), (int) coords2D.getY());
-            itemObjList.get(i).setCoord3D(new Coordinate(coords3D[0], coords3D[1]));
+            itemObjList.get(i).setCoord3D(map2D.raw2world(coords2D));
             categorySet.addAll(itemObjList.get(i).getCategories());
         }
         categoryList = new ArrayList<String>(categorySet);

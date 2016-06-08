@@ -35,13 +35,10 @@ import org.rajawali3d.primitives.Cube;
 import org.rajawali3d.primitives.Line3D;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
-import edu.stanford.navi.domain.Coordinate;
 import edu.stanford.navi.domain.Item;
 
 /**
