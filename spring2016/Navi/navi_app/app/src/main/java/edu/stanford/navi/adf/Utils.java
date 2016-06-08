@@ -148,14 +148,6 @@ public class Utils {
         List<Item> items = new ArrayList<Item>();
         String jsonLoc = getJsonLoc();
         if (isSF) {
-//            items.add(new Item("Home Organization", new Coordinate(281f,181f), new HashSet<String>(asList("On Sale"))));
-//            items.add(new Item("Shortcut", new Coordinate(183f,145f), new HashSet<String>()));
-//            items.add(new Item("Hangers", new Coordinate(374f, 147f), new HashSet<String>()));
-//            items.add(new Item("Laundry Bags", new Coordinate(420f,184f), new HashSet<String>(asList("On Sale"))));
-//            items.add(new Item("Trash Can", new Coordinate(232f,258f), new HashSet<String>()));
-//            items.add(new Item("Baskets", new Coordinate(273f,269f), new HashSet<String>(asList("On Sale"))));
-//            items.add(new Item("Gift Wraps", new Coordinate(342f,238f), new HashSet<String>()));
-//            items.add(new Item("Organization Boxes", new Coordinate(402f,264f), new HashSet<String>(asList("On Sale"))));
         } else {
             items.add(new Item("Home Organization", new Coordinate(281f,181f), new HashSet<String>(asList("On Sale"))));
             items.add(new Item("Shortcut", new Coordinate(183f,145f), new HashSet<String>()));

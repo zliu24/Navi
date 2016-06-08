@@ -17,7 +17,6 @@
 package edu.stanford.navi;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
@@ -63,7 +62,6 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.rajawali3d.scene.ASceneFrameCallback;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -98,7 +96,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private ListView listOfRooms;
     private TextView localize_text;
     private RelativeLayout arView;
-    private boolean isNavigation = false;
+    private boolean isNavigation;
 
     private boolean hasPassedItems = false;
 
@@ -114,18 +112,19 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     private float []worldCoor = {0, 0};
     float []imgCoorDestimation;
     float []imgCoorCurrent;
+    private int position = -1;
     FrameLayout.LayoutParams params_localizing;
     FrameLayout.LayoutParams params_localized;
-    int curIdx = -1;
+
 
     // AR & camera
     private TangoRajawaliView mARView;
     private AugmentedRealityRenderer mARRenderer;
     private DeviceExtrinsics mExtrinsics;
     private double mCameraPoseTimestamp = 0;
-
-    private int position;
-    TextView navigateBtn;
+    private boolean reSelect = false;
+    int curIdx = -1;
+    int arrived = 0;
 
     // Instruction
     private boolean hasShownInstruction = false;
@@ -187,11 +186,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
     public void onItemClick(AdapterView<?> parentView, View v, int pos, long id) {
         Log.d(TAG, "Item selected with position: " + position);
         position = pos;
-        if (navigateBtn.isEnabled() == false) {
-            navigateBtn.setEnabled(true);
-            navigateBtn.setAlpha(1.0f);
-        }
-
         imgCoorDestimation = map2D.getKeypoint(position);
 
         if (!mIsRelocalized) {
@@ -199,14 +193,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         }
 
         long startTime = System.currentTimeMillis();
-        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
+        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position); // also compute worldPath
 
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds");
         map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
-        curIdx = 0;
-        float [][]worldPath = map2D.getWorldPath(curIdx);
-        mARRenderer.updatePathObject(worldPath, false);
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageBitmap(map2D.imgBmp);
@@ -215,6 +206,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         textView.setText("Navigating to " + map2D.getKeypointName(position));
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/AvenirNextLTPro-Demi.otf");
         textView.setTypeface(face);
+
+        reSelect = true;
+        curIdx = -1;
     }
 
     @Override
@@ -238,45 +232,63 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
 
         setupARViewAndRenderer(R.id.ar_view);
 
-        final Context context = this;
-        navigateBtn = (TextView) findViewById(R.id.navigate);
-        navigateBtn.setTypeface(face);
-        navigateBtn.setEnabled(false);
-        navigateBtn.setAlpha(.5f);
-        navigateBtn.setOnClickListener(new View.OnClickListener() {
+        imageView = (ImageView) findViewById(R.id.imageView);
+        arView = (RelativeLayout) findViewById(R.id.ar_view);
+
+        isNavigation = false;
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                arView = (RelativeLayout) findViewById(R.id.ar_view);
-                imageView = (ImageView) findViewById(R.id.imageView);
+                System.out.println("click!" + isNavigation);
+                if (!isNavigation) {
+                    return;
+                }
+                isNavigation = false;
+
                 FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
                 FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
                 final float scale = getResources().getDisplayMetrics().density;
 
-                if (!isNavigation) {
-                    isNavigation = true;
+                params1.height = (int) (80 * scale + 0.5f);
+                params1.width = (int) (80 * scale + 0.5f);
+                params1.topMargin = (int) (470 * scale + 0.5f);
+                params1.leftMargin = (int) (75 * scale + 0.5f);
 
-                    params1.height = (int)(400*scale + 0.5f);
-                    params1.width = (int)(610*scale + 0.5f);
-                    params1.topMargin = (int)(100*scale + 0.5f);
-                    params1.leftMargin = (int)(340*scale + 0.5f);
+                params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
+                params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
+                params2.topMargin = (int) (40 * scale + 0.5f);
+                params2.leftMargin = (int) (280 * scale + 0.5f);
 
-                    params2.height = (int)(80*scale + 0.5f);
-                    params2.width = (int)(80*scale + 0.5f);
-                    params2.topMargin = (int)(470*scale + 0.5f);
-                    params2.leftMargin = (int)(10*scale + 0.5f);
+                arView.setLayoutParams(params1);
+                imageView.setLayoutParams(params2);
+            }
+        });
 
-                    alert.show();
-                } else {
-                    isNavigation = false;
-                    params1.height = (int)(80*scale + 0.5f);
-                    params1.width = (int)(80*scale + 0.5f);
-                    params1.topMargin = (int)(470*scale + 0.5f);
-                    params1.leftMargin = (int)(10*scale + 0.5f);
-
-                    params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
-                    params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
-                    params2.topMargin = (int)(40*scale + 0.5f);
-                    params2.leftMargin = (int)(360*scale + 0.5f);
+        arView.setOnClickListener(new RelativeLayout.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("click!" + isNavigation);
+                if (isNavigation) {
+                    return;
                 }
+                isNavigation = true;
+
+                FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
+                FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+                final float scale = getResources().getDisplayMetrics().density;
+
+                params1.height = (int)(450*scale + 0.5f);
+                params1.width = (int)(690*scale + 0.5f);
+                params1.topMargin = (int)(50*scale + 0.5f);
+                params1.leftMargin = (int)(260*scale + 0.5f);
+                params1.rightMargin = (int)(10*scale + 0.5f);
+
+                params2.height = (int)(80*scale + 0.5f);
+                params2.width = (int)(80*scale + 0.5f);
+                params2.topMargin = (int)(470*scale + 0.5f);
+                params2.leftMargin = (int)(75*scale + 0.5f);
+
                 arView.setLayoutParams(params1);
                 imageView.setLayoutParams(params2);
             }
@@ -629,46 +641,53 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                             @Override
                             public void run() {
                                 if (mIsRelocalized) {
-                                    // return null if path is recalculated
-                                    float []ret = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position);
-                                    float minDist;
+                                    float []ret = map2D.drawCurLoc((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position); // minDist, curIdx
+                                    float minDist = -1;
+
                                     if (ret == null) {
-                                        minDist = -1;
-                                        curIdx = 0;
-                                        float [][]worldPath = map2D.getWorldPath(curIdx);
-                                        if (worldPath != null) {
-                                            mARRenderer.updatePathObject(worldPath, false);
-                                        }
-                                    } else if (((int) ret[1]) != curIdx) {
-                                        minDist = ret[0];
-                                        curIdx = (int) ret[1];
-                                        float [][]worldPath = map2D.getWorldPath(curIdx);
-                                        assert(worldPath != null);
-                                        boolean isDestination = false;
-                                        int len = map2D.getTotalPathLength();
-                                        if (curIdx >= len - 1) {
-                                            isDestination = true;
-                                        }
-                                        mARRenderer.updatePathObject(worldPath, isDestination);
+                                        curIdx = -1;
                                     } else {
-                                        minDist = ret[0];
+                                        boolean isClose = map2D.isClose(worldCoor[0], worldCoor[1], curIdx+1);
+                                        boolean isDest = map2D.isDestination(curIdx);
+                                        if (isClose && isDest) {
+                                            arrived = 5;
+                                        } else if (reSelect == true || ((int) ret[1]) != curIdx) {
+                                            reSelect = false;
+                                            minDist = ret[0];
+                                            curIdx = (int) ret[1]; // 0 to n-2
+
+                                            float[][] worldPath = map2D.getWorldPath(curIdx);
+                                            System.out.println("Current Index: " + curIdx + "/" + (worldPath.length-1));
+                                            mARRenderer.updatePathObject(worldPath, map2D.isDestination(curIdx));
+                                        } else {
+                                            minDist = ret[0];
+                                        }
                                     }
 
                                     imageView.setImageBitmap(map2D.imgBmp);
 
-                                    //Genie trying to pass the Item List to ARRenderer
                                     if(!hasPassedItems) {
                                         mARRenderer.updateFilterIcons(itemObjList);
                                         hasPassedItems = true;
                                     }
 
-                                    localize_text = (TextView) findViewById(R.id.localize_text);
-                                    localize_text.setTextSize(20.0f);
-                                    localize_text.setPadding(5, 5, 5, 5);
-                                    localize_text.setLayoutParams(params_localized);
-                                    localize_text.setText("[" + String.format("%.2f", worldCoor[0]) +
-                                            ", " + String.format("%.2f", worldCoor[1]) + "], minDist: " +
-                                            String.format("%.2f", minDist) + "/" + String.format("%.2f", map2D.minDistThres));
+                                    System.out.println(arrived + "!!!!!!");
+                                    if (arrived > 0) {
+                                        arrived = arrived - 1;
+                                        localize_text = (TextView) findViewById(R.id.localize_text);
+                                        localize_text.setTextSize(60.0f);
+                                        localize_text.setPadding(20, 20, 20, 20);
+                                        localize_text.setLayoutParams(params_localizing);
+                                        localize_text.setText("You arrive at your destination.");
+                                    } else {
+                                        localize_text = (TextView) findViewById(R.id.localize_text);
+                                        localize_text.setTextSize(20.0f);
+                                        localize_text.setPadding(5, 5, 5, 5);
+                                        localize_text.setLayoutParams(params_localized);
+                                        localize_text.setText("[" + String.format("%.2f", worldCoor[0]) +
+                                                ", " + String.format("%.2f", worldCoor[1]) + "], minDist: " +
+                                                String.format("%.2f", minDist) + "/" + String.format("%.2f", map2D.recalThres));
+                                    }
                                 } else {
                                     countDots++;
                                     localize_text = (TextView) findViewById(R.id.localize_text);
@@ -677,11 +696,11 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                                     localize_text.setLayoutParams(params_localizing);
 
                                     if (countDots%3 == 0) {
-                                        localize_text.setText("Localizing.");
+                                        localize_text.setText(R.string.localize_state1);
                                     } else if (countDots%3 == 1) {
-                                        localize_text.setText("Localizing..");
+                                        localize_text.setText(R.string.localize_state2);
                                     } else if (countDots%3 == 2) {
-                                        localize_text.setText("Localizing...");
+                                        localize_text.setText(R.string.localize_state3);
                                     }
                                 }
                             }
@@ -757,9 +776,6 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                     if (lastFramePose.statusCode == TangoPoseData.POSE_VALID) {
                         if (mIsRelocalized == false) {
                             Log.d(TAG, "Navigation view has localized. ");
-                            // mARRenderer.updatePathObject(path);
-
-
                             mIsRelocalized = true;
                         }
                         // Update the camera pose from the renderer
@@ -784,6 +800,42 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
                 return true;
             }
         });
+    }
 
+    private void updateViewLayout() {
+        arView = (RelativeLayout) findViewById(R.id.ar_view);
+        imageView = (ImageView) findViewById(R.id.imageView);
+        FrameLayout.LayoutParams params1 = (FrameLayout.LayoutParams) arView.getLayoutParams();
+        FrameLayout.LayoutParams params2 = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+        final float scale = getResources().getDisplayMetrics().density;
+
+        if (!isNavigation) {
+            isNavigation = true;
+
+            params1.height = (int)(400*scale + 0.5f);
+            params1.width = (int)(610*scale + 0.5f);
+            params1.topMargin = (int)(100*scale + 0.5f);
+            params1.leftMargin = (int)(340*scale + 0.5f);
+
+            params2.height = (int)(80*scale + 0.5f);
+            params2.width = (int)(80*scale + 0.5f);
+            params2.topMargin = (int)(470*scale + 0.5f);
+            params2.leftMargin = (int)(10*scale + 0.5f);
+
+            alert.show();
+        } else {
+            isNavigation = false;
+            params1.height = (int)(80*scale + 0.5f);
+            params1.width = (int)(80*scale + 0.5f);
+            params1.topMargin = (int)(470*scale + 0.5f);
+            params1.leftMargin = (int)(10*scale + 0.5f);
+
+            params2.height = FrameLayout.LayoutParams.MATCH_PARENT;
+            params2.width = FrameLayout.LayoutParams.MATCH_PARENT;
+            params2.topMargin = (int)(40*scale + 0.5f);
+            params2.leftMargin = (int)(360*scale + 0.5f);
+        }
+        arView.setLayoutParams(params1);
+        imageView.setLayoutParams(params2);
     }
 }

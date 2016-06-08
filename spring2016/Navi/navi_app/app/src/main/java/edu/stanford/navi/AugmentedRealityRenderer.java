@@ -180,13 +180,13 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
 
                 for(int i = 0; i < pathPoints.length; i++) {
                     // Transform to virtual reference system, where y is the altitude
-                    Vector3 pose = new Vector3(pathPoints[i][0],-1,-pathPoints[i][1]);
+                    Vector3 pose = new Vector3(pathPoints[i][0], -1, -pathPoints[i][1]);
 
                     Object3D point = new Cube(CUBE_SIDE_LENGTH); // default in case of parsing failure
 
                     double angle = 0.0;
 
-                    if(destination) {
+                    if (i == pathPoints.length - 1) {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.destination_obj);
                         try {
                             objParser.parse();
@@ -194,16 +194,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
-                    } else if (i == pathPoints.length - 1) {
-                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.sale_obj);
-                        try {
-                            objParser.parse();
-                            point = objParser.getParsedObject();
-                        } catch (ParsingException e) {
-                            e.printStackTrace();
-                        }
                     } else {
-
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                         try {
                             objParser.parse();
@@ -213,14 +204,33 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                             e.printStackTrace();
                         }
 
-                        //Calculate the angle at which to rotate the arrow
-                        double side1 = pathPoints[i][0] - pathPoints[i+1][0];
-                        double side2 = pathPoints[i][1] - pathPoints[i+1][1];
-                        double hypotenuse = Math.sqrt((side1*side1) + (side2*side2));
+                        // Calculate the angle at which to rotate the arrow
+                        double side1 = (double) (pathPoints[i + 1][0] - pathPoints[i][0]);
+                        double side2 = (double) (pathPoints[i + 1][1] - pathPoints[i][1]);
+                        double hypotenuse = Math.sqrt((side1 * side1) + (side2 * side2));
 
-                        double theta = Math.asin(side1/hypotenuse);
-
-                        angle = Math.toDegrees((Math.PI / 2) - theta) + 180;
+                        double theta = Math.asin(Math.abs(side2) / hypotenuse); // -pi to pi
+                        if (side1 > 0 && side2 < 0) {
+                            angle = theta/Math.PI*180;
+                        } else if (side1 < 0 && side2 < 0) {
+                            angle = 180-theta/Math.PI*180;
+                        } else if (side1 < 0 && side2 > 0) {
+                            angle = 180+theta/Math.PI*180;
+                        } else { // side1 > 0 && side2 > 0)
+                            angle = 360-theta/Math.PI*180;
+                        }
+                        
+                        /*
+                        double side1 = (double)(pathPoints[i+1][0] - pathPoints[i][0]);
+                        double side2 = -(double)(pathPoints[i+1][1] - pathPoints[i][1]);
+                        double hypotenuse = Math.sqrt((side1 * side1) + (side2 * side2));
+                        double theta = Math.asin(side2/hypotenuse); // -pi to pi
+                        if(side1 > 0) {
+                            angle = theta / Math.PI * 180; // 0 to 360
+                        }else {
+                            angle = 180 - theta / Math.PI * 180;
+                        }
+                        */
                     }
 
                     point.setPosition(pose);
@@ -249,7 +259,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
         pathObjectUpdated = true;
         this.pathPoints = pathPoints;
         this.destination = isDestination;
-        
     }
 
     public synchronized void updateFilterIcons(List<Item> itemList) {

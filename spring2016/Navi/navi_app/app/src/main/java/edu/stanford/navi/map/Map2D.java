@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +61,8 @@ public class Map2D {
     private int[][] path;
     private double scale_png2img;
     public double scale_img2graph = 0.25;
-    public float minDistThres = 200;
+    public float recalThres = 10000;
+    public float closeThres = 1;
 
     // load resource
     private String keypoints_txt = "keypoints.txt"; // for keypoints and keypointsNames
@@ -247,12 +247,12 @@ public class Map2D {
         drawKeyPoints();
         canvas.drawCircle(imgX, imgY, 15, paintCurLoc);
         canvas.drawText("You are here!", imgX + 10, imgY - 10, paintCurLoc);
-        float[] closestPt = getCurLocOnPath(imgX, imgY, position);
+        float[] closestPt = getCurLocOnPath(imgX, imgY, position); // closestPtX, closestPtY, minDist, curIdx
         if (closestPt != null) {
             canvas.drawCircle(closestPt[0], closestPt[1], 15, paintClosestPt);
             return new float[] {closestPt[2], closestPt[3]};
         }
-        return null;
+        return null; // return null if path is recalculated
     }
 
     public float[] getKeypoint(int position) {
@@ -262,22 +262,18 @@ public class Map2D {
         return keypoint;
     }
 
-    public float [][]getWorldPath(int startIdx) {
-        if (worldPath == null) {
-            System.out.println("getWorldPath returns null");
-            return null;
-        }
-        int len = worldPath.length;
-        float [][]ret = new float[2][2];
-        for (int i = 0; i < 2; i++) {
-            ret[i][0] = worldPath[startIdx+i][0];
-            ret[i][1] = worldPath[startIdx+i][1];
-        }
-        return ret;
+    public float [][]getWorldPath(int curIdx) {
+        assert(worldPath != null);
+        return worldPath;
     }
 
-    public int getTotalPathLength() {
-        return worldPath.length;
+    public boolean isDestination(int curIdx) {
+        assert(worldPath != null);
+        if (curIdx >= worldPath.length - 2) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String getKeypointName(int i) {
@@ -416,6 +412,18 @@ public class Map2D {
         return new float[] {x1 + u * px, y1 + u * py};
     }
 
+    public boolean isClose(float worldX, float worldY, int curIdx) {
+        float x = worldPath[curIdx][0] - worldX;
+        float y = worldPath[curIdx][1] - worldY;
+        System.out.println(x+", "+y+"???");
+        float dist = (float) x*x+y*y;
+        if (dist < closeThres) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private float[] getCurLocOnPath(int imgX, int imgY, int position) {
         double minDist = 999999999;
         float []closestPt = null;
@@ -436,7 +444,7 @@ public class Map2D {
             }
         }
 
-        if (minDist > minDistThres) {
+        if (minDist > recalThres) {
             computeAndDrawPath(imgX, imgY, position);
             return null;
         }
