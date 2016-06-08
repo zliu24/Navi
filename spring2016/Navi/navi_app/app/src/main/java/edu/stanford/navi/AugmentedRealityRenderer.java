@@ -135,14 +135,6 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         } catch (ParsingException e) {
                             e.printStackTrace();
                         }
-//                    } else if (i == pathPoints.length - 1) {
-//                        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.star);
-//                        try {
-//                            objParser.parse();
-//                            point = objParser.getParsedObject();
-//                        } catch (ParsingException e) {
-//                            e.printStackTrace();
-//                        }
                     } else {
                         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, R.raw.arrow_obj);
                         try {
@@ -154,6 +146,22 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         }
 
                         // Calculate the angle at which to rotate the arrow
+                        double side1 = (double) (pathPoints[i + 1][0] - pathPoints[i][0]);
+                        double side2 = (double) (pathPoints[i + 1][1] - pathPoints[i][1]);
+                        double hypotenuse = Math.sqrt((side1 * side1) + (side2 * side2));
+
+                        double theta = Math.asin(Math.abs(side2) / hypotenuse); // -pi to pi
+                        if (side1 > 0 && side2 < 0) {
+                            angle = theta/Math.PI*180;
+                        } else if (side1 < 0 && side2 < 0) {
+                            angle = 180-theta/Math.PI*180;
+                        } else if (side1 < 0 && side2 > 0) {
+                            angle = 180+theta/Math.PI*180;
+                        } else { // side1 > 0 && side2 > 0)
+                            angle = 360-theta/Math.PI*180;
+                        }
+                        
+                        /*
                         double side1 = (double)(pathPoints[i+1][0] - pathPoints[i][0]);
                         double side2 = -(double)(pathPoints[i+1][1] - pathPoints[i][1]);
                         double hypotenuse = Math.sqrt((side1 * side1) + (side2 * side2));
@@ -163,6 +171,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                         }else {
                             angle = 180 - theta / Math.PI * 180;
                         }
+                        */
                     }
 
                     point.setPosition(pose);
