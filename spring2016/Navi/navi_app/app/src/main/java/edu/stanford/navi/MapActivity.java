@@ -195,7 +195,9 @@ public class MapActivity extends BaseActivity implements View.OnClickListener, O
         }
 
         long startTime = System.currentTimeMillis();
-        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], position); // also compute worldPath
+        String currentName = parentView.getItemAtPosition(position).toString();
+        int currentPos = Arrays.asList(map2D.getKeypointsNames()).indexOf(currentName);
+        map2D.computeAndDrawPath((int) imgCoorCurrent[0], (int) imgCoorCurrent[1], currentPos); // also compute worldPath
 
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds");
