@@ -176,7 +176,7 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                 }
 
                 pathObjects = new ArrayList<Object3D>();
-                Stack<Vector3> stack = new Stack<Vector3>();
+                //Stack<Vector3> stack = new Stack<Vector3>();
 
                 for(int i = 0; i < pathPoints.length; i++) {
                     // Transform to virtual reference system, where y is the altitude
@@ -239,10 +239,10 @@ public class AugmentedRealityRenderer extends TangoRajawaliRenderer {
                     System.out.println("Adding checkpoint at " + pose);
                     getCurrentScene().addChild(point);
                     pathObjects.add(point);
-                    stack.push(pose);
+                    //stack.push(pose);
                 }
 
-                addLine(stack);
+                //addLine(stack);
                 pathObjectUpdated = false;
 
             }
