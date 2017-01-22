@@ -6,7 +6,7 @@
 
 ### Flowchart: 
 ------------------
-<img src="https://github.com/cs210/daqri-code/blob/master/document/img1.png" width="400">
+<img src="./document/img1.png" width="400">
 
 ### Technical Terms:
 ------------------
@@ -36,7 +36,7 @@
 * Calculate the optimal path. This problem can be modeled as an [Any-Angle Path Planning](https://en.wikipedia.org/wiki/Motion_planning) problem.
   * Algorithm: [Lazy Theta*](http://aigamedev.com/open/tutorial/lazy-theta-star/).
   
-<img src="https://github.com/cs210/daqri-code/blob/master/document/img2.png" width="300">
+<img src="./document/img2.png" width="300">
   
 ##### 3. AR / UI Compoent:
 * AR: Given the direction the user is facing (theta1) and the direction given by the optimal path (theta2), render the arrow in front of the user.
